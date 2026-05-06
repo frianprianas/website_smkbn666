@@ -141,18 +141,17 @@ const Home = () => {
             </div>
 
             {/* --- Navigation --- */}
-            <nav className="bg-white/90 backdrop-blur-md border-b border-blue-50 fixed w-full z-50 transition-all duration-300">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <header className="bg-white/90 backdrop-blur-md border-b border-blue-50 fixed w-full z-50 transition-all duration-300">
+                <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-20 items-center">
                         <div className="flex items-center gap-3">
-                            <img src="/static/images/logo-school.png" alt="SMK Bakti Nusantara 666" className="h-12 md:h-14 object-contain drop-shadow-sm" />
-                            <div className="flex flex-col">
+                            <img src="/static/images/logo-school.png" alt="Logo SMK Bakti Nusantara 666" className="h-12 md:h-14 object-contain drop-shadow-sm" />
+                            <div className="flex flex-col text-left">
                                 <span className="font-bold text-xl md:text-2xl text-blue-900 leading-none">SMK Bakti Nusantara 666</span>
                                 <span className="text-xs text-blue-500 font-medium tracking-widest uppercase">Santun, Jujur, Taat</span>
                             </div>
                         </div>
                         <div className="hidden md:flex items-center gap-6">
-                            {/* Add simple nav links for "Full" feeling */}
                             <Link to="#" className="text-gray-600 hover:text-blue-600 font-medium text-sm transition-colors">Profil</Link>
                             <Link to="#" className="text-gray-600 hover:text-blue-600 font-medium text-sm transition-colors">Jurusan</Link>
                             <Link to="#" className="text-gray-600 hover:text-blue-600 font-medium text-sm transition-colors">Berita</Link>
@@ -164,11 +163,13 @@ const Home = () => {
                             </Link>
                         </div>
                     </div>
-                </div>
-            </nav>
+                </nav>
+            </header>
+
+            <main>
 
             {/* --- Hero Section --- */}
-            <div className="relative h-[85vh] min-h-[600px] flex items-center justify-center overflow-hidden">
+            <section className="relative h-[85vh] min-h-[600px] flex items-center justify-center overflow-hidden">
                 <div className="absolute inset-0 z-0">
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 via-blue-900/40 to-transparent z-10"></div>
                     <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent z-10"></div>
@@ -227,8 +228,8 @@ const Home = () => {
                 </motion.div>
             </div>
 
-            {/* --- Stats Counter Section (New) --- */}
-            <div className="relative z-30 -mt-20 px-4">
+            {/* --- Stats Counter Section --- */}
+            <section className="relative z-30 -mt-20 px-4">
                 <div className="max-w-7xl mx-auto rounded-3xl bg-blue-600 text-white shadow-2xl p-8 md:p-12 flex flex-col md:flex-row justify-between items-center gap-8 md:gap-4 overflow-hidden relative">
                     <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full mix-blend-overlay blur-3xl -translate-y-1/2 translate-x-1/2"></div>
@@ -244,7 +245,7 @@ const Home = () => {
                             className="flex items-center gap-4 relative z-10 w-full md:w-auto border-b md:border-b-0 border-white/20 pb-4 md:pb-0 last:border-0 last:pb-0 rounded-xl p-4 transition-colors"
                         >
                             <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm shadow-inner">
-                                <stat.icon className="w-8 h-8 text-white" />
+                                <stat.icon className="w-8 h-8 text-white" aria-hidden="true" />
                             </div>
                             <div>
                                 <h4 className="text-3xl font-bold flex items-baseline">
@@ -256,10 +257,10 @@ const Home = () => {
                         </motion.div>
                     ))}
                 </div>
-            </div>
+            </section>
 
             {/* --- Info Dashboard Grid --- */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-6 auto-rows-[minmax(180px,auto)]">
 
                     {/* Welcome/About Snippet (Wide) */}
@@ -391,7 +392,7 @@ const Home = () => {
             </div>
 
             {/* --- Majors (Programs) Section --- */}
-            <div className="py-24 relative bg-slate-50 border-y border-slate-200">
+            <section className="py-24 relative bg-slate-50 border-y border-slate-200">
                 {/* Parallax Background Text */}
                 <div className="absolute top-10 left-0 w-full overflow-hidden pointer-events-none opacity-[0.03]">
                     <h2 className="text-[15rem] font-black text-gray-900 whitespace-nowrap -translate-x-10">PROGRAMS PROGRAMS</h2>
@@ -474,7 +475,7 @@ const Home = () => {
             </div>
 
             {/* --- News Section --- */}
-            <div className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <section className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 border-l-4 border-blue-600 pl-4">Berita Terbaru</h2>
                     <Link to="#" className="text-gray-500 hover:text-blue-600 hidden md:block">Lihat Semua</Link>
@@ -483,19 +484,19 @@ const Home = () => {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                     {/* Featured News (Large) */}
                     {news.length > 0 && (
-                        <div className="md:col-span-2 bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100 group relative h-full min-h-[400px]">
+                        <article className="md:col-span-2 bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100 group relative h-full min-h-[400px]">
                             <img src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${news[0].image_url}`} alt={news[0].title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex flex-col justify-end p-8 text-white">
                                 <span className="bg-blue-600 px-3 py-1 rounded-full text-xs font-bold w-fit mb-3">{new Date(news[0].date_posted).toLocaleDateString()}</span>
                                 <h3 className="text-2xl font-bold mb-2 group-hover:text-blue-300 transition-colors">{news[0].title}</h3>
                                 <p className="line-clamp-2 text-gray-300 text-sm">{news[0].content}</p>
                             </div>
-                        </div>
+                        </article>
                     )}
                     {/* Secondary News */}
                     <div className="md:col-span-2 flex flex-col gap-6">
                         {news.slice(1, 4).map((item) => (
-                            <div key={item.id} className="flex gap-4 items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all">
+                            <article key={item.id} className="flex gap-4 items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all">
                                 <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0">
                                     <img src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${item.image_url}`} alt={item.title} className="w-full h-full object-cover" />
                                 </div>
@@ -505,15 +506,15 @@ const Home = () => {
                                     </div>
                                     <h4 className="font-bold text-gray-900 line-clamp-2 hover:text-blue-600 transition-colors cursor-pointer">{item.title}</h4>
                                 </div>
-                            </div>
+                            </article>
                         ))}
                         {news.length === 0 && <p className="text-gray-400">Loading news...</p>}
                     </div>
                 </div>
-            </div>
+            </section>
 
-            {/* --- Testimonials / Social Proof (New) --- */}
-            <div className="py-20 bg-blue-50 border-y border-blue-100">
+            {/* --- Testimonials --- */}
+            <section className="py-20 bg-blue-50 border-y border-blue-100">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                     <h2 className="text-3xl font-bold text-gray-900 mb-12">Apa Kata Mereka?</h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -544,7 +545,7 @@ const Home = () => {
             </div>
 
             {/* --- Gallery Grid --- */}
-            <div className="py-24 max-w-7xl mx-auto px-4">
+            <section className="py-24 max-w-7xl mx-auto px-4">
                 <div className="text-center mb-12">
                     <span className="text-blue-600 font-bold text-sm tracking-widest uppercase">Dokumentasi</span>
                     <h2 className="text-3xl font-bold text-gray-900 mt-2">Galeri Aktivitas</h2>
@@ -569,19 +570,20 @@ const Home = () => {
                 </div>
             </div>
 
-            {/* --- Partners (Grayscale to Color) --- */}
-            <div className="py-16 border-t border-gray-100">
+            {/* --- Partners --- */}
+            <section className="py-16 border-t border-gray-100">
                 <div className="max-w-7xl mx-auto px-4 text-center">
                     <p className="text-gray-400 text-sm font-bold uppercase tracking-widest mb-10">Trusted Partners</p>
                     <div className="flex flex-wrap justify-center items-center gap-12 grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
                         {partners.map((partner) => (
                             <div key={partner.id} className="w-24 h-16 flex items-center justify-center">
-                                <img src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${partner.logo_url}`} alt={partner.name} className="max-w-full max-h-full object-contain" title={partner.name} />
+                                <img src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${partner.logo_url}`} alt={`Logo Partner ${partner.name}`} className="max-w-full max-h-full object-contain" title={partner.name} />
                             </div>
                         ))}
                     </div>
                 </div>
-            </div>
+            </section>
+        </main>
 
             {/* --- Mega Footer --- */}
             <footer className="bg-slate-900 text-white pt-20 pb-10 rounded-t-[3rem] mt-10">
