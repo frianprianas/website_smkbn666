@@ -64,9 +64,9 @@ const Home = () => {
     // Removed static testimonials
 
     const images = [
-        '/images/login-bg-1.jpg',
-        '/images/login-bg-2.jpg',
-        '/images/login-bg-3.jpg'
+        '/static/images/login-bg-1.jpg',
+        '/static/images/login-bg-2.jpg',
+        '/static/images/login-bg-3.jpg'
     ];
 
     // --- Effects ---
@@ -116,10 +116,10 @@ const Home = () => {
     }, [teachers]);
 
     const displayGallery = gallery.length > 0 ? gallery : [
-        { image_url: "/images/teaching-factory.jpg", title: "Teaching Factory", id: "def1" },
-        { image_url: "/images/ceremony.jpg", title: "Upacara Bendera", id: "def2" },
-        { image_url: "/images/achievement.jpg", title: "Prestasi Siswa", id: "def3" },
-        { image_url: "/images/band.jpg", title: "Ekstrakurikuler", id: "def4" }
+        { image_url: "/static/images/teaching-factory.jpg", title: "Teaching Factory", id: "def1" },
+        { image_url: "/static/images/ceremony.jpg", title: "Upacara Bendera", id: "def2" },
+        { image_url: "/static/images/achievement.jpg", title: "Prestasi Siswa", id: "def3" },
+        { image_url: "/static/images/band.jpg", title: "Ekstrakurikuler", id: "def4" }
     ];
 
     return (
@@ -145,7 +145,7 @@ const Home = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-20 items-center">
                         <div className="flex items-center gap-3">
-                            <img src="/images/logo-school.png" alt="SMK Bakti Nusantara 666" className="h-12 md:h-14 object-contain drop-shadow-sm" />
+                            <img src="/static/images/logo-school.png" alt="SMK Bakti Nusantara 666" className="h-12 md:h-14 object-contain drop-shadow-sm" />
                             <div className="flex flex-col">
                                 <span className="font-bold text-xl md:text-2xl text-blue-900 leading-none">SMK Bakti Nusantara 666</span>
                                 <span className="text-xs text-blue-500 font-medium tracking-widest uppercase">Santun, Jujur, Taat</span>
@@ -449,7 +449,7 @@ const Home = () => {
             {/* --- Video / CTA Profile Section (New) --- */}
             <div className="py-24 relative overflow-hidden flex items-center justify-center bg-gray-900">
                 <div className="absolute inset-0 opacity-40">
-                    <img src="/images/login-bg-3.jpg" alt="Background" className="w-full h-full object-cover grayscale brightness-50" />
+                    <img src="/static/images/login-bg-3.jpg" alt="Background" className="w-full h-full object-cover grayscale brightness-50" />
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-gray-900"></div>
 
@@ -589,7 +589,7 @@ const Home = () => {
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
                         <div className="col-span-1 md:col-span-1">
                             <div className="flex items-center gap-3 mb-6">
-                                <img src="/images/logo-school.png" alt="Logo" className="w-12 h-12 object-contain" />
+                                <img src="/static/images/logo-school.png" alt="Logo" className="w-12 h-12 object-contain" />
                                 <span className="font-bold text-xl">SMK Bakti Nusantara 666</span>
                             </div>
                             <p className="text-slate-400 text-sm leading-relaxed mb-6">
