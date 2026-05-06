@@ -89,10 +89,12 @@ def get_mailcow_counts():
 
         for mb in data:
             tags = [t.lower() for t in mb.get("tags", [])]
-            if "siswa" in tags:
-                siswa_count += 1
-            if "guru" in tags or "tu" in tags:
+            is_staff = "guru" in tags or "tu" in tags
+            if is_staff:
                 staff_count += 1
+            else:
+                # Siapapun yang bukan Guru/TU dihitung sebagai Siswa
+                siswa_count += 1
 
         return {
             "siswa": siswa_count,
