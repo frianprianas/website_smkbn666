@@ -84,7 +84,7 @@ const Home = () => {
         const fetchData = async () => {
             try {
                 const [resMajors, resNews, resGallery, resPartners, resTeachers, resTestimonials, resAgendas, resStats] = await Promise.all([
-                    api.get('/majors'),
+                    api.get('/majors/'),
                     api.get('/news/'),
                     api.get('/gallery/'),
                     api.get('/partners/'),
