@@ -70,6 +70,36 @@ def sync_mailcow_data(db: Session):
             "staff": {"created": staff_created, "updated": staff_updated}
         }
 
+def get_mailcow_counts():
+    headers = {"X-API-Key": MAILCOW_API_KEY}
+    try:
+        resp = requests.get(f"{MAILCOW_API_URL}/api/v1/get/mailbox/all", headers=headers)
+        if resp.status_code != 200:
+            return {"error": f"Mailcow API error: {resp.status_code}"}
+        
+        data = resp.json()
+        if not isinstance(data, list):
+            return {"error": "Unexpected response format"}
+
+        siswa_count = 0
+        staff_count = 0
+
+        for mb in data:
+            tags = [t.lower() for t in mb.get("tags", [])]
+            if "siswa" in tags:
+                siswa_count += 1
+            if "guru" in tags or "tu" in tags:
+                staff_count += 1
+
+        return {
+            "siswa": siswa_count,
+            "staff": staff_count
+        }
+
+    except Exception as e:
+        print(f"Count error: {e}")
+        return {"error": str(e)}
+
     except Exception as e:
         print(f"Sync error: {e}")
         return {"error": str(e)}

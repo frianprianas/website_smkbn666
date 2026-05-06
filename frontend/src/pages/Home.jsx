@@ -22,6 +22,7 @@ const Home = () => {
     const [agendas, setAgendas] = useState([]);
     const [isFacebookModalOpen, setIsFacebookModalOpen] = useState(false);
     const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+    const [dynamicStats, setDynamicStats] = useState([]);
 
     // --- Refs for Scroll Effects ---
     const targetRef = useRef(null);
@@ -55,12 +56,12 @@ const Home = () => {
     };
 
     // --- Data Mockups (for "Full" feeling) ---
-    const stats = [
-        { label: "Siswa Aktif", value: 1500, suffix: "+", icon: Users },
-        { label: "Guru & Staff", value: 120, suffix: "+", icon: School },
-        { label: "Mitra Industri", value: 50, suffix: "+", icon: Activity },
-        { label: "Prestasi", value: 200, suffix: "+", icon: Award },
-    ];
+    const iconMap = {
+        Users: Users,
+        School: School,
+        BookOpen: BookOpen,
+        Award: Award
+    };
 
     // Removed static testimonials
 
@@ -82,14 +83,15 @@ const Home = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [resMajors, resNews, resGallery, resPartners, resTeachers, resTestimonials, resAgendas] = await Promise.all([
+                const [resMajors, resNews, resGallery, resPartners, resTeachers, resTestimonials, resAgendas, resStats] = await Promise.all([
                     api.get('/majors'),
                     api.get('/news/'),
                     api.get('/gallery/'),
                     api.get('/partners/'),
                     api.get('/staff/teachers/'),
                     api.get('/testimonials/'),
-                    api.get('/agenda/')
+                    api.get('/agenda/'),
+                    api.get('/stats/')
                 ]);
 
                 setMajors(resMajors.data);
@@ -98,6 +100,7 @@ const Home = () => {
                 setPartners(resPartners.data);
                 setTestimonials(resTestimonials.data);
                 setAgendas(resAgendas.data);
+                setDynamicStats(resStats.data);
 
                 const relevantPositions = ["Kepala Sekolah", "Wakasek Bid Kurikulum", "Wakasek Bid Kesiswaan", "Wakasek Bid Sarpras", "Wakasek Bid Hubin", "Kepala Komli RPL", "Kepala Komli DKV", "Kepala Komli Animasi", "Kepala Komli AKT", "Kepala Komli Pemasaran", "Kepala Urusan TU", "Koordinator Keagamaan"];
                 setTeachers(resTeachers.data.filter(t => relevantPositions.includes(t.position)));
@@ -237,7 +240,7 @@ const Home = () => {
                         <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full mix-blend-overlay blur-3xl -translate-y-1/2 translate-x-1/2"></div>
                         <div className="absolute bottom-0 left-0 w-64 h-64 bg-white rounded-full mix-blend-overlay blur-3xl translate-y-1/2 -translate-x-1/2"></div>
                     </div>
-                    {stats.map((stat, idx) => (
+                    {dynamicStats.map((stat, idx) => (
                         <motion.div
                             key={idx}
                             initial={{ opacity: 0, y: 20 }}
@@ -247,7 +250,7 @@ const Home = () => {
                             className="flex items-center gap-4 relative z-10 w-full md:w-auto border-b md:border-b-0 border-white/20 pb-4 md:pb-0 last:border-0 last:pb-0 rounded-xl p-4 transition-colors"
                         >
                             <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm shadow-inner">
-                                <stat.icon className="w-8 h-8 text-white" aria-hidden="true" />
+                                {React.createElement(iconMap[stat.icon] || Users, { className: "w-8 h-8 text-white", "aria-hidden": "true" })}
                             </div>
                             <div>
                                 <h4 className="text-3xl font-bold flex items-baseline">
