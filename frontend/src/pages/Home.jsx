@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import {
     School, ArrowRight, BookOpen, Users, Trophy, Facebook, Instagram, Youtube,
     Video, MessageCircle, ChevronRight, GraduationCap, Star,
-    PlayCircle, MapPin, Calendar, Clock, Award, Activity
+    PlayCircle, MapPin, Calendar, Clock, Award, Activity,
+    HardDrive, Mail, Laptop, Cloud, ShieldCheck
 } from 'lucide-react';
 import { motion, AnimatePresence, useScroll, useTransform, animate, useInView } from 'framer-motion';
 import api from '../api';
@@ -475,6 +476,73 @@ const Home = () => {
                 </div>
             </section>
 
+            {/* --- Baknus Ecosystem Section (New) --- */}
+            <section className="py-24 bg-gradient-to-b from-white to-blue-50/30 overflow-hidden">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-16">
+                        <motion.span 
+                            initial={{ opacity: 0, y: 10 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            className="text-blue-600 font-black tracking-[0.2em] uppercase text-xs mb-3 block"
+                        >
+                            Digital Ecosystem
+                        </motion.span>
+                        <motion.h2 
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            className="text-4xl md:text-5xl font-black text-gray-900 mb-6"
+                        >
+                            Layanan Digital <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Baknus BN666</span>
+                        </motion.h2>
+                        <motion.p 
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            className="text-gray-500 max-w-2xl mx-auto text-lg"
+                        >
+                            Ekosistem teknologi terintegrasi untuk mendukung proses belajar mengajar dan administrasi sekolah yang lebih efisien.
+                        </motion.p>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+                        {[
+                            { name: 'Baknus Attend', sub: 'Presensi Siswa', url: 'https://baknusattend.smkbn666.sch.id', icon: Clock, color: 'from-orange-400 to-red-500', shadow: 'shadow-orange-200' },
+                            { name: 'Baknus Drive', sub: 'Penyimpanan Data', url: 'https://baknusdrive.smkbn666.sch.id', icon: HardDrive, color: 'from-blue-400 to-indigo-500', shadow: 'shadow-blue-200' },
+                            { name: 'Baknus Class', sub: 'Belajar Online', url: 'https://baknusclass.smkbn666.sch.id', icon: Laptop, color: 'from-emerald-400 to-teal-500', shadow: 'shadow-emerald-200' },
+                            { name: 'Baknus Mail', sub: 'Email Sekolah', url: 'https://baknusmail.smkbn666.sch.id', icon: Mail, color: 'from-purple-400 to-violet-500', shadow: 'shadow-purple-200' },
+                            { name: 'Baknus Meet', sub: 'Kelas Online', url: 'https://baknusmeet.smkbn666.sch.id', icon: Video, color: 'from-pink-400 to-rose-500', shadow: 'shadow-pink-200' },
+                        ].map((item, idx) => (
+                            <motion.a
+                                key={idx}
+                                href={item.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                whileInView={{ opacity: 1, scale: 1 }}
+                                whileHover={{ y: -10 }}
+                                transition={{ delay: idx * 0.1 }}
+                                className="relative group cursor-pointer"
+                            >
+                                <div className={`h-full bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-xl ${item.shadow} hover:shadow-2xl transition-all duration-500 flex flex-col items-center text-center overflow-hidden`}>
+                                    <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${item.color} opacity-0 group-hover:opacity-100 transition-opacity`}></div>
+                                    <div className={`absolute -right-8 -top-8 w-24 h-24 bg-gradient-to-br ${item.color} opacity-[0.03] group-hover:opacity-[0.08] rounded-full transition-all duration-700 group-hover:scale-150`}></div>
+                                    
+                                    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${item.color} p-4 mb-6 shadow-lg transform group-hover:rotate-12 transition-transform duration-500`}>
+                                        <item.icon className="w-full h-full text-white" />
+                                    </div>
+                                    
+                                    <h3 className="font-black text-gray-900 text-lg mb-1 group-hover:text-blue-600 transition-colors">{item.name}</h3>
+                                    <p className="text-gray-400 text-xs font-medium uppercase tracking-wider">{item.sub}</p>
+                                    
+                                    <div className="mt-6 p-2 rounded-full bg-gray-50 group-hover:bg-blue-50 transition-colors">
+                                        <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-blue-600" />
+                                    </div>
+                                </div>
+                            </motion.a>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
             {/* --- Video / CTA Profile Section (New) --- */}
             <div className="py-24 relative overflow-hidden flex items-center justify-center bg-gray-900">
                 <div className="absolute inset-0 opacity-40">
@@ -685,20 +753,13 @@ const Home = () => {
                         </div>
 
                         <div>
-                            <h4 className="font-bold text-lg mb-6 text-white">Hubungi Kami</h4>
-                            <ul className="space-y-4 text-slate-400 text-sm">
-                                <li className="flex gap-3">
-                                    <MapPin className="w-5 h-5 text-blue-500 shrink-0" />
-                                    Jl. Percobaan No. 65, Cileunyi, Kab. Bandung, Jawa Barat.
-                                </li>
-                                <li className="flex gap-3">
-                                    <MessageCircle className="w-5 h-5 text-blue-500 shrink-0" />
-                                    info@smkbn666.sch.id
-                                </li>
-                                <li className="flex gap-3">
-                                    <Clock className="w-5 h-5 text-blue-500 shrink-0" />
-                                    Senin - Jumat: 07.00 - 16.00
-                                </li>
+                            <h4 className="font-bold text-lg mb-6 text-white">Eksosistem Baknus</h4>
+                            <ul className="space-y-3 text-slate-400 text-sm">
+                                <li><a href="https://baknusattend.smkbn666.sch.id" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors">Baknus Attend</a></li>
+                                <li><a href="https://baknusdrive.smkbn666.sch.id" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors">Baknus Drive</a></li>
+                                <li><a href="https://baknusclass.smkbn666.sch.id" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors">Baknus Class</a></li>
+                                <li><a href="https://baknusmail.smkbn666.sch.id" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors">Baknus Mail</a></li>
+                                <li><a href="https://baknusmeet.smkbn666.sch.id" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors">Baknus Meet</a></li>
                             </ul>
                         </div>
                     </div>
