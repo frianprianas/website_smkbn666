@@ -14,6 +14,7 @@ import ManageTestimonials from './pages/ManageTestimonials';
 import ManageAgenda from './pages/ManageAgenda';
 import Home from './pages/Home';
 import MajorsPage from './pages/MajorsPage';
+import MajorDetail from './pages/MajorDetail';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/majors" element={<MajorsPage />} />
+        <Route path="/majors/:slug" element={<MajorDetail />} />
         <Route path="/login" element={<Login />} />
 
         {/* Protected Routes */}

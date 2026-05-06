@@ -354,14 +354,22 @@ const MajorsPage = () => {
                                             </div>
 
                                             {/* CTA */}
-                                            <a
-                                                href="https://spmb.smkbn666.sch.id"
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className={`w-full flex items-center justify-center gap-2 bg-gradient-to-r ${meta.gradient} text-white py-4 rounded-2xl font-bold text-sm hover:opacity-90 transition-opacity shadow-lg`}
-                                            >
-                                                Daftar di Jurusan Ini <ArrowRight className="w-4 h-4" />
-                                            </a>
+                                            <div className="flex gap-4">
+                                                <Link
+                                                    to={`/majors/${getSlug(selected.name)}`}
+                                                    className={`flex-1 flex items-center justify-center gap-2 border-2 border-${meta.color}-600 ${meta.accent} py-4 rounded-2xl font-bold text-sm hover:bg-${meta.color}-50 transition-colors`}
+                                                >
+                                                    Lihat Halaman Penuh
+                                                </Link>
+                                                <a
+                                                    href="https://spmb.smkbn666.sch.id"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className={`flex-1 flex items-center justify-center gap-2 bg-gradient-to-r ${meta.gradient} text-white py-4 rounded-2xl font-bold text-sm hover:opacity-90 transition-opacity shadow-lg`}
+                                                >
+                                                    Daftar SPMB <ArrowRight className="w-4 h-4" />
+                                                </a>
+                                            </div>
                                         </div>
                                     </>
                                 );
