@@ -85,7 +85,7 @@ const ManageMajors = () => {
                         <div className="flex justify-between items-start mb-3">
                             <div className="p-3 bg-pink-50 rounded-lg overflow-hidden w-12 h-12 flex items-center justify-center">
                                 {major.logo_url ? (
-                                    <img src={`http://localhost:8000${major.logo_url}`} alt={major.name} className="w-full h-full object-cover" />
+                                    <img src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${major.logo_url}`} alt={major.name} className="w-full h-full object-cover" />
                                 ) : (
                                     <Bookmark className="w-6 h-6 text-pink-500" />
                                 )}

@@ -82,7 +82,7 @@ const ManageGallery = () => {
                 {gallery.map((item) => (
                     <div key={item.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden group hover:shadow-md transition-all">
                         <div className="relative h-48">
-                            <img src={`http://localhost:8000${item.image_url}`} alt={item.title || "Gallery"} className="w-full h-full object-cover" />
+                            <img src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${item.image_url}`} alt={item.title || "Gallery"} className="w-full h-full object-cover" />
                             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                 <button
                                     onClick={() => handleDelete(item.id)}

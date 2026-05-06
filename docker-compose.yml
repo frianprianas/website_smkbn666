@@ -4,9 +4,10 @@ services:
   db:
     image: postgres:15-alpine
     container_name: smkbn666_db
+    restart: always
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: ${DB_USER:-admin}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
       POSTGRES_DB: smkbn666
     ports:
       - "5432:5432"
@@ -16,10 +17,11 @@ services:
   backend:
     build: ./backend
     container_name: smkbn666_backend
+    restart: always
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql://admin:password@db:5432/smkbn666
+      - DATABASE_URL=postgresql://${DB_USER:-admin}:${DB_PASSWORD:-password}@db:5432/smkbn666
       - MAIL_HOST=mail.smk.baktinusantara666.sch.id
       - IMAP_PORT=993
       - SMTP_PORT=465
@@ -29,20 +31,19 @@ services:
     depends_on:
       - db
     volumes:
-      - ./backend:/app
+      - ./backend/static:/app/static
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        - VITE_API_URL=https://smkbn666.sch.id
     container_name: smkbn666_frontend
+    restart: always
     ports:
-      - "5173:5173"
-    environment:
-      - VITE_API_URL=http://localhost:8000
+      - "3000:80"
     depends_on:
       - backend
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
 
 volumes:
   postgres_data:

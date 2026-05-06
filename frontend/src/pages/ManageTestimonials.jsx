@@ -102,7 +102,7 @@ const ManageTestimonials = () => {
                         <div className="flex items-start gap-4 mb-4">
                             <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 flex-shrink-0">
                                 {t.image_url ? (
-                                    <img src={`http://localhost:8000${t.image_url}`} alt={t.name} className="w-full h-full object-cover" />
+                                    <img src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${t.image_url}`} alt={t.name} className="w-full h-full object-cover" />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center text-gray-400">
                                         <User className="w-6 h-6" />

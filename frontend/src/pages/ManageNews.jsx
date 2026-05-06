@@ -86,7 +86,7 @@ const ManageNews = () => {
                         <div className="flex justify-between items-start">
                             <div className="flex gap-4">
                                 {item.image_url && (
-                                    <img src={`http://localhost:8000${item.image_url}`} alt={item.title} className="w-32 h-24 object-cover rounded-lg" />
+                                    <img src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${item.image_url}`} alt={item.title} className="w-32 h-24 object-cover rounded-lg" />
                                 )}
                                 <div>
                                     <h3 className="text-xl font-bold text-gray-800 mb-2 flex items-center gap-2">

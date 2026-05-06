@@ -84,7 +84,7 @@ const ManagePartners = () => {
                             <Trash2 className="w-4 h-4" />
                         </button>
                         <div className="w-32 h-32 flex items-center justify-center p-2">
-                            <img src={`http://localhost:8000${partner.logo_url}`} alt={partner.name} className="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300" />
+                            <img src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${partner.logo_url}`} alt={partner.name} className="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300" />
                         </div>
                         <h3 className="font-semibold text-gray-800 text-center">{partner.name}</h3>
                     </div>

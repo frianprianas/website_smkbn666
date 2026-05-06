@@ -94,7 +94,7 @@ const ManageTeachers = () => {
                             <tr key={teacher.id} className="hover:bg-gray-50/50 transition-colors">
                                 <td className="px-6 py-4">
                                     {teacher.photo_url ? (
-                                        <img src={`http://localhost:8000${teacher.photo_url}`} alt={teacher.name} className="w-10 h-10 rounded-full object-cover" />
+                                        <img src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${teacher.photo_url}`} alt={teacher.name} className="w-10 h-10 rounded-full object-cover" />
                                     ) : (
                                         <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">?</div>
                                     )}

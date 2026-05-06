@@ -292,7 +292,7 @@ const Home = () => {
                                         >
                                             {teachers[currentTeacherIndex].photo_url ? (
                                                 <img
-                                                    src={`http://localhost:8000${teachers[currentTeacherIndex].photo_url}`}
+                                                    src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${teachers[currentTeacherIndex].photo_url}`}
                                                     alt={teachers[currentTeacherIndex].name}
                                                     className="w-full h-full object-cover"
                                                 />
@@ -425,7 +425,7 @@ const Home = () => {
                                     <div className="absolute bottom-4 left-4 text-white">
                                         <div className="p-2 bg-white/20 backdrop-blur-md rounded-lg w-fit mb-2">
                                             {major.logo_url ? (
-                                                <img src={`http://localhost:8000${major.logo_url}`} alt={major.name} className="w-8 h-8 object-contain" />
+                                                <img src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${major.logo_url}`} alt={major.name} className="w-8 h-8 object-contain" />
                                             ) : (
                                                 <BookOpen className="w-6 h-6 text-white" />
                                             )}
@@ -484,7 +484,7 @@ const Home = () => {
                     {/* Featured News (Large) */}
                     {news.length > 0 && (
                         <div className="md:col-span-2 bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100 group relative h-full min-h-[400px]">
-                            <img src={`http://localhost:8000${news[0].image_url}`} alt={news[0].title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                            <img src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${news[0].image_url}`} alt={news[0].title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex flex-col justify-end p-8 text-white">
                                 <span className="bg-blue-600 px-3 py-1 rounded-full text-xs font-bold w-fit mb-3">{new Date(news[0].date_posted).toLocaleDateString()}</span>
                                 <h3 className="text-2xl font-bold mb-2 group-hover:text-blue-300 transition-colors">{news[0].title}</h3>
@@ -497,7 +497,7 @@ const Home = () => {
                         {news.slice(1, 4).map((item) => (
                             <div key={item.id} className="flex gap-4 items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all">
                                 <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0">
-                                    <img src={`http://localhost:8000${item.image_url}`} alt={item.title} className="w-full h-full object-cover" />
+                                    <img src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${item.image_url}`} alt={item.title} className="w-full h-full object-cover" />
                                 </div>
                                 <div>
                                     <div className="flex items-center gap-2 text-xs text-gray-400 mb-1">
@@ -522,7 +522,7 @@ const Home = () => {
                                 <div className="w-16 h-16 rounded-full border-4 border-white shadow-md absolute -top-8 left-1/2 -translate-x-1/2 overflow-hidden bg-gray-200">
                                     {/* Avatar */}
                                     {t.image_url ? (
-                                        <img src={`http://localhost:8000${t.image_url}`} alt={t.name} className="w-full h-full object-cover" />
+                                        <img src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${t.image_url}`} alt={t.name} className="w-full h-full object-cover" />
                                     ) : (
                                         <div className="w-full h-full bg-blue-200 flex items-center justify-center text-blue-600 font-bold">{t.name[0]}</div>
                                     )}
@@ -557,7 +557,7 @@ const Home = () => {
                             whileHover={{ scale: 0.98 }}
                         >
                             <img
-                                src={img.image_url ? (img.image_url.startsWith('/') ? `http://localhost:8000${img.image_url}` : img.image_url) : img.src}
+                                src={img.image_url ? (img.image_url.startsWith('/') ? `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${img.image_url}` : img.image_url) : img.src}
                                 alt={img.title}
                                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                             />
@@ -576,7 +576,7 @@ const Home = () => {
                     <div className="flex flex-wrap justify-center items-center gap-12 grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
                         {partners.map((partner) => (
                             <div key={partner.id} className="w-24 h-16 flex items-center justify-center">
-                                <img src={`http://localhost:8000${partner.logo_url}`} alt={partner.name} className="max-w-full max-h-full object-contain" title={partner.name} />
+                                <img src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${partner.logo_url}`} alt={partner.name} className="max-w-full max-h-full object-contain" title={partner.name} />
                             </div>
                         ))}
                     </div>
