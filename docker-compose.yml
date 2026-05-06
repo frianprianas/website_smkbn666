@@ -37,7 +37,7 @@ services:
     build:
       context: ./frontend
       args:
-        - VITE_API_URL=http://smkbn666.sch.id
+        - VITE_API_URL=https://smkbn666.sch.id
     container_name: smkbn666_frontend
     restart: always
     ports:
