@@ -69,6 +69,9 @@ def sync_mailcow_data(db: Session):
             "teachers": {"created": teachers_created, "updated": teachers_updated},
             "staff": {"created": staff_created, "updated": staff_updated}
         }
+    except Exception as e:
+        print(f"Sync error: {e}")
+        return {"error": str(e)}
 
 def get_mailcow_counts():
     headers = {"X-API-Key": MAILCOW_API_KEY}
@@ -98,10 +101,6 @@ def get_mailcow_counts():
 
     except Exception as e:
         print(f"Count error: {e}")
-        return {"error": str(e)}
-
-    except Exception as e:
-        print(f"Sync error: {e}")
         return {"error": str(e)}
 
 if __name__ == "__main__":
