@@ -627,7 +627,7 @@ const Home = () => {
                     </div>
                     <div className="rounded-3xl overflow-hidden shadow-2xl border border-gray-100 h-[450px] relative">
                         <iframe 
-                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m12!1m3!1d3960.528437943441!2d107.7399738!3d-6.9411233!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68c26786859663%3A0xc02e3427f7112046!2sSMK%20Bakti%20Nusantara%20666!5e0!3m2!1sid!2sid!4v1715000000000!5m2!1sid!2sid" 
+                            src="https://maps.google.com/maps?q=-6.941123,107.739974&t=&z=15&ie=UTF8&iwloc=&output=embed" 
                             width="100%" 
                             height="100%" 
                             style={{ border: 0 }} 
