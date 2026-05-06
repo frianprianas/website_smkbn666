@@ -643,10 +643,10 @@ const Home = () => {
                             <h4 className="font-bold text-lg mb-6 text-white">Program Keahlian</h4>
                             <ul className="space-y-3 text-slate-400 text-sm">
                                 <li><Link to="/majors" className="hover:text-blue-400 transition-colors">Rekayasa Perangkat Lunak</Link></li>
+                                <li><Link to="/majors" className="hover:text-blue-400 transition-colors">Akuntansi dan Keuangan Lembaga</Link></li>
                                 <li><Link to="/majors" className="hover:text-blue-400 transition-colors">Desain Komunikasi Visual</Link></li>
                                 <li><Link to="/majors" className="hover:text-blue-400 transition-colors">Animasi</Link></li>
-                                <li><Link to="/majors" className="hover:text-blue-400 transition-colors">Akuntansi</Link></li>
-                                <li><Link to="/majors" className="hover:text-blue-400 transition-colors">Pemasaran</Link></li>
+                                <li><Link to="/majors" className="hover:text-blue-400 transition-colors">Bisnis Daring dan Pemasaran</Link></li>
                             </ul>
                         </div>
 

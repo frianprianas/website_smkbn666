@@ -26,7 +26,15 @@ const majorMeta = {
         icon: BookOpen,
         highlights: ['Pemrograman Web & Mobile', 'Database Management', 'UI/UX Design', 'Keamanan Siber'],
         prospek: ['Web Developer', 'Mobile Developer', 'UI/UX Designer', 'Software Engineer', 'Data Analyst'],
-        color: 'violet',
+    },
+    akl: {
+        gradient: 'from-emerald-600 to-teal-600',
+        lightBg: 'bg-emerald-50',
+        accent: 'text-emerald-600',
+        badge: 'bg-emerald-100 text-emerald-700',
+        icon: BookOpen,
+        highlights: ['Akuntansi Digital', 'Perpajakan', 'Software Akuntansi (Zahir, MYOB)', 'Laporan Keuangan Lembaga'],
+        prospek: ['Akuntan', 'Staf Keuangan', 'Auditor', 'Tax Consultant', 'Teller Bank'],
     },
     dkv: {
         gradient: 'from-pink-600 to-rose-600',
@@ -36,7 +44,6 @@ const majorMeta = {
         icon: BookOpen,
         highlights: ['Adobe Creative Suite', 'Fotografi & Videografi', 'Branding & Identitas Visual', 'Ilustrasi Digital'],
         prospek: ['Graphic Designer', 'Content Creator', 'Fotografer', 'Videografer', 'Art Director'],
-        color: 'pink',
     },
     animasi: {
         gradient: 'from-orange-500 to-amber-600',
@@ -46,27 +53,15 @@ const majorMeta = {
         icon: BookOpen,
         highlights: ['Animasi 2D & 3D', 'Motion Graphics', 'Visual Effects (VFX)', 'Game Development'],
         prospek: ['Animator', 'Motion Designer', 'Game Developer', 'VFX Artist', 'Storyboard Artist'],
-        color: 'orange',
     },
-    akuntansi: {
-        gradient: 'from-emerald-600 to-teal-600',
-        lightBg: 'bg-emerald-50',
-        accent: 'text-emerald-600',
-        badge: 'bg-emerald-100 text-emerald-700',
-        icon: BookOpen,
-        highlights: ['Akuntansi Digital', 'Perpajakan', 'Software Akuntansi (Zahir, MYOB)', 'Laporan Keuangan'],
-        prospek: ['Akuntan', 'Staf Keuangan', 'Auditor', 'Tax Consultant', 'Wirausaha'],
-        color: 'emerald',
-    },
-    pemasaran: {
+    bdp: {
         gradient: 'from-sky-500 to-cyan-600',
         lightBg: 'bg-sky-50',
         accent: 'text-sky-600',
         badge: 'bg-sky-100 text-sky-700',
         icon: BookOpen,
-        highlights: ['Digital Marketing', 'E-Commerce', 'Retail & Customer Service', 'Komunikasi Bisnis'],
-        prospek: ['Marketing Executive', 'Social Media Manager', 'E-Commerce Specialist', 'Sales Manager'],
-        color: 'sky',
+        highlights: ['Digital Marketing', 'E-Commerce & Marketplace', 'Strategi Penjualan Online', 'Komunikasi Bisnis'],
+        prospek: ['Digital Marketer', 'Social Media Manager', 'E-Commerce Specialist', 'Sales Manager', 'Entrepreneur'],
     },
 };
 
@@ -77,10 +72,10 @@ function getSlug(name) {
 function getMeta(name) {
     const n = name.toLowerCase();
     if (n.includes('perangkat lunak') || n.includes('rpl')) return majorMeta.rpl;
+    if (n.includes('keuangan') || n.includes('akl') || n.includes('akuntansi')) return majorMeta.akl;
     if (n.includes('komunikasi visual') || n.includes('dkv')) return majorMeta.dkv;
     if (n.includes('animasi')) return majorMeta.animasi;
-    if (n.includes('akuntansi')) return majorMeta.akuntansi;
-    if (n.includes('pemasaran')) return majorMeta.pemasaran;
+    if (n.includes('bisnis') || n.includes('pemasaran') || n.includes('bdp')) return majorMeta.bdp;
     return majorMeta.default;
 }
 
