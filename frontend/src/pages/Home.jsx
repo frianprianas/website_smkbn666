@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
-    School, ArrowRight, BookOpen, Users, Trophy, Facebook, Instagram,
+    School, ArrowRight, BookOpen, Users, Trophy, Facebook, Instagram, Youtube,
     Video, MessageCircle, ChevronRight, GraduationCap, Star,
     PlayCircle, MapPin, Calendar, Clock, Award, Activity
 } from 'lucide-react';
@@ -467,9 +467,14 @@ const Home = () => {
                         <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
                             Lihat bagaimana kami menciptakan lingkungan belajar yang inspiratif dan menyenangkan bagi setiap siswa.
                         </p>
-                        <button className="bg-blue-600 hover:bg-blue-500 text-white px-10 py-4 rounded-full font-bold transition-all shadow-lg hover:shadow-blue-600/50">
+                        <a 
+                            href="https://spmb.smkbn666.sch.id" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="bg-blue-600 hover:bg-blue-500 text-white px-10 py-4 rounded-full font-bold transition-all shadow-lg hover:shadow-blue-600/50 block"
+                        >
                             Daftar Sekarang (SPMB)
-                        </button>
+                        </a>
                     </motion.div>
                 </div>
             </div>
@@ -598,9 +603,12 @@ const Home = () => {
                                 Sekolah Pusat Keunggulan yang mencetak generasi kompeten dengan karakter Santun, Jujur, dan Taat.
                             </p>
                             <div className="flex gap-4">
-                                <div className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer"><Facebook className="w-5 h-5" /></div>
-                                <div className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-pink-600 transition-colors cursor-pointer"><Instagram className="w-5 h-5" /></div>
-                                <div className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-black border border-slate-700 transition-colors cursor-pointer"><Video className="w-5 h-5" /></div>
+                                <a href="https://www.facebook.com/smkbn666" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer" title="Facebook @smkbn666"><Facebook className="w-5 h-5" /></a>
+                                <a href="https://www.instagram.com/smkbaktinusantara666" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-pink-600 transition-colors cursor-pointer" title="Instagram @smkbaktinusantara666"><Instagram className="w-5 h-5" /></a>
+                                <a href="https://www.tiktok.com/@smkbaktinusantara666" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-black border border-slate-700 transition-colors cursor-pointer" title="TikTok @smkbaktinusantara666">
+                                    <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.17-2.89-.6-4.13-1.47V18.5c0 1.34-.35 2.61-1.02 3.73-.67 1.12-1.61 2.03-2.73 2.68-1.12.65-2.39 1.01-3.73 1.01-1.34 0-2.61-.36-3.73-1.01-1.12-.65-2.06-1.56-2.73-2.68C3.71 21.11 3.35 19.84 3.35 18.5c0-1.34.36-2.61 1.02-3.73.67-1.12 1.61-2.03 2.73-2.68 1.12-.65 2.39-1.01 3.73-1.01 1.34 0 2.61.36 3.73 1.01.28.16.54.34.78.54V0z"/></svg>
+                                </a>
+                                <a href="https://www.youtube.com/@BaknusTV" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors cursor-pointer" title="YouTube Baknus TV"><Youtube className="w-5 h-5" /></a>
                             </div>
                         </div>
 
@@ -619,7 +627,7 @@ const Home = () => {
                             <h4 className="font-bold text-lg mb-6 text-white">Tautan Cepat</h4>
                             <ul className="space-y-3 text-slate-400 text-sm">
                                 <li><a href="https://prakerin.smkbn666.sch.id" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors">Prakerin (PKL)</a></li>
-                                <li><a href="http://spmb.smkbn666.sch.id:10007" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors">Info SPMB</a></li>
+                                <li><a href="https://spmb.smkbn666.sch.id" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors">Info SPMB</a></li>
                                 <li><a href="http://erapor.smkbn666.sch.id:3154" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors">E-Rapor</a></li>
                                 <li><a href="https://daring.smkbn666.sch.id" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors">LMS / Daring</a></li>
                                 <li className="hover:text-blue-400 cursor-pointer">Karir Alumni</li>
