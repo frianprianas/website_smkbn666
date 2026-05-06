@@ -19,7 +19,7 @@ services:
     container_name: smkbn666_backend
     restart: always
     ports:
-      - "8000:8000"
+      - "8001:8000"
     environment:
       - DATABASE_URL=postgresql://${DB_USER:-admin}:${DB_PASSWORD:-password}@db:5432/smkbn666
       - MAIL_HOST=mail.smk.baktinusantara666.sch.id
