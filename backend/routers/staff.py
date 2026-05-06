@@ -11,6 +11,15 @@ router = APIRouter(
     tags=["staff"],
 )
 
+from sync_mailcow_data import sync_mailcow_data
+
+@router.post("/sync")
+def sync_with_mailcow(db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_active_admin)):
+    result = sync_mailcow_data(db)
+    if "error" in result:
+        raise HTTPException(status_code=500, detail=result["error"])
+    return result
+
 # Unique Structural Positions
 UNIQUE_POSITIONS = [
     "Kepala Sekolah",
@@ -94,11 +103,12 @@ def delete_teacher(teacher_id: int, db: Session = Depends(database.get_db), curr
 def create_staff(
     name: str = Form(...),
     position: str = Form(...),
+    nipy: Optional[str] = Form(None),
     db: Session = Depends(database.get_db),
     current_user: models.User = Depends(auth.get_current_active_admin)
 ):
     # For now, generic Staff has no strict unique constraint requests, only Teachers.
-    new_staff = models.Staff(name=name, position=position)
+    new_staff = models.Staff(name=name, position=position, nipy=nipy)
     db.add(new_staff)
     db.commit()
     db.refresh(new_staff)

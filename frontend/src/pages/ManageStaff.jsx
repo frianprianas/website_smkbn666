@@ -54,13 +54,23 @@ const ManageStaff = () => {
                     <h1 className="text-2xl font-bold text-gray-800">Data Tata Usaha</h1>
                     <p className="text-gray-500">Manage administrative staff</p>
                 </div>
-                <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
-                >
-                    <Plus className="w-4 h-4" />
-                    Add Staff
-                </button>
+                <div className="flex gap-2">
+                    <button
+                        onClick={handleSync}
+                        disabled={syncing}
+                        className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
+                    >
+                        <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
+                        {syncing ? 'Syncing...' : 'Sync Mailcow'}
+                    </button>
+                    <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+                    >
+                        <Plus className="w-4 h-4" />
+                        Add Staff
+                    </button>
+                </div>
             </div>
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -101,6 +111,15 @@ const ManageStaff = () => {
                     <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
                         <h2 className="text-xl font-bold mb-4">Add New Staff</h2>
                         <form onSubmit={handleSubmit} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">NIPY (Optional)</label>
+                                <input
+                                    type="text"
+                                    value={formData.nipy}
+                                    onChange={(e) => setFormData({ ...formData, nipy: e.target.value })}
+                                    className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                />
+                            </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
                                 <input

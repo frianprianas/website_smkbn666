@@ -35,6 +35,7 @@ class Teacher(Base):
 class Staff(Base):
     __tablename__ = "staff"
     id = Column(Integer, primary_key=True, index=True)
+    nipy = Column(String, unique=True, index=True, nullable=True)
     name = Column(String, index=True)
     position = Column(String)
 

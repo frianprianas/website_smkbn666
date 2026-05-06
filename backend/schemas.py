@@ -57,6 +57,7 @@ class Teacher(TeacherBase):
         from_attributes = True
 
 class StaffBase(BaseModel):
+    nipy: Optional[str] = None
     name: str
     position: str
 
