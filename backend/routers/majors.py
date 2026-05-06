@@ -26,12 +26,12 @@ def create_major(
     logo_url = None
     if logo:
         # Create static/images directory if not exists
-        os.makedirs("static/images", exist_ok=True)
+        os.makedirs(os.path.join("static", "images"), exist_ok=True)
         
         # Generate unique filename
         file_extension = logo.filename.split(".")[-1]
         filename = f"{uuid.uuid4()}.{file_extension}"
-        file_path = f"static/images/{filename}"
+        file_path = os.path.join("static", "images", filename)
         
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(logo.file, buffer)
@@ -66,8 +66,7 @@ def update_major(
     db_major.description = description
 
     if logo:
-        # Create static/images directory if not exists
-        os.makedirs("static/images", exist_ok=True)
+        os.makedirs(os.path.join("static", "images"), exist_ok=True)
         
         # Start: Optional - Delete old logo if exists
         # if db_major.logo_url:

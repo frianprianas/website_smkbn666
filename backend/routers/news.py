@@ -29,12 +29,12 @@ def create_news(
     image_url = None
     if image:
         # Create static/images directory if not exists
-        os.makedirs("static/images", exist_ok=True)
+        os.makedirs(os.path.join("static", "images"), exist_ok=True)
         
         # Generate unique filename
         file_extension = os.path.splitext(image.filename)[1]
         unique_filename = f"{uuid.uuid4()}{file_extension}"
-        file_path = f"static/images/{unique_filename}"
+        file_path = os.path.join("static", "images", unique_filename)
         
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(image.file, buffer)

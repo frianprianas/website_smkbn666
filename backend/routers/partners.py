@@ -18,10 +18,10 @@ def create_partner(
     db: Session = Depends(database.get_db),
     current_user: models.User = Depends(auth.get_permission_partners)
 ):
-    os.makedirs("static/partners", exist_ok=True)
+    os.makedirs(os.path.join("static", "partners"), exist_ok=True)
     file_extension = os.path.splitext(logo.filename)[1]
     unique_filename = f"{uuid.uuid4()}{file_extension}"
-    file_path = f"static/partners/{unique_filename}"
+    file_path = os.path.join("static", "partners", unique_filename)
     
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(logo.file, buffer)

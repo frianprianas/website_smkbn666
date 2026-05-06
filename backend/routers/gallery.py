@@ -20,12 +20,12 @@ def create_gallery_item(
     current_user: models.User = Depends(auth.get_permission_gallery)
 ):
     # Ensure static/gallery directory exists
-    os.makedirs("static/gallery", exist_ok=True)
+    os.makedirs(os.path.join("static", "gallery"), exist_ok=True)
     
     # Generate unique filename
     file_extension = os.path.splitext(image.filename)[1]
     unique_filename = f"{uuid.uuid4()}{file_extension}"
-    file_path = f"static/gallery/{unique_filename}"
+    file_path = os.path.join("static", "gallery", unique_filename)
     
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(image.file, buffer)

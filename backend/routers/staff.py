@@ -52,10 +52,12 @@ def create_teacher(
 
     photo_url = None
     if photo:
-        os.makedirs("static/teachers", exist_ok=True)
+        os.makedirs(os.path.join("static", "teachers"), exist_ok=True)
+        
+        # Generate unique filename
         file_extension = os.path.splitext(photo.filename)[1]
         unique_filename = f"{uuid.uuid4()}{file_extension}"
-        file_path = f"static/teachers/{unique_filename}"
+        file_path = os.path.join("static", "teachers", unique_filename)
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(photo.file, buffer)
         photo_url = f"/static/teachers/{unique_filename}"

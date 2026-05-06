@@ -24,12 +24,12 @@ def create_testimonial(
     image_url = None
     if image:
         # Create static/testimonials directory if not exists
-        os.makedirs("static/testimonials", exist_ok=True)
+        os.makedirs(os.path.join("static", "testimonials"), exist_ok=True)
         
         # Generate unique filename
-        file_extension = image.filename.split(".")[-1]
-        filename = f"{uuid.uuid4()}.{file_extension}"
-        file_path = f"static/testimonials/{filename}"
+        file_extension = os.path.splitext(image.filename)[1]
+        filename = f"{uuid.uuid4()}{file_extension}"
+        file_path = os.path.join("static", "testimonials", filename)
         
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(image.file, buffer)
@@ -87,10 +87,11 @@ def update_testimonial(
     db_testimonial.rating = rating
 
     if image:
-        os.makedirs("static/testimonials", exist_ok=True)
-        file_extension = image.filename.split(".")[-1]
-        filename = f"{uuid.uuid4()}.{file_extension}"
-        file_path = f"static/testimonials/{filename}"
+        os.makedirs(os.path.join("static", "testimonials"), exist_ok=True)
+        
+        file_extension = os.path.splitext(image.filename)[1]
+        filename = f"{uuid.uuid4()}{file_extension}"
+        file_path = os.path.join("static", "testimonials", filename)
         
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(image.file, buffer)

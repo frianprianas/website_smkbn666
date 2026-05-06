@@ -7,6 +7,43 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 import schemas, database, models
+import os
+import requests
+import imaplib
+from dotenv import load_dotenv
+
+load_dotenv()
+
+MAIL_HOST = os.getenv("MAIL_HOST", "mail.smk.baktinusantara666.sch.id")
+IMAP_PORT = int(os.getenv("IMAP_PORT", "993"))
+MAILCOW_API_URL = os.getenv("MAILCOW_API_URL", "http://mail.smk.baktinusantara666.sch.id")
+MAILCOW_API_KEY = os.getenv("MAILCOW_API_KEY", "925B68-0FF6BB-36B760-F6C051-AAF343")
+
+def authenticate_mailcow(username, password):
+    try:
+        mail = imaplib.IMAP4_SSL(MAIL_HOST, IMAP_PORT)
+        mail.login(username, password)
+        mail.logout()
+        
+        headers = {"X-API-Key": MAILCOW_API_KEY}
+        resp = requests.get(f"{MAILCOW_API_URL}/api/v1/get/mailbox/{username}", headers=headers)
+        if resp.status_code == 200:
+            data = resp.json()
+            if isinstance(data, list) and len(data) > 0:
+                tags = data[0].get("tags", [])
+                
+                role = "siswa"
+                if "Admin" in tags:
+                    role = "admin"
+                elif "Guru" in tags:
+                    role = "guru"
+                elif "Siswa" in tags:
+                    role = "siswa"
+                return {"username": username, "role": role}
+        return {"username": username, "role": "siswa"}
+    except Exception as e:
+        print(f"Mailcow auth error: {e}")
+        return None
 
 SECRET_KEY = "YOUR_SUPER_SECRET_KEY_CHANGE_THIS"
 ALGORITHM = "HS256"
@@ -57,12 +94,12 @@ def get_current_active_admin(current_user: models.User = Depends(get_current_use
     return current_user
 
 def get_current_authorized_user(current_user: models.User = Depends(get_current_user)):
-    if current_user.role not in ["admin", "kontributor", "contributor"]:
+    if current_user.role not in ["admin", "kontributor", "contributor", "guru"]:
         raise HTTPException(status_code=403, detail="Not authorized")
     return current_user
 
 def check_permission(user: models.User, permission: str):
-    if user.role == "admin":
+    if user.role in ["admin", "guru"]:
         return True
     perms = (user.permissions or "").split(",")
     if permission in perms:
