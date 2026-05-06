@@ -20,6 +20,8 @@ MAILCOW_API_URL = os.getenv("MAILCOW_API_URL", "http://mail.smk.baktinusantara66
 MAILCOW_API_KEY = os.getenv("MAILCOW_API_KEY", "925B68-0FF6BB-36B760-F6C051-AAF343")
 
 def authenticate_mailcow(username, password):
+    if "@" not in username:
+        username = f"{username}@smk.baktinusantara666.sch.id"
     try:
         mail = imaplib.IMAP4_SSL(MAIL_HOST, IMAP_PORT)
         mail.login(username, password)
@@ -29,15 +31,23 @@ def authenticate_mailcow(username, password):
         resp = requests.get(f"{MAILCOW_API_URL}/api/v1/get/mailbox/{username}", headers=headers)
         if resp.status_code == 200:
             data = resp.json()
+            mailbox_data = None
             if isinstance(data, list) and len(data) > 0:
-                tags = data[0].get("tags", [])
+                mailbox_data = data[0]
+            elif isinstance(data, dict):
+                mailbox_data = data
+            
+            if mailbox_data:
+                tags = [t.lower() for t in mailbox_data.get("tags", [])]
                 
                 role = "siswa"
-                if "Admin" in tags:
+                if "admin" in tags:
                     role = "admin"
-                elif "Guru" in tags:
+                elif "guru" in tags:
                     role = "guru"
-                elif "Siswa" in tags:
+                elif "tu" in tags:
+                    role = "tu"
+                elif "siswa" in tags:
                     role = "siswa"
                 return {"username": username, "role": role}
         return {"username": username, "role": "siswa"}
@@ -94,12 +104,12 @@ def get_current_active_admin(current_user: models.User = Depends(get_current_use
     return current_user
 
 def get_current_authorized_user(current_user: models.User = Depends(get_current_user)):
-    if current_user.role not in ["admin", "kontributor", "contributor", "guru"]:
+    if current_user.role not in ["admin", "kontributor", "contributor", "guru", "tu"]:
         raise HTTPException(status_code=403, detail="Not authorized")
     return current_user
 
 def check_permission(user: models.User, permission: str):
-    if user.role in ["admin", "guru"]:
+    if user.role in ["admin", "guru", "tu"]:
         return True
     perms = (user.permissions or "").split(",")
     if permission in perms:

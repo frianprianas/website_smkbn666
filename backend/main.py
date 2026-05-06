@@ -33,9 +33,9 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     mailcow_user = auth.authenticate_mailcow(form_data.username, form_data.password)
     
     if mailcow_user:
-        user = db.query(models.User).filter(models.User.username == form_data.username).first()
+        user = db.query(models.User).filter(models.User.username == mailcow_user['username']).first()
         if not user:
-            user = models.User(username=form_data.username, role=mailcow_user['role'], hashed_password="")
+            user = models.User(username=mailcow_user['username'], role=mailcow_user['role'], hashed_password="")
             db.add(user)
             db.commit()
             db.refresh(user)
