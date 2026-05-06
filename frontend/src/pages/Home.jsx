@@ -226,7 +226,7 @@ const Home = () => {
                         <div className="w-1 h-3 bg-white/50 rounded-full"></div>
                     </div>
                 </motion.div>
-            </div>
+            </section>
 
             {/* --- Stats Counter Section --- */}
             <section className="relative z-30 -mt-20 px-4">
@@ -389,7 +389,7 @@ const Home = () => {
                         ))}
                     </div>
                 </div>
-            </div>
+            </section>
 
             {/* --- Majors (Programs) Section --- */}
             <section className="py-24 relative bg-slate-50 border-y border-slate-200">
@@ -445,7 +445,7 @@ const Home = () => {
                         ))}
                     </div>
                 </div>
-            </div>
+            </section>
 
             {/* --- Video / CTA Profile Section (New) --- */}
             <div className="py-24 relative overflow-hidden flex items-center justify-center bg-gray-900">
@@ -542,7 +542,7 @@ const Home = () => {
                         ))}
                     </div>
                 </div>
-            </div>
+            </section>
 
             {/* --- Gallery Grid --- */}
             <section className="py-24 max-w-7xl mx-auto px-4">
@@ -568,7 +568,7 @@ const Home = () => {
                         </motion.div>
                     ))}
                 </div>
-            </div>
+            </section>
 
             {/* --- Partners --- */}
             <section className="py-16 border-t border-gray-100">
