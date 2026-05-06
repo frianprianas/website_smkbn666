@@ -310,6 +310,30 @@ const Home = () => {
                             </div>
                         </div>
                     </div>
+                    
+                    {/* Social Media Mini Preview (New) */}
+                    <div className="col-span-1 md:col-span-4 bg-white rounded-3xl p-6 border border-blue-50 shadow-lg flex flex-col group overflow-hidden cursor-pointer h-full min-h-[300px]" onClick={() => setIsFacebookModalOpen(true)}>
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="font-bold text-gray-800 flex items-center gap-2">
+                                <Facebook className="w-5 h-5 text-blue-600" /> Facebook Feed
+                            </h3>
+                            <ChevronRight className="w-4 h-4 text-gray-400 group-hover:translate-x-1 transition-transform" />
+                        </div>
+                        <div className="flex-1 rounded-2xl bg-gray-50 overflow-hidden relative border border-gray-100">
+                             <iframe 
+                                src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fsmkbn666&tabs=timeline&width=340&height=300&small_header=true&adapt_container_width=true&hide_cover=false&show_facepile=false&appId" 
+                                width="100%" 
+                                height="100%" 
+                                style={{ border: 'none', overflow: 'hidden' }} 
+                                scrolling="no" 
+                                frameBorder="0" 
+                                allowFullScreen={true} 
+                                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                                title="Facebook Mini Preview"
+                            ></iframe>
+                            <div className="absolute inset-0 bg-transparent hover:bg-blue-600/5 transition-colors"></div>
+                        </div>
+                    </div>
 
                     {/* Calendar (Tall) */}
                     <div className="col-span-1 md:col-span-4 row-span-2 bg-white rounded-3xl p-6 border border-blue-50 shadow-lg flex flex-col items-center">
@@ -608,7 +632,7 @@ const Home = () => {
                                 <a href="https://www.tiktok.com/@smkbaktinusantara666" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-black border border-slate-700 transition-colors cursor-pointer" title="TikTok @smkbaktinusantara666">
                                     <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.17-2.89-.6-4.13-1.47V18.5c0 1.34-.35 2.61-1.02 3.73-.67 1.12-1.61 2.03-2.73 2.68-1.12.65-2.39 1.01-3.73 1.01-1.34 0-2.61-.36-3.73-1.01-1.12-.65-2.06-1.56-2.73-2.68C3.71 21.11 3.35 19.84 3.35 18.5c0-1.34.36-2.61 1.02-3.73.67-1.12 1.61-2.03 2.73-2.68 1.12-.65 2.39-1.01 3.73-1.01 1.34 0 2.61.36 3.73 1.01.28.16.54.34.78.54V0z"/></svg>
                                 </a>
-                                <a href="https://www.youtube.com/@BaknusTV" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors cursor-pointer" title="YouTube Baknus TV"><Youtube className="w-5 h-5" /></a>
+                                <a href="https://www.youtube.com/@baknustv9545" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors cursor-pointer" title="YouTube Baknus TV"><Youtube className="w-5 h-5" /></a>
                             </div>
                         </div>
 
@@ -673,8 +697,18 @@ const Home = () => {
                             </h3>
                             <button onClick={() => setIsFacebookModalOpen(false)} className="text-gray-400 hover:text-gray-600">✕</button>
                         </div>
-                        <div className="flex-1 bg-gray-100 relative">
-                            {/* Iframe content */}
+                        <div className="flex-1 bg-white relative">
+                            <iframe 
+                                src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fsmkbn666&tabs=timeline&width=500&height=500&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId" 
+                                width="100%" 
+                                height="100%" 
+                                style={{ border: 'none', overflow: 'hidden' }} 
+                                scrolling="no" 
+                                frameBorder="0" 
+                                allowFullScreen={true} 
+                                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                                title="Facebook Page Feed"
+                            ></iframe>
                         </div>
                     </div>
                 </div>
