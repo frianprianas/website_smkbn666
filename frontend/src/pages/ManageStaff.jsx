@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Trash2, Briefcase } from 'lucide-react';
+import { Plus, Trash2, Briefcase, RefreshCw } from 'lucide-react';
 import api from '../api';
 
 const ManageStaff = () => {
     const [staff, setStaff] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [formData, setFormData] = useState({ name: '', position: '' });
+    const [formData, setFormData] = useState({ name: '', position: '', nipy: '' });
     const [loading, setLoading] = useState(false);
+    const [syncing, setSyncing] = useState(false);
 
     const fetchStaff = async () => {
         try {
@@ -14,6 +15,20 @@ const ManageStaff = () => {
             setStaff(res.data);
         } catch (err) {
             console.error(err);
+        }
+    };
+
+    const handleSync = async () => {
+        setSyncing(true);
+        try {
+            const res = await api.post('/staff/sync');
+            alert(`Sync complete! Staff: ${res.data.staff.created} created, ${res.data.staff.updated} updated.`);
+            fetchStaff();
+        } catch (err) {
+            console.error(err);
+            alert("Sync failed: " + (err.response?.data?.detail || "Unknown error"));
+        } finally {
+            setSyncing(false);
         }
     };
 

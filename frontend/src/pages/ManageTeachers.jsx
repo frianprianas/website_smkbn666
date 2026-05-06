@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Trash2, BookOpen } from 'lucide-react';
+import { Plus, Trash2, BookOpen, RefreshCw } from 'lucide-react';
 import api from '../api';
 
 const ManageTeachers = () => {
@@ -8,6 +8,7 @@ const ManageTeachers = () => {
     const [formData, setFormData] = useState({ nipy: '', name: '', position: '', description: '' });
     const [photo, setPhoto] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [syncing, setSyncing] = useState(false);
 
     const fetchTeachers = async () => {
         try {
@@ -15,6 +16,20 @@ const ManageTeachers = () => {
             setTeachers(res.data);
         } catch (err) {
             console.error(err);
+        }
+    };
+
+    const handleSync = async () => {
+        setSyncing(true);
+        try {
+            const res = await api.post('/staff/sync');
+            alert(`Sync complete! Teachers: ${res.data.teachers.created} created, ${res.data.teachers.updated} updated.`);
+            fetchTeachers();
+        } catch (err) {
+            console.error(err);
+            alert("Sync failed: " + (err.response?.data?.detail || "Unknown error"));
+        } finally {
+            setSyncing(false);
         }
     };
 
