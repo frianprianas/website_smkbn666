@@ -13,12 +13,14 @@ import ManageContributors from './pages/ManageContributors';
 import ManageTestimonials from './pages/ManageTestimonials';
 import ManageAgenda from './pages/ManageAgenda';
 import Home from './pages/Home';
+import MajorsPage from './pages/MajorsPage';
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/majors" element={<MajorsPage />} />
         <Route path="/login" element={<Login />} />
 
         {/* Protected Routes */}

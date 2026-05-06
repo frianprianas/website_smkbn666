@@ -153,7 +153,7 @@ const Home = () => {
                         </div>
                         <div className="hidden md:flex items-center gap-6">
                             <Link to="#" className="text-gray-600 hover:text-blue-600 font-medium text-sm transition-colors">Profil</Link>
-                            <Link to="#" className="text-gray-600 hover:text-blue-600 font-medium text-sm transition-colors">Jurusan</Link>
+                            <Link to="/majors" className="text-gray-600 hover:text-blue-600 font-medium text-sm transition-colors">Jurusan</Link>
                             <Link to="#" className="text-gray-600 hover:text-blue-600 font-medium text-sm transition-colors">Berita</Link>
                             <Link
                                 to="/login"
@@ -461,9 +461,12 @@ const Home = () => {
                                 </div>
                                 <div className="p-8">
                                     <p className="text-gray-600 mb-6 line-clamp-3 text-sm leading-relaxed">{major.description}</p>
-                                    <Link to="#" className="inline-flex items-center text-blue-600 font-bold uppercase text-xs tracking-wider gap-2 group-hover:gap-4 transition-all">
-                                        Selengkapnya <ArrowRight className="w-4 h-4" />
-                                    </Link>
+                                <Link
+                                    to="/majors"
+                                    className="inline-flex items-center text-blue-600 font-bold uppercase text-xs tracking-wider gap-2 group-hover:gap-4 transition-all"
+                                >
+                                    Selengkapnya <ArrowRight className="w-4 h-4" />
+                                </Link>
                                 </div>
                             </motion.div>
                         ))}
@@ -639,11 +642,11 @@ const Home = () => {
                         <div>
                             <h4 className="font-bold text-lg mb-6 text-white">Program Keahlian</h4>
                             <ul className="space-y-3 text-slate-400 text-sm">
-                                <li className="hover:text-blue-400 cursor-pointer">Rekayasa Perangkat Lunak</li>
-                                <li className="hover:text-blue-400 cursor-pointer">Desain Komunikasi Visual</li>
-                                <li className="hover:text-blue-400 cursor-pointer">Animasi</li>
-                                <li className="hover:text-blue-400 cursor-pointer">Akuntansi</li>
-                                <li className="hover:text-blue-400 cursor-pointer">Pemasaran</li>
+                                <li><Link to="/majors" className="hover:text-blue-400 transition-colors">Rekayasa Perangkat Lunak</Link></li>
+                                <li><Link to="/majors" className="hover:text-blue-400 transition-colors">Desain Komunikasi Visual</Link></li>
+                                <li><Link to="/majors" className="hover:text-blue-400 transition-colors">Animasi</Link></li>
+                                <li><Link to="/majors" className="hover:text-blue-400 transition-colors">Akuntansi</Link></li>
+                                <li><Link to="/majors" className="hover:text-blue-400 transition-colors">Pemasaran</Link></li>
                             </ul>
                         </div>
 
