@@ -434,9 +434,15 @@ const Home = () => {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {majors.map((major, index) => (
+                        {[
+                            { name: 'Rekayasa Perangkat Lunak', slug: 'rpl', gradient: 'from-violet-600 to-purple-700', description: 'Program keahlian yang mempelajari cara merancang, membuat, memelihara, dan mengembangkan perangkat lunak (software) untuk berbagai platform seperti web, desktop, dan mobile.' },
+                            { name: 'Akuntansi dan Keuangan Lembaga', slug: 'akl', gradient: 'from-emerald-600 to-teal-600', description: 'Program keahlian yang membekali siswa dengan kompetensi dalam mengelola arus keuangan, menyusun laporan akuntansi, dan memahami sistem perpajakan.' },
+                            { name: 'Desain Komunikasi Visual', slug: 'dkv', gradient: 'from-pink-600 to-rose-600', description: 'Program keahlian yang mempelajari ilmu komunikasi melalui elemen visual seperti tipografi, fotografi, ilustrasi, dan desain antarmuka.' },
+                            { name: 'Animasi', slug: 'animasi', gradient: 'from-orange-500 to-amber-600', description: 'Program keahlian yang berfokus pada seni menggerakkan gambar (2D dan 3D) serta efek visual, menggabungkan kreativitas seni dengan teknologi digital terkini.' },
+                            { name: 'Bisnis Daring dan Pemasaran', slug: 'bdp', gradient: 'from-sky-500 to-cyan-600', description: 'Program keahlian yang mengajarkan strategi pemasaran konvensional dan digital, mengelola bisnis online, serta teknik komunikasi bisnis.' }
+                        ].map((major, index) => (
                             <motion.div
-                                key={major.id}
+                                key={major.slug}
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
@@ -444,29 +450,24 @@ const Home = () => {
                                 className="group bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 relative"
                             >
                                 <div className="h-48 bg-gray-200 relative overflow-hidden">
-                                    {/* Pattern Overlay */}
                                     <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-                                    <div className={`absolute inset-0 bg-gradient-to-br ${index % 2 === 0 ? 'from-blue-600 to-blue-400' : 'from-indigo-600 to-purple-500'} opacity-90`}></div>
+                                    <div className={`absolute inset-0 bg-gradient-to-br ${major.gradient} opacity-90`}></div>
                                     <div className="absolute bottom-4 left-4 text-white">
                                         <div className="p-2 bg-white/20 backdrop-blur-md rounded-lg w-fit mb-2">
-                                            {major.logo_url ? (
-                                                <img src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${major.logo_url}`} alt={major.name} className="w-8 h-8 object-contain" />
-                                            ) : (
-                                                <BookOpen className="w-6 h-6 text-white" />
-                                            )}
+                                            <BookOpen className="w-6 h-6 text-white" />
                                         </div>
-                                        <h3 className="text-2xl font-bold">{major.name}</h3>
+                                        <h3 className="text-2xl font-bold leading-tight">{major.name}</h3>
                                     </div>
                                     <GraduationCap className="absolute -right-4 -top-4 w-32 h-32 text-white opacity-10 rotate-12" />
                                 </div>
                                 <div className="p-8">
                                     <p className="text-gray-600 mb-6 line-clamp-3 text-sm leading-relaxed">{major.description}</p>
-                                <Link
-                                    to="/majors"
-                                    className="inline-flex items-center text-blue-600 font-bold uppercase text-xs tracking-wider gap-2 group-hover:gap-4 transition-all"
-                                >
-                                    Selengkapnya <ArrowRight className="w-4 h-4" />
-                                </Link>
+                                    <Link
+                                        to={`/majors/${major.slug}`}
+                                        className="inline-flex items-center text-blue-600 font-bold uppercase text-xs tracking-wider gap-2 group-hover:gap-4 transition-all"
+                                    >
+                                        Selengkapnya <ArrowRight className="w-4 h-4" />
+                                    </Link>
                                 </div>
                             </motion.div>
                         ))}
