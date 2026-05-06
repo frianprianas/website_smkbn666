@@ -28,7 +28,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.post("/token", response_model=schemas.Token)
+@app.post("/api/token", response_model=schemas.Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):
     mailcow_user = auth.authenticate_mailcow(form_data.username, form_data.password)
     
@@ -60,14 +60,14 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
 
 from routers import news, staff, majors, gallery, partners, users, testimonials, agenda
-app.include_router(news.router)
-app.include_router(staff.router)
-app.include_router(majors.router)
-app.include_router(gallery.router)
-app.include_router(partners.router)
-app.include_router(users.router)
-app.include_router(testimonials.router)
-app.include_router(agenda.router)
+app.include_router(news.router, prefix="/api")
+app.include_router(staff.router, prefix="/api")
+app.include_router(majors.router, prefix="/api")
+app.include_router(gallery.router, prefix="/api")
+app.include_router(partners.router, prefix="/api")
+app.include_router(users.router, prefix="/api")
+app.include_router(testimonials.router, prefix="/api")
+app.include_router(agenda.router, prefix="/api")
 
 @app.get("/")
 def read_root():
