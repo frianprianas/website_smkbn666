@@ -1,15 +1,7 @@
 User-agent: *
 Allow: /
-Disallow: /login
-Disallow: /dashboard
-Disallow: /news
-Disallow: /teachers
-Disallow: /staff
-Disallow: /majors
-Disallow: /gallery
-Disallow: /partners
-Disallow: /contributors
-Disallow: /testimonials
-Disallow: /agenda
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /api/
 
 Sitemap: https://smkbn666.sch.id/sitemap.xml

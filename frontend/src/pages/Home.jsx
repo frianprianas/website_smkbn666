@@ -199,6 +199,7 @@ const Home = () => {
                                 <span>Sekolah Pusat Keunggulan (Center of Excellence)</span>
                             </div>
                             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight drop-shadow-2xl">
+                                <span className="block text-2xl md:text-3xl text-blue-300 mb-2 font-medium">SMK Bakti Nusantara 666</span>
                                 Membangun Generasi <br />
                                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-cyan-300">Unggul & Berkarakter</span>
                             </h1>
