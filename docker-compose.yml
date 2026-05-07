@@ -45,5 +45,19 @@ services:
     depends_on:
       - backend
 
+  whatsapp-gateway:
+    build: ./whatsapp-gateway
+    container_name: smkbn666_wa_gateway
+    restart: always
+    environment:
+      - BACKEND_URL=http://backend:8000
+      - AUTHORIZED_NUMBERS=${WA_AUTHORIZED_NUMBERS:-628123456789}
+      - WA_USERNAME=${WA_ADMIN_USERNAME:-admin}
+      - WA_PASSWORD=${WA_ADMIN_PASSWORD:-admin_password}
+    depends_on:
+      - backend
+    volumes:
+      - ./whatsapp-gateway/auth_info_baileys:/app/auth_info_baileys
+
 volumes:
   postgres_data:
