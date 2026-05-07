@@ -156,7 +156,7 @@ const Home = () => {
                             </div>
                         </div>
                         <div className="hidden md:flex items-center gap-6">
-                            <Link to="#" className="text-gray-600 hover:text-blue-600 font-medium text-sm transition-colors">Profil</Link>
+                            <Link to="/profile" className="text-gray-600 hover:text-blue-600 font-medium text-sm transition-colors">Profil</Link>
                             <Link to="/majors" className="text-gray-600 hover:text-blue-600 font-medium text-sm transition-colors">Jurusan</Link>
                             <Link to="#" className="text-gray-600 hover:text-blue-600 font-medium text-sm transition-colors">Berita</Link>
                             <Link
@@ -769,7 +769,7 @@ const Home = () => {
                     </div>
 
                     <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center text-slate-500 text-sm">
-                        <p>&copy; 2024 SMK Bakti Nusantara 666. All rights reserved.</p>
+                        <p>&copy; {new Date().getFullYear()} SMK Bakti Nusantara 666. All rights reserved.</p>
                         <div className="flex gap-6 mt-4 md:mt-0">
                             <span className="hover:text-white cursor-pointer">Privacy Policy</span>
                             <span className="hover:text-white cursor-pointer">Terms of Service</span>

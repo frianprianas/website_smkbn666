@@ -110,6 +110,7 @@ const MajorsPage = () => {
                     </div>
                     <div className="hidden md:flex items-center gap-6">
                         <Link to="/" className="text-gray-600 hover:text-blue-600 font-medium text-sm transition-colors">Beranda</Link>
+                        <Link to="/profile" className="text-gray-600 hover:text-blue-600 font-medium text-sm transition-colors">Profil</Link>
                         <Link to="/majors" className="text-blue-600 font-semibold text-sm border-b-2 border-blue-600 pb-0.5">Jurusan</Link>
                         <a href="https://spmb.smkbn666.sch.id" target="_blank" rel="noopener noreferrer"
                             className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-full text-sm font-semibold transition-all shadow-md shadow-blue-200">
@@ -123,6 +124,7 @@ const MajorsPage = () => {
                 {menuOpen && (
                     <div className="md:hidden bg-white border-t border-slate-100 px-4 py-4 flex flex-col gap-3">
                         <Link to="/" className="text-gray-700 py-2 font-medium">Beranda</Link>
+                        <Link to="/profile" className="text-gray-700 py-2 font-medium">Profil</Link>
                         <Link to="/majors" className="text-blue-600 py-2 font-semibold">Jurusan</Link>
                         <a href="https://spmb.smkbn666.sch.id" target="_blank" rel="noopener noreferrer"
                             className="bg-blue-600 text-white px-5 py-2.5 rounded-full text-sm font-semibold text-center">
