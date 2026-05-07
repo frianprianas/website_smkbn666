@@ -89,9 +89,13 @@ async function connectToWhatsApp() {
             if (!msg.message) continue;
             
             const from = msg.key.remoteJid;
-            const senderNumber = from.split('@')[0];
             const isMe = msg.key.fromMe;
-            if (isMe) continue;
+            
+            // Determine real sender number
+            // If from group, participant is the sender. If private chat, remoteJid is the sender.
+            // If it's from me (master), the sender is the master number.
+            let senderJid = isMe ? sock.user.id : (msg.key.participant || from);
+            const senderNumber = senderJid.split('@')[0].split(':')[0];
 
             const messageType = Object.keys(msg.message)[0];
             const caption = (msg.message?.imageMessage?.caption || 
@@ -101,7 +105,8 @@ async function connectToWhatsApp() {
 
             if (!caption) continue;
 
-            console.log(`Received message from ${senderNumber}: ${caption.substring(0, 50)}...`);
+            // Log for debugging
+            console.log(`Message from ${senderNumber} (isMe: ${isMe}): ${caption.substring(0, 50)}`);
 
             // Check if it's a news format (CASE INSENSITIVE)
             if (caption.toUpperCase().startsWith('BERITA#')) {
@@ -112,8 +117,8 @@ async function connectToWhatsApp() {
                 try {
                     const authRes = await axios.get(`${BACKEND_URL}/api/wa-settings/numbers`);
                     const activeNumbers = authRes.data.filter(n => n.is_active).map(n => n.phone_number.toString().trim());
-                    console.log('Authorized numbers in DB:', activeNumbers);
                     
+                    // Special case: Master account is always authorized if the number is registered
                     if (activeNumbers.includes(senderNumber)) {
                         isAuthorized = true;
                     }
@@ -181,8 +186,6 @@ async function connectToWhatsApp() {
                     await sock.sendMessage(from, { text: `❌ Gagal mengupload berita: ${errorDetail}` });
                     if (mediaPath && fs.existsSync(mediaPath)) fs.unlinkSync(mediaPath);
                 }
-            } else {
-                console.log('Message did not start with BERITA#');
             }
         }
     });
