@@ -32,7 +32,10 @@ def create_news(
     
     image_url = None
     if image:
-        if image.size > MAX_SIZE:
+        image.file.seek(0, 2)
+        image_size = image.file.tell()
+        image.file.seek(0)
+        if image_size > MAX_SIZE:
             raise HTTPException(status_code=400, detail="Image file too large (Max 50MB)")
         os.makedirs(os.path.join("static", "images"), exist_ok=True)
         file_extension = os.path.splitext(image.filename)[1]
@@ -44,7 +47,10 @@ def create_news(
 
     video_url = None
     if video:
-        if video.size > MAX_SIZE:
+        video.file.seek(0, 2)
+        video_size = video.file.tell()
+        video.file.seek(0)
+        if video_size > MAX_SIZE:
              raise HTTPException(status_code=400, detail="Video file too large (Max 50MB)")
         
         os.makedirs(os.path.join("static", "videos"), exist_ok=True)
