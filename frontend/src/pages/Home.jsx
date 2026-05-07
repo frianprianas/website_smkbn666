@@ -591,13 +591,19 @@ const Home = () => {
                     {news.length > 0 && (
                         <article className="md:col-span-2 bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100 group relative h-full min-h-[400px]">
                             {news[0].video_url ? (
-                                <video 
-                                    src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${news[0].video_url}`} 
-                                    className="w-full h-full object-cover"
-                                    controls
-                                />
-                            ) : (
+                                <div className="w-full h-full bg-black">
+                                    <video 
+                                        src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${news[0].video_url}`} 
+                                        className="w-full h-full object-cover"
+                                        controls
+                                    />
+                                </div>
+                            ) : news[0].image_url ? (
                                 <img src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${news[0].image_url}`} alt={news[0].title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                            ) : (
+                                <div className="w-full h-full bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center">
+                                    <BookOpen className="w-20 h-20 text-white/20" />
+                                </div>
                             )}
                             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex flex-col justify-end p-8 text-white pointer-events-none">
                                 <span className="bg-blue-600 px-3 py-1 rounded-full text-xs font-bold w-fit mb-3">{new Date(news[0].date_posted).toLocaleDateString()}</span>
@@ -615,8 +621,12 @@ const Home = () => {
                                         <div className="w-full h-full bg-gray-900 flex items-center justify-center relative">
                                             <PlayCircle className="w-8 h-8 text-white opacity-50" />
                                         </div>
-                                    ) : (
+                                    ) : item.image_url ? (
                                         <img src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${item.image_url}`} alt={item.title} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <div className="w-full h-full bg-blue-100 flex items-center justify-center">
+                                            <BookOpen className="w-8 h-8 text-blue-300" />
+                                        </div>
                                     )}
                                 </div>
                                 <div>
