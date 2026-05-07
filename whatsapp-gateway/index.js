@@ -1,3 +1,12 @@
+// Polyfill for global crypto if not present (required by baileys in some environments)
+if (!global.crypto) {
+    try {
+        global.crypto = require('crypto').webcrypto;
+    } catch (e) {
+        console.warn('Webcrypto polyfill failed:', e.message);
+    }
+}
+
 const {
     default: makeWASocket,
     useMultiFileAuthState,
