@@ -25,6 +25,7 @@ const ManageWA = () => {
             setStatus(statusRes.data);
         } catch (error) {
             console.error('Error fetching WA data:', error);
+            setStatus({ status: 'OFFLINE', error: error.message });
         } finally {
             setLoading(false);
         }
