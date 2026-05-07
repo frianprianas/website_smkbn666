@@ -590,11 +590,19 @@ const Home = () => {
                     {/* Featured News (Large) */}
                     {news.length > 0 && (
                         <article className="md:col-span-2 bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100 group relative h-full min-h-[400px]">
-                            <img src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${news[0].image_url}`} alt={news[0].title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex flex-col justify-end p-8 text-white">
+                            {news[0].video_url ? (
+                                <video 
+                                    src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${news[0].video_url}`} 
+                                    className="w-full h-full object-cover"
+                                    controls
+                                />
+                            ) : (
+                                <img src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${news[0].image_url}`} alt={news[0].title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex flex-col justify-end p-8 text-white pointer-events-none">
                                 <span className="bg-blue-600 px-3 py-1 rounded-full text-xs font-bold w-fit mb-3">{new Date(news[0].date_posted).toLocaleDateString()}</span>
-                                <h3 className="text-2xl font-bold mb-2 group-hover:text-blue-300 transition-colors">{news[0].title}</h3>
-                                <p className="line-clamp-2 text-gray-300 text-sm">{news[0].content}</p>
+                                <h3 className="text-2xl font-bold mb-2 group-hover:text-blue-300 transition-colors pointer-events-auto">{news[0].title}</h3>
+                                <p className="line-clamp-2 text-gray-300 text-sm pointer-events-auto">{news[0].content}</p>
                             </div>
                         </article>
                     )}
@@ -602,8 +610,14 @@ const Home = () => {
                     <div className="md:col-span-2 flex flex-col gap-6">
                         {news.slice(1, 4).map((item) => (
                             <article key={item.id} className="flex gap-4 items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all">
-                                <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0">
-                                    <img src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${item.image_url}`} alt={item.title} className="w-full h-full object-cover" />
+                                <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0 bg-gray-100">
+                                    {item.video_url ? (
+                                        <div className="w-full h-full bg-gray-900 flex items-center justify-center relative">
+                                            <PlayCircle className="w-8 h-8 text-white opacity-50" />
+                                        </div>
+                                    ) : (
+                                        <img src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${item.image_url}`} alt={item.title} className="w-full h-full object-cover" />
+                                    )}
                                 </div>
                                 <div>
                                     <div className="flex items-center gap-2 text-xs text-gray-400 mb-1">

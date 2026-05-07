@@ -18,6 +18,7 @@ class News(Base):
     content = Column(Text)
     date_posted = Column(DateTime, default=datetime.utcnow)
     image_url = Column(String, nullable=True)
+    video_url = Column(String, nullable=True)
     is_pinned = Column(Boolean, default=False)
     author_id = Column(Integer, ForeignKey("users.id"))
     

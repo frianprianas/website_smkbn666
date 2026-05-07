@@ -16,6 +16,7 @@ def create_news(
     title: str = Form(...),
     content: str = Form(...),
     image: Optional[UploadFile] = File(None),
+    video: Optional[UploadFile] = File(None),
     is_pinned: bool = Form(False),
     db: Session = Depends(database.get_db), 
     current_user: models.User = Depends(auth.get_permission_news)
@@ -26,27 +27,39 @@ def create_news(
         if pinned_count >= 3:
             raise HTTPException(status_code=400, detail="Cannot pin more than 3 news items. Pinned limit reached.")
 
+    # Size limit check: 50MB
+    MAX_SIZE = 50 * 1024 * 1024
+    
     image_url = None
     if image:
-        # Create static/images directory if not exists
+        if image.size > MAX_SIZE:
+            raise HTTPException(status_code=400, detail="Image file too large (Max 50MB)")
         os.makedirs(os.path.join("static", "images"), exist_ok=True)
-        
-        # Generate unique filename
         file_extension = os.path.splitext(image.filename)[1]
         unique_filename = f"{uuid.uuid4()}{file_extension}"
         file_path = os.path.join("static", "images", unique_filename)
-        
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(image.file, buffer)
-            
-        # URL for frontend
         image_url = f"/static/images/{unique_filename}"
 
-    # Any logged in user (admin or contributor) can post news
+    video_url = None
+    if video:
+        if video.size > MAX_SIZE:
+             raise HTTPException(status_code=400, detail="Video file too large (Max 50MB)")
+        
+        os.makedirs(os.path.join("static", "videos"), exist_ok=True)
+        file_extension = os.path.splitext(video.filename)[1]
+        unique_filename = f"{uuid.uuid4()}{file_extension}"
+        file_path = os.path.join("static", "videos", unique_filename)
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(video.file, buffer)
+        video_url = f"/static/videos/{unique_filename}"
+
     new_item = models.News(
         title=title, 
         content=content, 
         image_url=image_url, 
+        video_url=video_url,
         is_pinned=is_pinned,
         author_id=current_user.id
     )

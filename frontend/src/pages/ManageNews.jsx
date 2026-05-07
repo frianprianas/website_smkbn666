@@ -8,6 +8,7 @@ const ManageNews = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [formData, setFormData] = useState({ title: '', content: '', is_pinned: false });
     const [imageFile, setImageFile] = useState(null);
+    const [videoFile, setVideoFile] = useState(null);
     const [loading, setLoading] = useState(false);
 
     const fetchNews = async () => {
@@ -34,6 +35,9 @@ const ManageNews = () => {
             if (imageFile) {
                 data.append('image', imageFile);
             }
+            if (videoFile) {
+                data.append('video', videoFile);
+            }
 
             await api.post('/news/', data, {
                 headers: {
@@ -42,6 +46,7 @@ const ManageNews = () => {
             });
             setFormData({ title: '', content: '', is_pinned: false });
             setImageFile(null);
+            setVideoFile(null);
             setIsModalOpen(false);
             fetchNews();
         } catch (err) {
@@ -85,15 +90,26 @@ const ManageNews = () => {
                     <div key={item.id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
                         <div className="flex justify-between items-start">
                             <div className="flex gap-4">
-                                {item.image_url && (
+                                {item.image_url ? (
                                     <img src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${item.image_url}`} alt={item.title} className="w-32 h-24 object-cover rounded-lg" />
-                                )}
+                                ) : item.video_url ? (
+                                    <div className="w-32 h-24 bg-gray-900 flex items-center justify-center rounded-lg relative">
+                                        <div className="bg-white/20 p-2 rounded-full backdrop-blur-sm">
+                                            <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"/></svg>
+                                        </div>
+                                    </div>
+                                ) : null}
                                 <div>
                                     <h3 className="text-xl font-bold text-gray-800 mb-2 flex items-center gap-2">
                                         {item.title}
                                         {item.is_pinned && (
                                             <span className="bg-blue-100 text-blue-600 text-xs px-2 py-1 rounded-full border border-blue-200">
                                                 Pinned
+                                            </span>
+                                        )}
+                                        {item.video_url && (
+                                            <span className="bg-purple-100 text-purple-600 text-xs px-2 py-1 rounded-full border border-purple-200">
+                                                Video
                                             </span>
                                         )}
                                     </h3>
@@ -131,14 +147,25 @@ const ManageNews = () => {
                                     required
                                 />
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Image</label>
-                                <input
-                                    type="file"
-                                    onChange={(e) => setImageFile(e.target.files[0])}
-                                    className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    accept="image/*"
-                                />
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Image (Optional)</label>
+                                    <input
+                                        type="file"
+                                        onChange={(e) => setImageFile(e.target.files[0])}
+                                        className="w-full text-xs px-4 py-2 rounded-lg border border-gray-200"
+                                        accept="image/*"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Video (Optional, Max 50MB)</label>
+                                    <input
+                                        type="file"
+                                        onChange={(e) => setVideoFile(e.target.files[0])}
+                                        className="w-full text-xs px-4 py-2 rounded-lg border border-gray-200"
+                                        accept="video/*"
+                                    />
+                                </div>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>

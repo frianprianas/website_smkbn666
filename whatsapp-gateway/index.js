@@ -90,9 +90,6 @@ async function connectToWhatsApp() {
             const from = msg.key.remoteJid;
             const isMe = msg.key.fromMe;
             
-            // Determine real sender number
-            // If from group, participant is the sender. If private chat, remoteJid is the sender.
-            // If it's from me (master), the sender is the master number.
             let senderJid = isMe ? sock.user.id : (msg.key.participant || from);
             const senderNumber = senderJid.split('@')[0].split(':')[0];
 
@@ -104,20 +101,15 @@ async function connectToWhatsApp() {
 
             if (!caption) continue;
 
-            // Log for debugging
             console.log(`Message from ${senderNumber} (isMe: ${isMe}): ${caption.substring(0, 50)}`);
 
-            // Check if it's a news format (CASE INSENSITIVE)
             if (caption.toUpperCase().startsWith('BERITA#')) {
                 console.log('Match BERITA# format detected!');
 
-                // --- FETCH AUTHORIZED NUMBERS FROM BACKEND ---
                 let isAuthorized = false;
                 try {
                     const authRes = await axios.get(`${BACKEND_URL}/api/wa-settings/numbers`);
                     const activeNumbers = authRes.data.filter(n => n.is_active).map(n => n.phone_number.toString().trim());
-                    
-                    // Special case: Master account is always authorized if the number is registered
                     if (activeNumbers.includes(senderNumber)) {
                         isAuthorized = true;
                     }
@@ -127,34 +119,41 @@ async function connectToWhatsApp() {
 
                 if (!isAuthorized) {
                     console.warn(`Unauthorized attempt from ${senderNumber}`);
-                    await sock.sendMessage(from, { text: `❌ Nomor ${senderNumber} belum terdaftar sebagai admin berita di website. Silakan daftarkan di menu WhatsApp Gateway.` });
+                    await sock.sendMessage(from, { text: `❌ Nomor ${senderNumber} belum terdaftar sebagai admin berita di website.` });
                     continue;
                 }
 
                 const parts = caption.split('#');
                 if (parts.length < 3) {
-                    await sock.sendMessage(from, { text: 'Format salah. Gunakan: BERITA#JUDUL#ISI (sambil melampirkan foto)' });
+                    await sock.sendMessage(from, { text: 'Format salah. Gunakan: BERITA#JUDUL#ISI' });
                     continue;
                 }
 
                 const title = parts[1].trim();
                 const content = parts[2].trim();
                 let mediaPath = null;
+                let isVideo = false;
 
                 try {
-                    // Send initial response
                     await sock.sendMessage(from, { text: 'Berita akan kami muat, terima kasih. ⏳ Sedang memproses...' });
 
                     if (messageType === 'imageMessage' || messageType === 'videoMessage') {
                         const buffer = await downloadMediaMessage(msg, 'buffer', {});
-                        const ext = messageType === 'imageMessage' ? 'jpg' : 'mp4';
+                        
+                        // Check Size: 50MB
+                        const MAX_SIZE = 50 * 1024 * 1024;
+                        if (buffer.length > MAX_SIZE) {
+                            await sock.sendMessage(from, { text: '❌ Gagal: Ukuran media terlalu besar (Maksimal 50MB).' });
+                            return;
+                        }
+
+                        isVideo = (messageType === 'videoMessage');
+                        const ext = isVideo ? 'mp4' : 'jpg';
                         const filename = `wa_upload_${Date.now()}.${ext}`;
                         mediaPath = path.join(__dirname, filename);
                         fs.writeFileSync(mediaPath, buffer);
-                        console.log(`Media downloaded to ${mediaPath}`);
                     }
 
-                    // Login to backend using secret token
                     const loginRes = await axios.post(`${BACKEND_URL}/api/token`, 
                         new URLSearchParams({ 'username': 'wa_gateway', 'password': WA_GATEWAY_SECRET }), 
                         { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
@@ -167,22 +166,24 @@ async function connectToWhatsApp() {
                     form.append('title', title);
                     form.append('content', content);
                     if (mediaPath) {
-                        form.append('image', fs.createReadStream(mediaPath));
+                        if (isVideo) {
+                            form.append('video', fs.createReadStream(mediaPath));
+                        } else {
+                            form.append('image', fs.createReadStream(mediaPath));
+                        }
                     }
 
                     const newsRes = await axios.post(`${BACKEND_URL}/api/news/`, form, {
                         headers: { ...form.getHeaders(), 'Authorization': `Bearer ${token}` }
                     });
 
-                    console.log(`News posted successfully! ID: ${newsRes.data.id}`);
                     await sock.sendMessage(from, { text: `✅ Berita Berhasil Diupload!\n\nJudul: ${title}\nLink: https://smkbn666.sch.id/news` });
-                    
                     if (mediaPath && fs.existsSync(mediaPath)) fs.unlinkSync(mediaPath);
 
                 } catch (error) {
                     const errorDetail = error.response?.data?.detail || error.message;
                     console.error('Error posting news:', errorDetail);
-                    await sock.sendMessage(from, { text: `❌ Gagal mengupload berita: ${errorDetail}` });
+                    await sock.sendMessage(from, { text: `❌ Gagal: ${errorDetail}` });
                     if (mediaPath && fs.existsSync(mediaPath)) fs.unlinkSync(mediaPath);
                 }
             }
