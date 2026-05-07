@@ -22,14 +22,11 @@ const Sidebar = () => {
         { name: 'Agenda', path: '/agenda', icon: Calendar, roles: ['admin', 'kontributor'], perm: 'agenda' },
         { name: 'Data Guru', path: '/teachers', icon: Users, roles: ['admin'], perm: null }, // Admin only
         { name: 'Data TU', path: '/staff', icon: GraduationCap, roles: ['admin'], perm: null }, // Admin only
-        { name: 'Data Jurusan', path: '/majors', icon: BookOpen, roles: ['admin'], perm: 'majors' }, // Admin or Contributor with permission? Wait, original requirement said Majors is optional for contributor too? Yes.
-        // Actually, for Majors: "kecuali data guru,TU, kontributor". Majors WAS listed as selectable.
-        // If it's admin role, it always passes. If contributor, check permission.
         { name: 'Data Jurusan', path: '/majors', icon: BookOpen, roles: ['admin', 'kontributor'], perm: 'majors' },
-
         { name: 'Galeri Sekolah', path: '/gallery', icon: Image, roles: ['admin', 'kontributor'], perm: 'gallery' },
         { name: 'Data Mitra', path: '/partners', icon: Building2, roles: ['admin', 'kontributor'], perm: 'partners' },
-        { name: 'Testimoni', path: '/testimonials', icon: MessageSquare, roles: ['admin', 'kontributor'], perm: null }, // Default to all? Or need perm? Assume all if not specified
+        { name: 'Testimoni', path: '/testimonials', icon: MessageSquare, roles: ['admin', 'kontributor'], perm: null },
+        { name: 'WhatsApp Gateway', path: '/wa', icon: MessageSquare, roles: ['admin'], perm: null },
         { name: 'Data Kontributor', path: '/contributors', icon: Users, roles: ['admin'], perm: null },
     ];
 

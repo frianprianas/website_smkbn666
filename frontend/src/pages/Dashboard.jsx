@@ -72,6 +72,13 @@ const Dashboard = () => {
                     color="bg-green-500"
                     link="/testimonials"
                 />
+                <StatCard
+                    title="WhatsApp"
+                    count="Admin"
+                    icon={MessageSquare}
+                    color="bg-emerald-600"
+                    link={userRole === 'admin' ? "/wa" : null}
+                />
             </div>
 
             {/* Gallery Section */}

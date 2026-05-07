@@ -9,17 +9,37 @@ const pino = require('pino');
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
+const express = require('express');
+const QRCode = require('qrcode');
 
 // Configuration
 const BACKEND_URL = process.env.BACKEND_URL || 'http://backend:8000';
-const ADMIN_NUMBERS = (process.env.AUTHORIZED_NUMBERS || '').split(',').map(n => n.trim() + '@s.whatsapp.net');
 const WA_USERNAME = process.env.WA_USERNAME || 'admin';
 const WA_PASSWORD = process.env.WA_PASSWORD || 'admin_password';
+const HTTP_PORT = process.env.HTTP_PORT || 3001;
+
+let sock;
+let qrCode = null;
+let connectionStatus = 'DISCONNECTED';
+
+const app = express();
+
+// --- API for Frontend/Backend to query status ---
+app.get('/status', (req, res) => {
+    res.json({
+        status: connectionStatus,
+        qr: qrCode
+    });
+});
+
+app.listen(HTTP_PORT, () => {
+    console.log(`Gateway API listening on port ${HTTP_PORT}`);
+});
 
 async function connectToWhatsApp() {
     const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys');
     
-    const sock = makeWASocket({
+    sock = makeWASocket({
         auth: state,
         printQRInTerminal: true,
         logger: pino({ level: 'silent' })
@@ -27,15 +47,23 @@ async function connectToWhatsApp() {
 
     sock.ev.on('creds.update', saveCreds);
 
-    sock.ev.on('connection.update', (update) => {
-        const { connection, lastDisconnect } = update;
+    sock.ev.on('connection.update', async (update) => {
+        const { connection, lastDisconnect, qr } = update;
+        
+        if (qr) {
+            qrCode = await QRCode.toDataURL(qr);
+        }
+
         if (connection === 'close') {
+            connectionStatus = 'DISCONNECTED';
             const shouldReconnect = (lastDisconnect.error instanceof Boom)?.output?.statusCode !== DisconnectReason.loggedOut;
             console.log('connection closed due to ', lastDisconnect.error, ', reconnecting ', shouldReconnect);
             if (shouldReconnect) {
                 connectToWhatsApp();
             }
         } else if (connection === 'open') {
+            connectionStatus = 'CONNECTED';
+            qrCode = null;
             console.log('WhatsApp connection opened successfully!');
         }
     });
@@ -47,20 +75,27 @@ async function connectToWhatsApp() {
             if (!msg.message) continue;
             
             const from = msg.key.remoteJid;
+            const senderNumber = from.split('@')[0];
             const isMe = msg.key.fromMe;
             if (isMe) continue;
 
-            // Check if sender is authorized
-            if (!ADMIN_NUMBERS.includes(from)) {
-                // Optional: reply with unauthorized message
-                // await sock.sendMessage(from, { text: 'Maaf, nomor Anda tidak terdaftar untuk update berita.' });
-                continue;
+            // --- FETCH AUTHORIZED NUMBERS FROM BACKEND ---
+            let isAuthorized = false;
+            try {
+                const authRes = await axios.get(`${BACKEND_URL}/api/wa-settings/numbers`);
+                const activeNumbers = authRes.data.filter(n => n.is_active).map(n => n.phone_number);
+                if (activeNumbers.includes(senderNumber)) {
+                    isAuthorized = true;
+                }
+            } catch (err) {
+                console.error('Failed to fetch authorized numbers:', err.message);
             }
+
+            if (!isAuthorized) continue;
 
             const messageType = Object.keys(msg.message)[0];
             const caption = msg.message?.imageMessage?.caption || msg.message?.videoMessage?.caption || msg.message?.extendedTextMessage?.text || msg.message?.conversation || '';
 
-            // Format check: BERITA#JUDUL#ISI
             if (caption.startsWith('BERITA#')) {
                 const parts = caption.split('#');
                 if (parts.length < 3) {
@@ -75,7 +110,6 @@ async function connectToWhatsApp() {
                 try {
                     await sock.sendMessage(from, { text: '⏳ Sedang memproses berita Anda...' });
 
-                    // Handle Media
                     if (messageType === 'imageMessage' || messageType === 'videoMessage') {
                         const buffer = await downloadMediaMessage(msg, 'buffer', {});
                         const ext = messageType === 'imageMessage' ? 'jpg' : 'mp4';
@@ -84,19 +118,13 @@ async function connectToWhatsApp() {
                         fs.writeFileSync(mediaPath, buffer);
                     }
 
-                    // Login to Backend to get token
                     const loginRes = await axios.post(`${BACKEND_URL}/api/token`, 
-                        new URLSearchParams({
-                            'username': WA_USERNAME,
-                            'password': WA_PASSWORD
-                        }), {
-                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-                        }
+                        new URLSearchParams({ 'username': WA_USERNAME, 'password': WA_PASSWORD }), 
+                        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
                     );
 
                     const token = loginRes.data.access_token;
 
-                    // Prepare Form Data for News
                     const FormData = require('form-data');
                     const form = new FormData();
                     form.append('title', title);
@@ -105,23 +133,16 @@ async function connectToWhatsApp() {
                         form.append('image', fs.createReadStream(mediaPath));
                     }
 
-                    // Post News
-                    const newsRes = await axios.post(`${BACKEND_URL}/api/news/`, form, {
-                        headers: {
-                            ...form.getHeaders(),
-                            'Authorization': `Bearer ${token}`
-                        }
+                    await axios.post(`${BACKEND_URL}/api/news/`, form, {
+                        headers: { ...form.getHeaders(), 'Authorization': `Bearer ${token}` }
                     });
 
-                    // Success!
                     await sock.sendMessage(from, { text: `✅ Berita Berhasil Diupload!\n\nJudul: ${title}\nLink: https://smkbn666.sch.id/news` });
-
-                    // Cleanup
                     if (mediaPath && fs.existsSync(mediaPath)) fs.unlinkSync(mediaPath);
 
                 } catch (error) {
                     console.error('Error posting news:', error.response?.data || error.message);
-                    await sock.sendMessage(from, { text: `❌ Gagal mengupload berita: ${error.response?.data?.detail || error.message}` });
+                    await sock.sendMessage(from, { text: `❌ Gagal: ${error.response?.data?.detail || error.message}` });
                     if (mediaPath && fs.existsSync(mediaPath)) fs.unlinkSync(mediaPath);
                 }
             }

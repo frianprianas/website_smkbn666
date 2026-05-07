@@ -16,6 +16,7 @@ import Home from './pages/Home';
 import MajorsPage from './pages/MajorsPage';
 import MajorDetail from './pages/MajorDetail';
 import Profile from './pages/Profile';
+import ManageWA from './pages/ManageWA';
 
 function App() {
   return (
@@ -38,6 +39,8 @@ function App() {
           <Route path="/partners" element={<ManagePartners />} />
           <Route path="/contributors" element={<ManageContributors />} />
           <Route path="/testimonials" element={<ManageTestimonials />} />
+          <Route path="/wa" element={<ManageWA />} />
+          <Route path="/contributors" element={<ManageContributors />} />
           <Route path="/agenda" element={<ManageAgenda />} />
         </Route>
 

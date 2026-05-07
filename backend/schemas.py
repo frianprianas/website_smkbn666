@@ -132,7 +132,19 @@ class AgendaCreate(AgendaBase):
     pass
 
 class Agenda(AgendaBase):
-    id: int
     author_id: int
+    class Config:
+        from_attributes = True
+
+class WANumberBase(BaseModel):
+    phone_number: str
+    name: str
+    is_active: bool = True
+
+class WANumberCreate(WANumberBase):
+    pass
+
+class WANumber(WANumberBase):
+    id: int
     class Config:
         from_attributes = True

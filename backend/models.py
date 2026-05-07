@@ -78,3 +78,10 @@ class Agenda(Base):
     author_id = Column(Integer, ForeignKey("users.id"))
 
     author = relationship("User")
+
+class WANumber(Base):
+    __tablename__ = "wa_numbers"
+    id = Column(Integer, primary_key=True, index=True)
+    phone_number = Column(String, unique=True, index=True) # Format: 628xxx
+    name = Column(String)
+    is_active = Column(Boolean, default=True)
