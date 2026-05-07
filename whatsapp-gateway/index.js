@@ -94,17 +94,26 @@ async function connectToWhatsApp() {
             if (isMe) continue;
 
             const messageType = Object.keys(msg.message)[0];
-            const caption = msg.message?.imageMessage?.caption || msg.message?.videoMessage?.caption || msg.message?.extendedTextMessage?.text || msg.message?.conversation || '';
+            const caption = (msg.message?.imageMessage?.caption || 
+                             msg.message?.videoMessage?.caption || 
+                             msg.message?.extendedTextMessage?.text || 
+                             msg.message?.conversation || '').trim();
+
+            if (!caption) continue;
 
             console.log(`Received message from ${senderNumber}: ${caption.substring(0, 50)}...`);
 
-            // Check if it's a news format
-            if (caption.startsWith('BERITA#')) {
+            // Check if it's a news format (CASE INSENSITIVE)
+            if (caption.toUpperCase().startsWith('BERITA#')) {
+                console.log('Match BERITA# format detected!');
+
                 // --- FETCH AUTHORIZED NUMBERS FROM BACKEND ---
                 let isAuthorized = false;
                 try {
                     const authRes = await axios.get(`${BACKEND_URL}/api/wa-settings/numbers`);
-                    const activeNumbers = authRes.data.filter(n => n.is_active).map(n => n.phone_number);
+                    const activeNumbers = authRes.data.filter(n => n.is_active).map(n => n.phone_number.toString().trim());
+                    console.log('Authorized numbers in DB:', activeNumbers);
+                    
                     if (activeNumbers.includes(senderNumber)) {
                         isAuthorized = true;
                     }
@@ -114,7 +123,7 @@ async function connectToWhatsApp() {
 
                 if (!isAuthorized) {
                     console.warn(`Unauthorized attempt from ${senderNumber}`);
-                    await sock.sendMessage(from, { text: '❌ Nomor Anda belum terdaftar sebagai admin berita. Silakan hubungi admin IT sekolah.' });
+                    await sock.sendMessage(from, { text: `❌ Nomor ${senderNumber} belum terdaftar sebagai admin berita di website. Silakan daftarkan di menu WhatsApp Gateway.` });
                     continue;
                 }
 
@@ -172,6 +181,8 @@ async function connectToWhatsApp() {
                     await sock.sendMessage(from, { text: `❌ Gagal mengupload berita: ${errorDetail}` });
                     if (mediaPath && fs.existsSync(mediaPath)) fs.unlinkSync(mediaPath);
                 }
+            } else {
+                console.log('Message did not start with BERITA#');
             }
         }
     });
