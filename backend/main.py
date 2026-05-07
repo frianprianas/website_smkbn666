@@ -32,6 +32,24 @@ app.add_middleware(
 
 @app.post("/api/token", response_model=schemas.Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):
+    # --- WA GATEWAY BYPASS (Must be first) ---
+    WA_GATEWAY_SECRET = auth.os.getenv("WA_GATEWAY_SECRET", "super_secret_wa_token")
+    if form_data.username == "wa_gateway" and form_data.password == WA_GATEWAY_SECRET:
+        access_token_expires = auth.timedelta(minutes=auth.ACCESS_TOKEN_EXPIRE_MINUTES)
+        # Get or create a system user for WA
+        system_user = db.query(models.User).filter(models.User.username == "wa_system").first()
+        if not system_user:
+            system_user = models.User(username="wa_system", role="admin", hashed_password="")
+            db.add(system_user)
+            db.commit()
+            db.refresh(system_user)
+        
+        access_token = auth.create_access_token(
+            data={"sub": system_user.username, "role": system_user.role}, expires_delta=access_token_expires
+        )
+        return {"access_token": access_token, "token_type": "bearer"}
+    # -----------------------------------------
+
     mailcow_user = auth.authenticate_mailcow(form_data.username, form_data.password)
     
     if mailcow_user:
@@ -54,24 +72,6 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
             )
 
     access_token_expires = auth.timedelta(minutes=auth.ACCESS_TOKEN_EXPIRE_MINUTES)
-    
-    # --- WA GATEWAY BYPASS ---
-    WA_GATEWAY_SECRET = auth.os.getenv("WA_GATEWAY_SECRET", "super_secret_wa_token")
-    if form_data.username == "wa_gateway" and form_data.password == WA_GATEWAY_SECRET:
-        # Get or create a system user for WA
-        system_user = db.query(models.User).filter(models.User.username == "wa_system").first()
-        if not system_user:
-            system_user = models.User(username="wa_system", role="admin", hashed_password="")
-            db.add(system_user)
-            db.commit()
-            db.refresh(system_user)
-        
-        access_token = auth.create_access_token(
-            data={"sub": system_user.username, "role": system_user.role}, expires_delta=access_token_expires
-        )
-        return {"access_token": access_token, "token_type": "bearer"}
-    # -------------------------
-
     access_token = auth.create_access_token(
         data={"sub": user.username, "role": user.role}, expires_delta=access_token_expires
     )
