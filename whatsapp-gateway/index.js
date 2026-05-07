@@ -24,8 +24,7 @@ const QRCode = require('qrcode');
 
 // Configuration
 const BACKEND_URL = process.env.BACKEND_URL || 'http://backend:8000';
-const WA_USERNAME = process.env.WA_USERNAME || 'admin';
-const WA_PASSWORD = process.env.WA_PASSWORD || 'admin_password';
+const WA_GATEWAY_SECRET = process.env.WA_GATEWAY_SECRET || 'super_secret_wa_token';
 const HTTP_PORT = process.env.HTTP_PORT || 3001;
 
 let sock;
@@ -155,9 +154,9 @@ async function connectToWhatsApp() {
                         console.log(`Media downloaded to ${mediaPath}`);
                     }
 
-                    // Login to backend
+                    // Login to backend using secret token
                     const loginRes = await axios.post(`${BACKEND_URL}/api/token`, 
-                        new URLSearchParams({ 'username': WA_USERNAME, 'password': WA_PASSWORD }), 
+                        new URLSearchParams({ 'username': 'wa_gateway', 'password': WA_GATEWAY_SECRET }), 
                         { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
                     );
 
