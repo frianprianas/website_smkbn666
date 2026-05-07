@@ -93,24 +93,31 @@ async function connectToWhatsApp() {
             const isMe = msg.key.fromMe;
             if (isMe) continue;
 
-            // --- FETCH AUTHORIZED NUMBERS FROM BACKEND ---
-            let isAuthorized = false;
-            try {
-                const authRes = await axios.get(`${BACKEND_URL}/api/wa-settings/numbers`);
-                const activeNumbers = authRes.data.filter(n => n.is_active).map(n => n.phone_number);
-                if (activeNumbers.includes(senderNumber)) {
-                    isAuthorized = true;
-                }
-            } catch (err) {
-                console.error('Failed to fetch authorized numbers:', err.message);
-            }
-
-            if (!isAuthorized) continue;
-
             const messageType = Object.keys(msg.message)[0];
             const caption = msg.message?.imageMessage?.caption || msg.message?.videoMessage?.caption || msg.message?.extendedTextMessage?.text || msg.message?.conversation || '';
 
+            console.log(`Received message from ${senderNumber}: ${caption.substring(0, 50)}...`);
+
+            // Check if it's a news format
             if (caption.startsWith('BERITA#')) {
+                // --- FETCH AUTHORIZED NUMBERS FROM BACKEND ---
+                let isAuthorized = false;
+                try {
+                    const authRes = await axios.get(`${BACKEND_URL}/api/wa-settings/numbers`);
+                    const activeNumbers = authRes.data.filter(n => n.is_active).map(n => n.phone_number);
+                    if (activeNumbers.includes(senderNumber)) {
+                        isAuthorized = true;
+                    }
+                } catch (err) {
+                    console.error('Failed to fetch authorized numbers:', err.message);
+                }
+
+                if (!isAuthorized) {
+                    console.warn(`Unauthorized attempt from ${senderNumber}`);
+                    await sock.sendMessage(from, { text: '❌ Nomor Anda belum terdaftar sebagai admin berita. Silakan hubungi admin IT sekolah.' });
+                    continue;
+                }
+
                 const parts = caption.split('#');
                 if (parts.length < 3) {
                     await sock.sendMessage(from, { text: 'Format salah. Gunakan: BERITA#JUDUL#ISI (sambil melampirkan foto)' });
@@ -122,7 +129,8 @@ async function connectToWhatsApp() {
                 let mediaPath = null;
 
                 try {
-                    await sock.sendMessage(from, { text: '⏳ Sedang memproses berita Anda...' });
+                    // Send initial response
+                    await sock.sendMessage(from, { text: 'Berita akan kami muat, terima kasih. ⏳ Sedang memproses...' });
 
                     if (messageType === 'imageMessage' || messageType === 'videoMessage') {
                         const buffer = await downloadMediaMessage(msg, 'buffer', {});
@@ -130,8 +138,10 @@ async function connectToWhatsApp() {
                         const filename = `wa_upload_${Date.now()}.${ext}`;
                         mediaPath = path.join(__dirname, filename);
                         fs.writeFileSync(mediaPath, buffer);
+                        console.log(`Media downloaded to ${mediaPath}`);
                     }
 
+                    // Login to backend
                     const loginRes = await axios.post(`${BACKEND_URL}/api/token`, 
                         new URLSearchParams({ 'username': WA_USERNAME, 'password': WA_PASSWORD }), 
                         { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
@@ -147,16 +157,19 @@ async function connectToWhatsApp() {
                         form.append('image', fs.createReadStream(mediaPath));
                     }
 
-                    await axios.post(`${BACKEND_URL}/api/news/`, form, {
+                    const newsRes = await axios.post(`${BACKEND_URL}/api/news/`, form, {
                         headers: { ...form.getHeaders(), 'Authorization': `Bearer ${token}` }
                     });
 
+                    console.log(`News posted successfully! ID: ${newsRes.data.id}`);
                     await sock.sendMessage(from, { text: `✅ Berita Berhasil Diupload!\n\nJudul: ${title}\nLink: https://smkbn666.sch.id/news` });
+                    
                     if (mediaPath && fs.existsSync(mediaPath)) fs.unlinkSync(mediaPath);
 
                 } catch (error) {
-                    console.error('Error posting news:', error.response?.data || error.message);
-                    await sock.sendMessage(from, { text: `❌ Gagal: ${error.response?.data?.detail || error.message}` });
+                    const errorDetail = error.response?.data?.detail || error.message;
+                    console.error('Error posting news:', errorDetail);
+                    await sock.sendMessage(from, { text: `❌ Gagal mengupload berita: ${errorDetail}` });
                     if (mediaPath && fs.existsSync(mediaPath)) fs.unlinkSync(mediaPath);
                 }
             }
