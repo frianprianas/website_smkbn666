@@ -123,7 +123,7 @@ const ManageWA = () => {
                                     </div>
                                 </div>
                             ) : status.status === 'DISCONNECTED' && status.qr ? (
-                                <div className="space-y-6 w-full">
+                                <div className="space-y-6 w-full text-center">
                                     <div className="mx-auto w-24 h-24 bg-red-50 rounded-full flex items-center justify-center">
                                         <XCircle className="w-12 h-12 text-red-500" />
                                     </div>
@@ -131,15 +131,31 @@ const ManageWA = () => {
                                         <p className="text-xl font-bold text-red-600">Belum Terhubung</p>
                                         <p className="text-gray-500 text-sm mb-6">Scan QR Code berikut untuk menghubungkan perangkat.</p>
                                     </div>
-                                    <div className="bg-white p-4 rounded-2xl border-2 border-dashed border-gray-200 inline-block mx-auto">
-                                        <img src={status.qr} alt="QR Code" className="w-48 h-48" />
+                                    <div className="bg-white p-4 rounded-2xl border-2 border-dashed border-gray-200 inline-block mx-auto shadow-inner">
+                                        <img src={status.qr} alt="QR Code" className="w-56 h-56" />
                                     </div>
-                                    <p className="text-[10px] text-gray-400">QR Code akan diperbarui otomatis setiap beberapa detik.</p>
+                                    <p className="text-[10px] text-gray-400 mt-4">QR Code akan diperbarui otomatis setiap beberapa detik.</p>
+                                </div>
+                            ) : status.status === 'OFFLINE' ? (
+                                <div className="py-12 flex flex-col items-center gap-4 text-center">
+                                    <ShieldAlert className="w-16 h-16 text-amber-500" />
+                                    <div>
+                                        <p className="text-xl font-bold text-gray-800">Gateway Offline</p>
+                                        <p className="text-gray-500 text-sm mt-2">Server Gateway sedang memulai atau tidak terjangkau.</p>
+                                        {status.error && <p className="text-[10px] text-red-400 mt-4 font-mono break-all">{status.error}</p>}
+                                    </div>
+                                    <button 
+                                        onClick={fetchData}
+                                        className="mt-4 text-blue-600 font-bold text-sm hover:underline"
+                                    >
+                                        Coba Segarkan Kembali
+                                    </button>
                                 </div>
                             ) : (
-                                <div className="py-12 flex flex-col items-center gap-4">
-                                    <Loader2 className="w-12 h-12 text-blue-500 animate-spin" />
-                                    <p className="text-gray-500 animate-pulse">Menghubungkan ke Gateway...</p>
+                                <div className="py-12 flex flex-col items-center gap-4 text-center">
+                                    <Loader2 className="w-16 h-16 text-blue-500 animate-spin" />
+                                    <p className="text-gray-500 animate-pulse font-bold">Menghubungkan ke Gateway...</p>
+                                    <p className="text-xs text-gray-400 max-w-[200px]">Mohon tunggu, server sedang menyiapkan koneksi WhatsApp.</p>
                                 </div>
                             )}
                         </div>
