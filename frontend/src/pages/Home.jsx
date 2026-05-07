@@ -269,7 +269,7 @@ const Home = () => {
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-6 auto-rows-[minmax(180px,auto)]">
 
                     {/* Welcome/About Snippet (Wide) */}
-                    <div className="col-span-1 md:col-span-8 bg-gradient-to-br from-white to-blue-50 rounded-3xl p-8 border border-blue-100 shadow-lg flex flex-col md:flex-row items-center gap-8 relative overflow-hidden group">
+                    <div className="col-span-1 md:col-span-6 bg-gradient-to-br from-white to-blue-50 rounded-3xl p-8 border border-blue-100 shadow-lg flex flex-col items-center gap-8 relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
                             <School className="w-48 h-48 text-blue-900" />
                         </div>
@@ -317,7 +317,7 @@ const Home = () => {
                     </div>
                     
                     {/* Social Media Mini Preview (New) */}
-                    <div className="col-span-1 md:col-span-4 bg-white rounded-3xl p-6 border border-blue-50 shadow-lg flex flex-col group overflow-hidden cursor-pointer h-full min-h-[300px]" onClick={() => setIsFacebookModalOpen(true)}>
+                    <div className="col-span-1 md:col-span-6 bg-white rounded-3xl p-6 border border-blue-50 shadow-lg flex flex-col group overflow-hidden cursor-pointer h-full min-h-[450px]" onClick={() => setIsFacebookModalOpen(true)}>
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="font-bold text-gray-800 flex items-center gap-2">
                                 <Facebook className="w-5 h-5 text-blue-600" /> Facebook Feed
@@ -326,7 +326,7 @@ const Home = () => {
                         </div>
                         <div className="flex-1 rounded-2xl bg-gray-50 overflow-hidden relative border border-gray-100">
                              <iframe 
-                                src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fsmkbn666&tabs=timeline&width=340&height=300&small_header=true&adapt_container_width=true&hide_cover=false&show_facepile=false&appId" 
+                                src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fsmkbn666&tabs=timeline&width=500&height=500&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId" 
                                 width="100%" 
                                 height="100%" 
                                 style={{ border: 'none', overflow: 'hidden' }} 
@@ -790,7 +790,7 @@ const Home = () => {
                         </div>
                         <div className="flex-1 bg-white relative">
                             <iframe 
-                                src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fsmkbn666&tabs=timeline&width=500&height=500&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId" 
+                                src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fsmkbn666&tabs=timeline&width=500&height=800&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId" 
                                 width="100%" 
                                 height="100%" 
                                 style={{ border: 'none', overflow: 'hidden' }} 
