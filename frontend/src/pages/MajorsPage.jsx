@@ -14,6 +14,7 @@ const majorMeta = {
         lightBg: 'bg-blue-50',
         accent: 'text-blue-600',
         badge: 'bg-blue-100 text-blue-700',
+        color: 'blue',
         icon: BookOpen,
         highlights: ['Pembelajaran modern', 'Guru profesional', 'Lab lengkap', 'Siap kerja'],
         prospek: ['Teknisi', 'Staf Profesional', 'Wirausaha', 'Pendidikan Lanjut'],
@@ -23,6 +24,7 @@ const majorMeta = {
         lightBg: 'bg-violet-50',
         accent: 'text-violet-600',
         badge: 'bg-violet-100 text-violet-700',
+        color: 'violet',
         icon: BookOpen,
         highlights: ['Pemrograman Web & Mobile', 'Database Management', 'UI/UX Design', 'Keamanan Siber'],
         prospek: ['Web Developer', 'Mobile Developer', 'UI/UX Designer', 'Software Engineer', 'Data Analyst'],
@@ -32,6 +34,7 @@ const majorMeta = {
         lightBg: 'bg-emerald-50',
         accent: 'text-emerald-600',
         badge: 'bg-emerald-100 text-emerald-700',
+        color: 'emerald',
         icon: BookOpen,
         highlights: ['Akuntansi Digital', 'Perpajakan', 'Software Akuntansi (Zahir, MYOB)', 'Laporan Keuangan Lembaga'],
         prospek: ['Akuntan', 'Staf Keuangan', 'Auditor', 'Tax Consultant', 'Teller Bank'],
@@ -41,6 +44,7 @@ const majorMeta = {
         lightBg: 'bg-pink-50',
         accent: 'text-pink-600',
         badge: 'bg-pink-100 text-pink-700',
+        color: 'pink',
         icon: BookOpen,
         highlights: ['Adobe Creative Suite', 'Fotografi & Videografi', 'Branding & Identitas Visual', 'Ilustrasi Digital'],
         prospek: ['Graphic Designer', 'Content Creator', 'Fotografer', 'Videografer', 'Art Director'],
@@ -50,6 +54,7 @@ const majorMeta = {
         lightBg: 'bg-orange-50',
         accent: 'text-orange-600',
         badge: 'bg-orange-100 text-orange-700',
+        color: 'orange',
         icon: BookOpen,
         highlights: ['Animasi 2D & 3D', 'Motion Graphics', 'Visual Effects (VFX)', 'Game Development'],
         prospek: ['Animator', 'Motion Designer', 'Game Developer', 'VFX Artist', 'Storyboard Artist'],
@@ -59,6 +64,7 @@ const majorMeta = {
         lightBg: 'bg-sky-50',
         accent: 'text-sky-600',
         badge: 'bg-sky-100 text-sky-700',
+        color: 'sky',
         icon: BookOpen,
         highlights: ['Digital Marketing', 'E-Commerce & Marketplace', 'Strategi Penjualan Online', 'Komunikasi Bisnis'],
         prospek: ['Digital Marketer', 'Social Media Manager', 'E-Commerce Specialist', 'Sales Manager', 'Entrepreneur'],
@@ -253,9 +259,13 @@ const MajorsPage = () => {
                                                     ))}
                                                 </div>
                                             </div>
-                                            <button className={`flex items-center gap-2 ${meta.accent} font-bold text-sm group-hover:gap-3 transition-all`}>
-                                                Lihat Detail <ArrowRight className="w-4 h-4" />
-                                            </button>
+                                            <Link 
+                                                to={`/majors/${slug}`} 
+                                                className={`flex items-center gap-2 ${meta.accent} font-bold text-sm group-hover:gap-3 transition-all`}
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
+                                                Lihat Halaman Penuh <ArrowRight className="w-4 h-4" />
+                                            </Link>
                                         </div>
                                     </motion.div>
                                 );
@@ -359,7 +369,7 @@ const MajorsPage = () => {
                                             <div className="flex gap-4">
                                                 <Link
                                                     to={`/majors/${getSlug(selected.name)}`}
-                                                    className={`flex-1 flex items-center justify-center gap-2 border-2 border-${meta.color}-600 ${meta.accent} py-4 rounded-2xl font-bold text-sm hover:bg-${meta.color}-50 transition-colors`}
+                                                    className={`flex-1 flex items-center justify-center gap-2 border-2 border-blue-600 text-blue-600 py-4 rounded-2xl font-bold text-sm hover:bg-blue-50 transition-colors`}
                                                 >
                                                     Lihat Halaman Penuh
                                                 </Link>
