@@ -7,8 +7,8 @@ import schemas, database, models, auth
 
 # Configure Gemini
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-# Coba gunakan gemini-1.5-flash kembali
-model = genai.GenerativeModel('gemini-1.5-flash')
+# Menggunakan model versi 2.0 Flash (terbaru)
+model = genai.GenerativeModel('gemini-2.0-flash')
 
 router = APIRouter(
     prefix="/comments",
