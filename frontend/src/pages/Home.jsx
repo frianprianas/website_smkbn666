@@ -118,6 +118,9 @@ const Home = () => {
         return () => clearTimeout(timer);
     }, []);
 
+    const mainNews = news.filter(n => n.category === "Berita Utama" || !n.category).slice(0, 4);
+    const dailyNews = news.filter(n => n.category === "Berita Harian").slice(0, 4);
+
     useEffect(() => {
         if (teachers.length === 0) return;
         const interval = setInterval(() => {
