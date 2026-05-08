@@ -86,36 +86,36 @@ const Home = () => {
 
     // Fetch Data
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchIndividual = async (endpoint, setter) => {
             try {
-                const [resMajors, resNews, resGallery, resPartners, resTeachers, resTestimonials, resAgendas, resStats] = await Promise.all([
-                    api.get('/majors/'),
-                    api.get('/news/'),
-                    api.get('/gallery/'),
-                    api.get('/partners/'),
-                    api.get('/staff/teachers/'),
-                    api.get('/testimonials/'),
-                    api.get('/agenda/'),
-                    api.get('/stats/')
-                ]);
-
-                setMajors(resMajors.data);
-                setNews(resNews.data);
-                setGallery(resGallery.data);
-                setPartners(resPartners.data);
-                setTestimonials(resTestimonials.data);
-                setAgendas(resAgendas.data);
-                setDynamicStats(resStats.data);
-
-                const relevantPositions = ["Kepala Sekolah", "Wakasek Bid Kurikulum", "Wakasek Bid Kesiswaan", "Wakasek Bid Sarpras", "Wakasek Bid Hubin", "Kepala Komli RPL", "Kepala Komli DKV", "Kepala Komli Animasi", "Kepala Komli AKT", "Kepala Komli Pemasaran", "Kepala Urusan TU", "Koordinator Keagamaan"];
-                setTeachers(resTeachers.data.filter(t => relevantPositions.includes(t.position)));
-            } catch (error) {
-                console.error("Failed to fetch data", error);
+                const res = await api.get(endpoint);
+                setter(res.data);
+            } catch (err) {
+                console.warn(`Failed to fetch ${endpoint}:`, err);
             }
         };
-        fetchData();
 
-        // Reveal the app after a delay
+        const fetchAll = async () => {
+            fetchIndividual('/majors/', setMajors);
+            fetchIndividual('/news/', setNews);
+            fetchIndividual('/gallery/', setGallery);
+            fetchIndividual('/partners/', setPartners);
+            fetchIndividual('/testimonials/', setTestimonials);
+            fetchIndividual('/agenda/', setAgendas);
+            fetchIndividual('/stats/', setDynamicStats);
+            
+            // Special handling for teachers
+            try {
+                const resTeachers = await api.get('/staff/teachers/');
+                const relevantPositions = ["Kepala Sekolah", "Wakasek Bid Kurikulum", "Wakasek Bid Kesiswaan", "Wakasek Bid Sarpras", "Wakasek Bid Hubin", "Kepala Komli RPL", "Kepala Komli DKV", "Kepala Komli Animasi", "Kepala Komli AKT", "Kepala Komli Pemasaran", "Kepala Urusan TU", "Koordinator Keagamaan"];
+                setTeachers(resTeachers.data.filter(t => relevantPositions.includes(t.position)));
+            } catch (err) {
+                console.warn("Failed to fetch teachers:", err);
+            }
+        };
+
+        fetchAll();
+
         const timer = setTimeout(() => {
             setIsAppReady(true);
         }, 2200);
