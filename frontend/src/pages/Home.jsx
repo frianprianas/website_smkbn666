@@ -104,6 +104,7 @@ const Home = () => {
             fetchIndividual('/testimonials/', setTestimonials);
             fetchIndividual('/agenda/', setAgendas);
             fetchIndividual('/stats/', setDynamicStats);
+            fetchIndividual('/kabar-baknus', setKabarBaknus);
             
             // Special handling for teachers
             try {
