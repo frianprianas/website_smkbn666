@@ -33,7 +33,7 @@ services:
     depends_on:
       - db
     volumes:
-      - ./backend:/app
+      - ./backend/static:/app/static
 
   frontend:
     build:
