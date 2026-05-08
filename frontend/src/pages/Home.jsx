@@ -4,7 +4,7 @@ import {
     School, ArrowRight, BookOpen, Users, Trophy, Facebook, Instagram, Youtube,
     Video, MessageCircle, ChevronRight, GraduationCap, Star,
     PlayCircle, MapPin, Calendar, Clock, Award, Activity,
-    HardDrive, Mail, Laptop, Cloud, ShieldCheck
+    HardDrive, Mail, Laptop, Cloud, ShieldCheck, Lock
 } from 'lucide-react';
 import { motion, AnimatePresence, useScroll, useTransform, animate, useInView } from 'framer-motion';
 import api from '../api';
@@ -161,9 +161,10 @@ const Home = () => {
                             <Link to="#" className="text-gray-600 hover:text-blue-600 font-medium text-sm transition-colors">Berita</Link>
                             <Link
                                 to="/login"
-                                className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white px-6 py-2.5 rounded-full font-medium transition-all shadow-lg shadow-blue-500/30 flex items-center gap-2 transform hover:-translate-y-0.5"
+                                className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white p-3 rounded-full font-medium transition-all shadow-lg shadow-blue-500/30 flex items-center justify-center transform hover:-translate-y-0.5"
+                                title="Login System"
                             >
-                                Login System <ArrowRight className="w-4 h-4" />
+                                <Lock className="w-5 h-5" />
                             </Link>
                         </div>
                     </div>
