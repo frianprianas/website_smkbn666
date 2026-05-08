@@ -110,7 +110,7 @@ def process_with_gemini(news):
         print(f"❌ Error Gemini Content: {e}")
         return None
 
-def post_to_website(token, data, original_image_url):
+def post_to_website(token, data, original_image_url, news_source, original_link):
     headers = {"Authorization": f"Bearer {token}"}
     image_file_path = "temp_news_image.jpg"
     has_image = False
@@ -147,9 +147,12 @@ def post_to_website(token, data, original_image_url):
             print("⚠️ Gagal mengambil gambar asli.")
 
     # --- 2. KIRIM DATA KE API ---
+    # Tambahkan sumber berita di akhir konten
+    footer = f"\n\n--- \n📰 *Sumber: {news_source}* \n🔗 [Baca berita asli]({original_link})"
+    
     payload = {
         "title": data['title'],
-        "content": data['content'],
+        "content": data['content'] + footer,
         "is_pinned": "false",
         "category": "Berita Harian"
     }
@@ -174,5 +177,5 @@ if __name__ == "__main__":
         if news:
             ai_data = process_with_gemini(news)
             if ai_data:
-                success = post_to_website(token, ai_data, news['original_image'])
+                success = post_to_website(token, ai_data, news['original_image'], news['source'], news['link'])
                 if success: print(f"🚀 SELESAI! Berita '{ai_data['title']}' sudah terbit.")

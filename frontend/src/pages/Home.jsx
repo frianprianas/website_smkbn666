@@ -690,7 +690,18 @@ const Home = () => {
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                         {mainNews.length > 0 && (
                             <Link to={`/news/${mainNews[0].id}`} className="md:col-span-2 bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100 group relative h-full min-h-[400px] cursor-pointer">
-                                {mainNews[0].image_url ? (
+                                {mainNews[0].video_url ? (
+                                    <div className="w-full h-full bg-black relative">
+                                        <video 
+                                            src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${mainNews[0].video_url}`} 
+                                            className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                                            autoPlay muted loop playsInline
+                                        />
+                                        <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-md p-2 rounded-full">
+                                            <Video className="w-5 h-5 text-white" />
+                                        </div>
+                                    </div>
+                                ) : mainNews[0].image_url ? (
                                     <img src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${mainNews[0].image_url}`} alt={mainNews[0].title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                                 ) : (
                                     <div className="w-full h-full bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center">
@@ -707,8 +718,16 @@ const Home = () => {
                         <div className="md:col-span-2 flex flex-col gap-6">
                             {mainNews.slice(1, 4).map((item) => (
                                 <Link key={item.id} to={`/news/${item.id}`} className="flex gap-4 items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all group">
-                                    <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0 bg-gray-100">
-                                        {item.image_url ? (
+                                    <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0 bg-gray-100 relative">
+                                        {item.video_url ? (
+                                            <video 
+                                                src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${item.video_url}`} 
+                                                className="w-full h-full object-cover opacity-90"
+                                                muted playsInline
+                                                onMouseOver={(e) => e.target.play()}
+                                                onMouseOut={(e) => {e.target.pause(); e.target.currentTime = 0;}}
+                                            />
+                                        ) : item.image_url ? (
                                             <img src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${item.image_url}`} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
                                         ) : (
                                             <div className="w-full h-full bg-blue-100 flex items-center justify-center">
