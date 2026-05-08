@@ -6,7 +6,6 @@ from datetime import datetime
 import json
 import random
 import re
-import socket
 import time
 
 # Load environment variables
@@ -15,7 +14,8 @@ load_dotenv()
 
 # --- KONFIGURASI ---
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-BASE_URL = "http://localhost:8000" if os.path.exists("/.dockerenv") else os.getenv("VITE_API_URL", "https://smkbn666.sch.id")
+# Jika jalan di docker, gunakan localhost:8000. Jika tidak, gunakan VITE_API_URL
+BASE_URL = "http://localhost:8000"
 AI_BOT_SECRET = os.getenv("AI_BOT_SECRET", "super_secret_ai_token")
 
 # Ambil semua API Key yang tersedia
@@ -23,11 +23,12 @@ API_KEYS = [os.getenv("GEMINI_API_KEY"), os.getenv("GEMINI_API_KEY2")]
 API_KEYS = [k for k in API_KEYS if k]
 current_key_index = 0
 
+print(f"🔧 Config: BASE_URL={BASE_URL}, API_KEYS_COUNT={len(API_KEYS)}")
+
 def get_model():
     global current_key_index
     if not API_KEYS: return None
     genai.configure(api_key=API_KEYS[current_key_index])
-    # Kembali ke 2.0-flash sesuai permintaan
     return genai.GenerativeModel('gemini-2.0-flash')
 
 def rotate_key():
@@ -36,48 +37,70 @@ def rotate_key():
     print(f"🔄 Rotasi ke API Key ke-{current_key_index + 1}...")
 
 def get_token():
+    print(f"🔑 Sedang mencoba login ke {BASE_URL}/api/token...")
     try:
         response = requests.post(f"{BASE_URL}/api/token", data={
             "username": "ai_bot",
             "password": AI_BOT_SECRET
         }, timeout=10)
-        return response.json().get("access_token")
+        if response.status_code == 200:
+            print("✅ Login Berhasil.")
+            return response.json().get("access_token")
+        else:
+            print(f"❌ Login Gagal: {response.status_code} - {response.text}")
+            return None
     except Exception as e:
-        print(f"❌ Error login ke Backend: {e}")
+        print(f"❌ Error Koneksi saat Login: {e}")
         return None
 
 def fetch_sources_from_db(token):
+    print("Fetch daftar sumber berita dari database...")
     headers = {"Authorization": f"Bearer {token}"}
     try:
         response = requests.get(f"{BASE_URL}/api/ai-bot/sources", headers=headers, timeout=10)
-        if response.status_code == 200: return response.json()
+        if response.status_code == 200:
+            sources = response.json()
+            print(f"✅ Berhasil mengambil {len(sources)} sumber.")
+            return sources
         return []
     except Exception as e:
-        print(f"❌ Error ambil daftar sumber: {e}")
+        print(f"❌ Error Fetch Sources: {e}")
         return []
 
 def extract_image_url(entry):
-    if hasattr(entry, 'enclosures') and entry.enclosures:
-        for enc in entry.enclosures:
-            if 'image' in enc.type: return enc.href
-    if hasattr(entry, 'media_content'): return entry.media_content[0]['url']
-    img_match = re.search(r'<img [^>]*src="([^"]+)"', getattr(entry, 'summary', ''))
-    if img_match: return img_match.group(1)
+    try:
+        if hasattr(entry, 'enclosures') and entry.enclosures:
+            for enc in entry.enclosures:
+                if 'image' in enc.type: return enc.href
+        if hasattr(entry, 'media_content'): return entry.media_content[0]['url']
+        img_match = re.search(r'<img [^>]*src="([^"]+)"', getattr(entry, 'summary', ''))
+        if img_match: return img_match.group(1)
+    except: pass
     return None
 
 def fetch_latest_news(sources):
     if not sources: 
+        print("⚠️ Tidak ada sumber di DB, gunakan fallback Detik...")
         sources = [{"name": "Detik Inet", "rss_url": "https://www.detik.com/terpopuler/inet/rss"}]
+    
     active_sources = [s for s in sources if s.get('is_active', True)]
     if not active_sources: return None
+    
     source = random.choice(active_sources)
-    print(f"📰 Menghubungi sumber: {source['name']}...")
+    print(f"📰 Menghubungi RSS: {source['name']} ({source['rss_url']})...")
+    
     try:
-        resp = requests.get(source['rss_url'], timeout=10)
+        print("⏳ Requesting RSS content...")
+        resp = requests.get(source['rss_url'], timeout=15)
+        print(f"📥 Respon diterima ({resp.status_code}). Parsing feed...")
+        
         feed = feedparser.parse(resp.content)
-        if not feed.entries: return None
+        if not feed.entries: 
+            print("📭 Feed kosong, tidak ada berita.")
+            return None
+            
         entry = feed.entries[0]
-        print(f"✅ Berita ditemukan: {entry.title[:50]}...")
+        print(f"✨ Berita terpilih: {entry.title}")
         return {
             "title": entry.title,
             "summary": entry.summary,
@@ -86,56 +109,61 @@ def fetch_latest_news(sources):
             "original_image": extract_image_url(entry)
         }
     except Exception as e:
-        print(f"❌ Koneksi gagal: {e}")
+        print(f"💥 ERROR Jaringan/RSS: {e}")
         return None
 
 def process_with_gemini(news):
-    prompt = f"""Bertindaklah sebagai Jurnalis SMK Bakti Nusantara 666. Tulis ulang berita ini dalam 3 paragraf: {news['title']} - {news['summary']}. Format JSON: {{"title": "...", "content": "..."}}"""
-    for _ in range(len(API_KEYS)):
+    prompt = f"Tulis ulang berita ini dalam 3 paragraf menarik: {news['title']} - {news['summary']}. Jawab dalam JSON: {{\"title\": \"...\", \"content\": \"...\"}}"
+    for i in range(len(API_KEYS)):
         try:
+            print(f"🤖 Memulai AI Processing (Key {current_key_index + 1})...")
             model = get_model()
-            print(f"🤖 Mengolah dengan Gemini (Key {current_key_index + 1})...")
             response = model.generate_content(prompt)
+            print("✅ AI berhasil merespon.")
+            
             json_match = re.search(r'\{.*\}', response.text, re.DOTALL)
-            if json_match: return json.loads(json_match.group(0))
+            if json_match:
+                return json.loads(json_match.group(0))
+            else:
+                print("❌ AI merespon tapi bukan format JSON.")
         except Exception as e:
-            print(f"❌ Error AI (Key {current_key_index + 1}): {e}")
-            # Selalu rotasi jika ada error jenis apapun agar mencoba key lain
+            print(f"⚠️ Kesalahan AI pada Key {current_key_index + 1}: {e}")
             rotate_key()
-            time.sleep(1)
-            continue
+            time.sleep(2)
     return None
 
-def post_to_website(token, data, original_image_url, news_source, original_link):
-    headers = {"Authorization": f"Bearer {token}"}
-    payload = {
-        "title": data['title'],
-        "content": data['content'],
-        "category": "Berita Harian",
-        "author": "BaknusAI Bot",
-        "image_url": original_image_url,
-        "source": f"{news_source} (Original: {original_link})"
-    }
-    try:
-        res = requests.post(f"{BASE_URL}/api/news/", json=payload, headers=headers, timeout=15)
-        if res.status_code == 200:
-            print(f"🚀 BERHASIL: Berita '{data['title']}' telah terbit!")
-            return True
-        print(f"❌ Gagal Posting: {res.text}")
-    except Exception as e:
-        print(f"❌ Error Posting: {e}")
-    return False
-
 def main():
-    print("🎬 Memulai BaknusAI News Bot (Model 2.0)...")
+    print("--- MULAI PROSES BOT ---")
     token = get_token()
     if not token: return
+    
     sources = fetch_sources_from_db(token)
     news = fetch_latest_news(sources)
-    if not news: return
+    if not news: 
+        print("❌ Gagal mendapatkan berita.")
+        return
+        
+    print("🚀 Melanjutkan ke tahap AI...")
     processed_news = process_with_gemini(news)
+    
     if processed_news:
-        post_to_website(token, processed_news, news['original_image'], news['source'], news['link'])
+        print("📡 Mengirim hasil ke website...")
+        headers = {"Authorization": f"Bearer {token}"}
+        payload = {
+            "title": processed_news['title'],
+            "content": processed_news['content'],
+            "category": "Berita Harian",
+            "author": "BaknusAI Bot",
+            "image_url": news['original_image'],
+            "source": f"{news['source']} (Original: {news['link']})"
+        }
+        res = requests.post(f"{BASE_URL}/api/news/", json=payload, headers=headers, timeout=20)
+        if res.status_code == 200:
+            print("🏆 SUKSES: Berita berhasil terbit!")
+        else:
+            print(f"❌ Gagal Publish: {res.status_code} - {res.text}")
+    else:
+        print("❌ Gagal total di tahap AI.")
 
 if __name__ == "__main__":
     main()
