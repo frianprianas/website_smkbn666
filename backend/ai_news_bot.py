@@ -34,23 +34,42 @@ def rotate_gemini_key():
     current_key_index = (current_key_index + 1) % len(GEMINI_API_KEYS)
     print(f"🔄 Rotasi ke Gemini API Key ke-{current_key_index + 1}...")
 
+def normalize_ai_response(data):
+    """Memastikan data memiliki kunci 'title' dan 'content'"""
+    normalized = {}
+    # Cari judul
+    normalized['title'] = data.get('title') or data.get('judul') or data.get('Judul') or data.get('Title')
+    # Cari konten
+    normalized['content'] = data.get('content') or data.get('isi') or data.get('konten') or data.get('Content')
+    
+    if normalized['title'] and normalized['content']:
+        return normalized
+    return None
+
 def process_with_mistral(news):
     print("🌀 Menggunakan Mistral AI sebagai cadangan...")
-    if not MISTRAL_API_KEY:
-        print("❌ Mistral API Key tidak ditemukan di .env")
-        return None
+    if not MISTRAL_API_KEY: return None
     
     client = MistralClient(api_key=MISTRAL_API_KEY)
-    prompt = f"Tulis ulang berita ini dalam 3 paragraf menarik untuk SMK Bakti Nusantara 666: {news['title']} - {news['summary']}. Jawab HARUS dalam format JSON: {{\"title\": \"...\", \"content\": \"...\"}}"
+    prompt = f"""Tulis ulang berita ini untuk website SMK Bakti Nusantara 666.
+    BERITA: {news['title']} - {news['summary']}
+    
+    WAJIB menggunakan format JSON persis seperti ini:
+    {{"title": "Judul Baru", "content": "Isi Berita 3 Paragraf"}}
+    """
     
     try:
         messages = [ChatMessage(role="user", content=prompt)]
         chat_response = client.chat(model="mistral-tiny", messages=messages)
         content = chat_response.choices[0].message.content
+        print(f"DEBUG MISTRAL: {content[:100]}...") # Intip sedikit responnya
+        
         json_match = re.search(r'\{.*\}', content, re.DOTALL)
-        if json_match: return json.loads(json_match.group(0))
+        if json_match:
+            data = json.loads(json_match.group(0))
+            return normalize_ai_response(data)
     except Exception as e:
-        print(f"❌ Mistral juga gagal: {e}")
+        print(f"❌ Mistral Error: {e}")
     return None
 
 def process_with_ai(news):
@@ -59,16 +78,19 @@ def process_with_ai(news):
         try:
             print(f"🤖 Mencoba Gemini (Key {current_key_index + 1})...")
             model = get_gemini_model()
-            response = model.generate_content(f"Tulis ulang dalam JSON: {news['title']} - {news['summary']}")
+            prompt = f"Tulis ulang berita ini dalam JSON: {news['title']} - {news['summary']}. Gunakan key 'title' dan 'content'."
+            response = model.generate_content(prompt)
+            
             json_match = re.search(r'\{.*\}', response.text, re.DOTALL)
-            if json_match: return json.loads(json_match.group(0))
+            if json_match:
+                data = json.loads(json_match.group(0))
+                return normalize_ai_response(data)
         except Exception as e:
-            print(f"⚠️ Gemini Key {current_key_index + 1} Gagal (Limit/Error).")
+            print(f"⚠️ Gemini Gagal: {e}")
             rotate_gemini_key()
             time.sleep(1)
             continue
     
-    # Tahap 2: Jika Gemini semua gagal, gunakan Mistral
     return process_with_mistral(news)
 
 # --- FUNGSI PENDUKUNG (LOGIN, FETCH, POST) ---
