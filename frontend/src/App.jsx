@@ -18,10 +18,12 @@ import MajorDetail from './pages/MajorDetail';
 import Profile from './pages/Profile';
 import ManageWA from './pages/ManageWA';
 import ManageAIBot from './pages/ManageAIBot';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
   return (
     <Router>
+      <Toaster position="top-right" />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/majors" element={<MajorsPage />} />
