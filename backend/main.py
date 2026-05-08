@@ -96,7 +96,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
 
 
-from routers import news, staff, majors, gallery, partners, users, testimonials, agenda, stats, wa_settings, ai_bot
+from routers import news, staff, majors, gallery, partners, users, testimonials, agenda, stats, wa_settings, ai_bot, comments
 app.include_router(news.router, prefix="/api")
 app.include_router(staff.router, prefix="/api")
 app.include_router(majors.router, prefix="/api")
@@ -108,6 +108,7 @@ app.include_router(agenda.router, prefix="/api")
 app.include_router(stats.router, prefix="/api")
 app.include_router(wa_settings.router, prefix="/api")
 app.include_router(ai_bot.router, prefix="/api")
+app.include_router(comments.router, prefix="/api")
 
 @app.get("/")
 def read_root():

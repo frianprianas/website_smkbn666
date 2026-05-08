@@ -40,6 +40,21 @@ class News(NewsBase):
     id: int
     date_posted: datetime
     author_id: int
+    comments: List['Comment'] = []
+    class Config:
+        from_attributes = True
+
+class CommentBase(BaseModel):
+    content: str
+
+class CommentCreate(CommentBase):
+    news_id: int
+
+class Comment(CommentBase):
+    id: int
+    date_posted: datetime
+    user_id: int
+    user: User
     class Config:
         from_attributes = True
 

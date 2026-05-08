@@ -110,17 +110,105 @@ const NewsDetail = () => {
                     ))}
                 </div>
 
+                {/* --- SEKSI KOMENTAR --- */}
+                <div className="mt-20 pt-10 border-t border-gray-100">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-8 flex items-center gap-3">
+                        Komentar <span className="bg-blue-100 text-blue-600 px-3 py-0.5 rounded-full text-sm">{news.comments?.length || 0}</span>
+                    </h3>
+
+                    {/* Input Komentar (Hanya jika Login) */}
+                    {localStorage.getItem('token') ? (
+                        <CommentForm newsId={newsId} onCommentPosted={() => window.location.reload()} />
+                    ) : (
+                        <div className="bg-gray-50 p-6 rounded-2xl text-center border border-gray-100 mb-10">
+                            <p className="text-gray-500 text-sm mb-4">Silakan login dengan akun Mailcow (Siswa/Guru/TU) untuk memberikan komentar.</p>
+                            <Link to="/login" className="bg-blue-600 text-white px-6 py-2 rounded-full text-sm font-bold hover:bg-blue-700 transition-colors inline-block">Login Sekarang</Link>
+                        </div>
+                    )}
+
+                    {/* Daftar Komentar */}
+                    <div className="space-y-6">
+                        {news.comments && news.comments.length > 0 ? (
+                            news.comments.map((comment) => (
+                                <div key={comment.id} className="flex gap-4 p-6 rounded-3xl bg-gray-50 border border-gray-100">
+                                    <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold shrink-0">
+                                        {comment.user.username[0].toUpperCase()}
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center gap-3 mb-1">
+                                            <h5 className="font-bold text-gray-900">{comment.user.username}</h5>
+                                            <span className="text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded font-bold uppercase">{comment.user.role}</span>
+                                            <span className="text-[10px] text-gray-400">{format(new Date(comment.date_posted), 'd MMM yyyy HH:mm')}</span>
+                                        </div>
+                                        <p className="text-gray-600 text-sm leading-relaxed">{comment.content}</p>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-gray-400 text-center py-10 italic">Belum ada komentar. Jadilah yang pertama!</p>
+                        )}
+                    </div>
+                </div>
+
                 {/* Footer Article */}
                 <div className="mt-20 p-8 rounded-3xl bg-blue-50 border border-blue-100 flex items-center justify-between">
                     <div>
                         <h4 className="font-bold text-gray-900 mb-1">Bagikan Berita Ini</h4>
                         <p className="text-sm text-gray-500">Ayo sebarkan informasi positif dari sekolah kita.</p>
                     </div>
-                    <div className="flex gap-2">
-                        {/* Simple Social Share Buttons could go here */}
-                    </div>
                 </div>
             </div>
+        </div>
+    );
+};
+
+// --- Sub-komponen untuk Form Komentar ---
+const CommentForm = ({ newsId, onCommentPosted }) => {
+    const [content, setContent] = React.useState('');
+    const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!content.trim()) return;
+
+        setIsSubmitting(true);
+        try {
+            const token = localStorage.getItem('token');
+            await axios.post(`${API_URL}/api/comments/`, 
+                { content, news_id: parseInt(newsId) },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            setContent('');
+            onCommentPosted();
+        } catch (error) {
+            console.error('Error posting comment:', error);
+            alert('Gagal mengirim komentar. Silakan coba lagi.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    return (
+        <form onSubmit={handleSubmit} className="mb-10">
+            <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Tulis pendapatmu di sini..."
+                className="w-full p-6 rounded-3xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-gray-700 min-h-[120px]"
+                required
+            ></textarea>
+            <div className="flex justify-end mt-3">
+                <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className={`bg-blue-600 text-white px-8 py-3 rounded-full font-bold transition-all shadow-lg hover:shadow-blue-600/30 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'}`}
+                >
+                    {isSubmitting ? 'Mengirim...' : 'Kirim Komentar'}
+                </button>
+            </div>
+        </form>
+    );
+};
         </div>
     );
 };

@@ -24,6 +24,7 @@ class News(Base):
     author_id = Column(Integer, ForeignKey("users.id"))
     
     author = relationship("User")
+    comments = relationship("Comment", back_populates="news", cascade="all, delete-orphan")
 
 class Teacher(Base):
     __tablename__ = "teachers"
@@ -33,6 +34,17 @@ class Teacher(Base):
     position = Column(String) # Jabatan
     description = Column(Text, nullable=True) # Keterangan
     photo_url = Column(String, nullable=True)
+
+class Comment(Base):
+    __tablename__ = "comments"
+    id = Column(Integer, primary_key=True, index=True)
+    content = Column(Text)
+    date_posted = Column(DateTime, default=datetime.utcnow)
+    news_id = Column(Integer, ForeignKey("news.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
+    
+    news = relationship("News", back_populates="comments")
+    user = relationship("User")
 
 class Staff(Base):
     __tablename__ = "staff"
