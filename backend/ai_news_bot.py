@@ -27,7 +27,8 @@ def get_model():
     global current_key_index
     if not API_KEYS: return None
     genai.configure(api_key=API_KEYS[current_key_index])
-    return genai.GenerativeModel('gemini-1.5-flash')
+    # Kembali ke 2.0-flash sesuai permintaan
+    return genai.GenerativeModel('gemini-2.0-flash')
 
 def rotate_key():
     global current_key_index
@@ -67,25 +68,14 @@ def extract_image_url(entry):
 def fetch_latest_news(sources):
     if not sources: 
         sources = [{"name": "Detik Inet", "rss_url": "https://www.detik.com/terpopuler/inet/rss"}]
-    
     active_sources = [s for s in sources if s.get('is_active', True)]
     if not active_sources: return None
-    
     source = random.choice(active_sources)
     print(f"📰 Menghubungi sumber: {source['name']}...")
-    
     try:
-        # GUNAKAN REQUESTS DENGAN TIMEOUT KETAT (Agar tidak hang)
         resp = requests.get(source['rss_url'], timeout=10)
-        if resp.status_code != 200:
-            print(f"❌ Sumber {source['name']} memberikan respon error {resp.status_code}")
-            return None
-            
         feed = feedparser.parse(resp.content)
-        if not feed.entries: 
-            print(f"⚠️ Tidak ada berita baru di {source['name']}")
-            return None
-            
+        if not feed.entries: return None
         entry = feed.entries[0]
         print(f"✅ Berita ditemukan: {entry.title[:50]}...")
         return {
@@ -96,7 +86,7 @@ def fetch_latest_news(sources):
             "original_image": extract_image_url(entry)
         }
     except Exception as e:
-        print(f"❌ Koneksi ke {source['name']} gagal: {e}")
+        print(f"❌ Koneksi gagal: {e}")
         return None
 
 def process_with_gemini(news):
@@ -109,12 +99,11 @@ def process_with_gemini(news):
             json_match = re.search(r'\{.*\}', response.text, re.DOTALL)
             if json_match: return json.loads(json_match.group(0))
         except Exception as e:
-            if "429" in str(e).lower() or "quota" in str(e).lower():
-                print(f"⚠️ Key {current_key_index+1} limit.")
-                rotate_key()
-                time.sleep(1)
-                continue
-            print(f"❌ Error AI: {e}")
+            print(f"❌ Error AI (Key {current_key_index + 1}): {e}")
+            # Selalu rotasi jika ada error jenis apapun agar mencoba key lain
+            rotate_key()
+            time.sleep(1)
+            continue
     return None
 
 def post_to_website(token, data, original_image_url, news_source, original_link):
@@ -132,27 +121,21 @@ def post_to_website(token, data, original_image_url, news_source, original_link)
         if res.status_code == 200:
             print(f"🚀 BERHASIL: Berita '{data['title']}' telah terbit!")
             return True
-        print(f"❌ Gagal Posting ke Web: {res.text}")
+        print(f"❌ Gagal Posting: {res.text}")
     except Exception as e:
-        print(f"❌ Error saat mengirim ke Web: {e}")
+        print(f"❌ Error Posting: {e}")
     return False
 
 def main():
-    print("🎬 Memulai BaknusAI News Bot...")
+    print("🎬 Memulai BaknusAI News Bot (Model 2.0)...")
     token = get_token()
     if not token: return
-    
     sources = fetch_sources_from_db(token)
     news = fetch_latest_news(sources)
-    if not news: 
-        print("📭 Tidak ada berita untuk diproses saat ini.")
-        return
-        
+    if not news: return
     processed_news = process_with_gemini(news)
     if processed_news:
         post_to_website(token, processed_news, news['original_image'], news['source'], news['link'])
-    else:
-        print("❌ Gagal memproses berita dengan AI.")
 
 if __name__ == "__main__":
     main()
