@@ -7,8 +7,8 @@ import schemas, database, models, auth
 
 # Configure Gemini
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-# Gunakan gemini-pro yang lebih stabil di berbagai versi library
-model = genai.GenerativeModel('gemini-pro')
+# Coba gunakan gemini-1.5-flash kembali
+model = genai.GenerativeModel('gemini-1.5-flash')
 
 router = APIRouter(
     prefix="/comments",
@@ -16,38 +16,28 @@ router = APIRouter(
 )
 
 async def scan_with_baknus_ai(text: str):
+    # Log untuk memastikan API Key terisi
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        print("❌ ERROR: GEMINI_API_KEY Kosong!")
+        return False
+
     prompt = f"""
-    SEBAGAI MODERATOR AI SMK BAKTI NUSANTARA 666.
-    TUGAS: SCAN KOMENTAR DARI KATA KASAR/TIDAK SOPAN (INDO, INGGRIS, SUNDA, JAWA).
-    
-    TEKS KOMENTAR: "{text}"
-    
-    ATURAN:
-    - JIKA ADA KATA KASAR, HINAAN, ATAU TIDAK SOPAN, JAWAB: KASAR
-    - JIKA SOPAN, JAWAB: AMAN
-    
-    JAWAB DENGAN SATU KATA SAJA!
+    SEBAGAI MODERATOR AI.
+    TEKS: "{text}"
+    ATURAN: Jawab KASAR jika ada kata kasar/tidak sopan, jawab AMAN jika sopan.
+    SATU KATA SAJA!
     """
     try:
-        api_key = os.getenv("GEMINI_API_KEY")
-        if not api_key:
-            print("❌ ERROR: GEMINI_API_KEY tidak ditemukan!")
-            return False
-
         response = await model.generate_content_async(prompt)
-        # Tambahkan pengecekan jika response kosong atau diblokir safety filter
-        if not response.text:
-            return False
-            
         result = response.text.strip().upper()
         print(f"🔍 BaknusAI Scan: [{text}] -> Result: {result}")
-        
         return "KASAR" in result or "TIDAK" in result
     except Exception as e:
         print(f"⚠️ BaknusAI System Error: {e}")
-        # Jika error karena model/limit, biarkan aman, tapi jika error karena kata-kata kasar yang diblokir API, anggap kasar
-        if "safety" in str(e).lower():
-            return True
+        # Jika model tidak ketemu, kita coba tampilkan model apa saja yang ada di log
+        if "404" in str(e):
+            print("💡 TIPS: Cek model yang tersedia di https://aistudio.google.com/")
         return False
 
 @router.post("/", response_model=schemas.Comment)
