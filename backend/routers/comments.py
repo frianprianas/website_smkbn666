@@ -54,7 +54,7 @@ async def check_comment_with_ai(content: str):
 async def create_comment(
     comment: schemas.CommentCreate,
     db: Session = Depends(database.get_db),
-    current_user: models.User = Depends(auth.get_current_active_user)
+    current_user: models.User = Depends(auth.get_current_user)
 ):
     # 1. Penyaringan AI
     is_safe = await check_comment_with_ai(comment.content)
@@ -79,7 +79,7 @@ async def create_comment(
 def delete_comment(
     comment_id: int,
     db: Session = Depends(database.get_db),
-    current_user: models.User = Depends(auth.get_current_active_user)
+    current_user: models.User = Depends(auth.get_current_user)
 ):
     comment = db.query(models.Comment).filter(models.Comment.id == comment_id).first()
     if not comment:
