@@ -5,10 +5,14 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 import schemas, database, models, auth
 
-# Configure Gemini
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-# Menggunakan model versi 2.0 Flash (terbaru)
-model = genai.GenerativeModel('gemini-2.0-flash')
+# Ambil semua API Key yang tersedia
+API_KEYS = [
+    os.getenv("GEMINI_API_KEY"),
+    os.getenv("GEMINI_API_KEY2")
+]
+API_KEYS = [k for k in API_KEYS if k] # Hanya ambil yang tidak kosong
+
+current_key_index = 0
 
 router = APIRouter(
     prefix="/comments",
@@ -16,10 +20,10 @@ router = APIRouter(
 )
 
 async def scan_with_baknus_ai(text: str):
-    # Log untuk memastikan API Key terisi
-    api_key = os.getenv("GEMINI_API_KEY")
-    if not api_key:
-        print("❌ ERROR: GEMINI_API_KEY Kosong!")
+    global current_key_index
+    
+    if not API_KEYS:
+        print("❌ ERROR: Tidak ada GEMINI_API_KEY yang dikonfigurasi!")
         return False
 
     prompt = f"""
@@ -28,17 +32,31 @@ async def scan_with_baknus_ai(text: str):
     ATURAN: Jawab KASAR jika ada kata kasar/tidak sopan, jawab AMAN jika sopan.
     SATU KATA SAJA!
     """
-    try:
-        response = await model.generate_content_async(prompt)
-        result = response.text.strip().upper()
-        print(f"🔍 BaknusAI Scan: [{text}] -> Result: {result}")
-        return "KASAR" in result or "TIDAK" in result
-    except Exception as e:
-        print(f"⚠️ BaknusAI System Error: {e}")
-        # Jika model tidak ketemu, kita coba tampilkan model apa saja yang ada di log
-        if "404" in str(e):
-            print("💡 TIPS: Cek model yang tersedia di https://aistudio.google.com/")
-        return False
+
+    # Coba gunakan kunci yang tersedia
+    for _ in range(len(API_KEYS)):
+        try:
+            key = API_KEYS[current_key_index]
+            genai.configure(api_key=key)
+            model = genai.GenerativeModel('gemini-2.5-flash')
+            
+            response = await model.generate_content_async(prompt)
+            result = response.text.strip().upper()
+            
+            print(f"🔍 BaknusAI Scan (Key {current_key_index+1}): [{text}] -> Result: {result}")
+            return "KASAR" in result or "TIDAK" in result
+            
+        except Exception as e:
+            error_str = str(e)
+            if "429" in error_str or "quota" in error_str.lower():
+                print(f"⚠️ Key {current_key_index+1} kena limit, rotasi ke key berikutnya...")
+                current_key_index = (current_key_index + 1) % len(API_KEYS)
+                continue # Coba lagi dengan key berikutnya
+            
+            print(f"⚠️ BaknusAI System Error: {e}")
+            return False
+            
+    return False
 
 @router.post("/", response_model=schemas.Comment)
 async def create_comment(

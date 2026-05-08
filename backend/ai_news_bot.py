@@ -16,10 +16,25 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 BASE_URL = "http://localhost:8000" if os.path.exists("/.dockerenv") else os.getenv("VITE_API_URL", "https://smkbn666.sch.id")
 AI_BOT_SECRET = os.getenv("AI_BOT_SECRET", "super_secret_ai_token")
 
-# Konfigurasi Gemini
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel('gemini-pro')
-image_model = genai.GenerativeModel('models/gemini-2.5-flash-image')
+# Ambil semua API Key yang tersedia
+API_KEYS = [
+    os.getenv("GEMINI_API_KEY"),
+    os.getenv("GEMINI_API_KEY2")
+]
+API_KEYS = [k for k in API_KEYS if k] # Hanya ambil yang tidak kosong
+current_key_index = 0
+
+def get_model():
+    global current_key_index
+    if not API_KEYS:
+        return None
+    genai.configure(api_key=API_KEYS[current_key_index])
+    return genai.GenerativeModel('gemini-2.5-flash')
+
+def rotate_key():
+    global current_key_index
+    current_key_index = (current_key_index + 1) % len(API_KEYS)
+    print(f"🔄 Rotasi ke API Key ke-{current_key_index + 1}...")
 
 def get_token():
     try:
@@ -101,19 +116,28 @@ def process_with_gemini(news):
         "content": "Isi berita 2-3 paragraf dengan ajakan siswa BN 666 di akhir..."
     }}
     """
-    try:
-        response = model.generate_content(prompt)
-        # Cari pola {...} di dalam teks menggunakan regex
-        json_match = re.search(r'\{.*\}', response.text, re.DOTALL)
-        if json_match:
-            clean_json = json_match.group(0)
-            return json.loads(clean_json)
-        else:
-            print("❌ Tidak ditemukan format JSON di jawaban Gemini.")
+    
+    for _ in range(len(API_KEYS)):
+        try:
+            model = get_model()
+            if not model: return None
+            
+            response = model.generate_content(prompt)
+            # Cari pola {...} di dalam teks menggunakan regex
+            json_match = re.search(r'\{.*\}', response.text, re.DOTALL)
+            if json_match:
+                clean_json = json_match.group(0)
+                return json.loads(clean_json)
+            else:
+                print("❌ Tidak ditemukan format JSON di jawaban Gemini.")
+                return None
+        except Exception as e:
+            if "429" in str(e) or "quota" in str(e).lower():
+                rotate_key()
+                continue
+            print(f"❌ Error Gemini Content: {e}")
             return None
-    except Exception as e:
-        print(f"❌ Error Gemini Content: {e}")
-        return None
+    return None
 
 def post_to_website(token, data, original_image_url, news_source, original_link):
     headers = {"Authorization": f"Bearer {token}"}
