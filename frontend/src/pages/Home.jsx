@@ -122,8 +122,20 @@ const Home = () => {
         return () => clearTimeout(timer);
     }, []);
 
-    const mainNews = news.filter(n => n.category === "Berita Utama" || !n.category).slice(0, 4);
-    const dailyNews = news.filter(n => n.category === "Berita Harian").slice(0, 4);
+    const mainNews = news.filter(n => 
+        !n.category || 
+        n.category.toLowerCase() === "berita utama" || 
+        n.category.toLowerCase() === "umum"
+    ).slice(0, 4);
+    
+    const dailyNews = news.filter(n => 
+        n.category && n.category.toLowerCase() === "berita harian"
+    ).slice(0, 4);
+
+    // Debugging log (hanya muncul di console browser)
+    console.log("Total News Loaded:", news.length);
+    console.log("Main News:", mainNews.length);
+    console.log("Daily News:", dailyNews.length);
 
     useEffect(() => {
         if (teachers.length === 0) return;
