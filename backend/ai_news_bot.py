@@ -23,8 +23,18 @@ SOURCES = [
 ]
 
 genai.configure(api_key=GEMINI_API_KEY)
-# Mencoba menggunakan gemini-pro yang biasanya lebih stabil di semua versi library
-model = genai.GenerativeModel('gemini-pro')
+
+# --- DIAGNOSA: Cek Model yang Tersedia ---
+try:
+    print("Mengecek akses model...")
+    for m in genai.list_models():
+        if 'generateContent' in m.supported_generation_methods:
+            print(f"Model tersedia: {m.name}")
+except Exception as e:
+    print(f"Gagal mengecek model: {e}")
+
+# Mencoba menggunakan model 1.5 flash dengan format lengkap
+model = genai.GenerativeModel('models/gemini-1.5-flash')
 
 def get_token():
     """Mendapatkan token akses menggunakan bypass ai_bot"""
