@@ -13,6 +13,10 @@ app = FastAPI(title="SMK Bakti Nusantara 666 API")
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+@app.get("/api/kabar-baknus", response_model=List[schemas.KabarBaknus])
+def get_kabar_baknus(db: Session = Depends(database.get_db)):
+    return db.query(models.KabarBaknus).order_by(models.KabarBaknus.date_found.desc()).all()
+
 # CORS
 origins = [
     "http://localhost:5173",

@@ -55,6 +55,18 @@ class Comment(CommentBase):
     date_posted: datetime
     user_id: int
     user: User
+
+class KabarBaknus(BaseModel):
+    id: int
+    title: str
+    summary: str
+    image_url: Optional[str]
+    source_link: str
+    source_name: str
+    date_found: datetime
+
+    class Config:
+        from_attributes = True
     class Config:
         from_attributes = True
 

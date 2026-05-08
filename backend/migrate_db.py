@@ -18,7 +18,15 @@ def migrate():
     try:
         # Gunakan engine yang sesuai (Postgres/MySQL/SQLite)
         engine = create_engine(DATABASE_URL)
+        inspector = inspect(engine)
         with engine.connect() as conn:
+            
+            # Tambahkan tabel kabar_baknus jika belum ada
+            if not inspector.has_table("kabar_baknus"):
+                print("➕ Membuat tabel 'kabar_baknus'...")
+                KabarBaknus.__table__.create(engine)
+                print("✅ Tabel 'kabar_baknus' berhasil dibuat.")
+            
             # Cek kolom untuk Postgres
             print("🧐 Mengecek tabel 'news'...")
             

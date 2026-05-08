@@ -46,6 +46,16 @@ class Comment(Base):
     news = relationship("News", back_populates="comments")
     user = relationship("User")
 
+class KabarBaknus(Base):
+    __tablename__ = "kabar_baknus"
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String)
+    summary = Column(Text)
+    image_url = Column(String, nullable=True)
+    source_link = Column(String)
+    source_name = Column(String)
+    date_found = Column(DateTime, default=datetime.utcnow)
+
 class Staff(Base):
     __tablename__ = "staff"
     id = Column(Integer, primary_key=True, index=True)

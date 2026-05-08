@@ -4,7 +4,7 @@ import {
     School, ArrowRight, BookOpen, Users, Trophy, Facebook, Instagram, Youtube,
     Video, MessageCircle, ChevronRight, GraduationCap, Star,
     PlayCircle, MapPin, Calendar, Clock, Award, Activity, Tag,
-    HardDrive, Mail, Laptop, Cloud, ShieldCheck, Lock
+    HardDrive, Mail, Laptop, Cloud, ShieldCheck, Lock, Globe, ExternalLink
 } from 'lucide-react';
 import { motion, AnimatePresence, useScroll, useTransform, animate, useInView } from 'framer-motion';
 import api from '../api';
@@ -14,6 +14,7 @@ const Home = () => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [majors, setMajors] = useState([]);
     const [news, setNews] = useState([]);
+    const [kabarBaknus, setKabarBaknus] = useState([]);
     const [gallery, setGallery] = useState([]);
     const [partners, setPartners] = useState([]);
     const [teachers, setTeachers] = useState([]);
@@ -822,6 +823,62 @@ const Home = () => {
                     </div>
                 </div>
             </section>
+
+            {/* --- SEKSI KABAR BAKNUS (MISTRAL AI) --- */}
+            {kabarBaknus.length > 0 && (
+                <section className="py-24 bg-gradient-to-br from-indigo-50 via-white to-blue-50">
+                    <div className="max-w-7xl mx-auto px-6">
+                        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+                            <div className="text-left">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-blue-200">
+                                        Baknus Intelligence
+                                    </span>
+                                </div>
+                                <h2 className="text-4xl md:text-5xl font-black text-gray-900 leading-tight">
+                                    Kabar Baknus <br />
+                                    <span className="text-blue-600 italic">di Internet</span>
+                                </h2>
+                            </div>
+                            <p className="text-gray-500 max-w-md text-left text-sm md:text-base leading-relaxed">
+                                Dirangkum secara otomatis oleh <span className="font-bold text-blue-600">Mistral AI</span> dari berbagai sumber berita terpercaya di internet.
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-left">
+                            {kabarBaknus.map((kabar) => (
+                                <motion.a 
+                                    key={kabar.id}
+                                    href={kabar.source_link}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    whileHover={{ y: -10 }}
+                                    className="group bg-white rounded-[2.5rem] p-8 shadow-xl shadow-blue-900/5 border border-white hover:border-blue-200 transition-all flex flex-col h-full"
+                                >
+                                    <div className="flex items-center gap-3 mb-6">
+                                        <div className="w-10 h-10 rounded-2xl bg-blue-50 flex items-center justify-center">
+                                            <Globe className="w-5 h-5 text-blue-600" />
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-black text-blue-600 uppercase tracking-tighter">{kabar.source_name}</p>
+                                            <p className="text-[9px] text-gray-400">{new Date(kabar.date_found).toLocaleDateString('id-ID')}</p>
+                                        </div>
+                                    </div>
+                                    <h3 className="text-xl font-bold text-gray-900 mb-4 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                                        {kabar.title}
+                                    </h3>
+                                    <p className="text-gray-500 text-sm leading-relaxed mb-6 line-clamp-3">
+                                        {kabar.summary}
+                                    </p>
+                                    <div className="mt-auto flex items-center gap-2 text-blue-600 font-bold text-xs">
+                                        Baca Sumber Asli <ExternalLink className="w-3 h-3" />
+                                    </div>
+                                </motion.a>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
 
             {/* --- Gallery Grid --- */}
             <section className="py-24 max-w-7xl mx-auto px-4">
