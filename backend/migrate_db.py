@@ -1,5 +1,6 @@
 import os
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, text, inspect
+import models
 from dotenv import load_dotenv
 
 # Muat environment variables
