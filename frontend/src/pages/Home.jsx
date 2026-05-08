@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
     School, ArrowRight, BookOpen, Users, Trophy, Facebook, Instagram, Youtube,
     Video, MessageCircle, ChevronRight, GraduationCap, Star,
-    PlayCircle, MapPin, Calendar, Clock, Award, Activity,
+    PlayCircle, MapPin, Calendar, Clock, Award, Activity, Tag,
     HardDrive, Mail, Laptop, Cloud, ShieldCheck, Lock
 } from 'lucide-react';
 import { motion, AnimatePresence, useScroll, useTransform, animate, useInView } from 'framer-motion';
