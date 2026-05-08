@@ -24,7 +24,7 @@ def migrate():
             # Tambahkan tabel kabar_baknus jika belum ada
             if not inspector.has_table("kabar_baknus"):
                 print("➕ Membuat tabel 'kabar_baknus'...")
-                KabarBaknus.__table__.create(engine)
+                models.KabarBaknus.__table__.create(engine)
                 print("✅ Tabel 'kabar_baknus' berhasil dibuat.")
             
             # Cek kolom untuk Postgres
