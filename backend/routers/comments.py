@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from typing import List
 import database, models, schemas, auth
 import google.generativeai as genai
 from mistralai.client import MistralClient
@@ -55,6 +56,11 @@ async def check_comment_with_ai(content: str):
         except: pass
 
     return True
+
+@router.get("/news/{news_id}", response_model=List[schemas.Comment])
+def get_comments(news_id: int, skip: int = 0, limit: int = 25, db: Session = Depends(database.get_db)):
+    comments = db.query(models.Comment).filter(models.Comment.news_id == news_id).offset(skip).limit(limit).all()
+    return comments
 
 @router.post("/", response_model=schemas.Comment)
 async def create_comment(
