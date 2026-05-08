@@ -122,21 +122,33 @@ def process_with_gemini(news):
             model = get_model()
             if not model: return None
             
+            print(f"🤖 Mengirim ke Gemini (Key {current_key_index + 1})...")
             response = model.generate_content(prompt)
+            
             # Cari pola {...} di dalam teks menggunakan regex
             json_match = re.search(r'\{.*\}', response.text, re.DOTALL)
             if json_match:
                 clean_json = json_match.group(0)
                 return json.loads(clean_json)
             else:
-                print("❌ Tidak ditemukan format JSON di jawaban Gemini.")
-                return None
+                print(f"❌ Key {current_key_index + 1}: Format JSON tidak ditemukan di jawaban.")
+                print(f"Jawaban AI: {response.text[:100]}...")
+                # Lanjut coba key lain jika format salah (siapa tahu key ini bermasalah)
         except Exception as e:
-            if "429" in str(e) or "quota" in str(e).lower():
+            error_msg = str(e).lower()
+            if "429" in error_msg or "quota" in error_msg or "limit" in error_msg:
+                print(f"⚠️ Key {current_key_index + 1} kena limit kuota.")
+                rotate_key()
+                import time
+                time.sleep(2) # Jeda agar tidak terlalu cepat
+                continue
+            else:
+                print(f"❌ Key {current_key_index + 1} Error: {e}")
+                # Jika error bukan kuota, tetap rotasi untuk mencoba peruntungan di key lain
                 rotate_key()
                 continue
-            print(f"❌ Error Gemini Content: {e}")
-            return None
+                
+    print("🛑 Semua API Key gagal memproses berita ini.")
     return None
 
 def post_to_website(token, data, original_image_url, news_source, original_link):
