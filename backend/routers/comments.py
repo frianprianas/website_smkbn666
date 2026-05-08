@@ -16,21 +16,33 @@ router = APIRouter(
 
 async def scan_with_baknus_ai(text: str):
     prompt = f"""
-    Bertindaklah sebagai Moderator AI yang ketat untuk website sekolah SMK Bakti Nusantara 666.
-    Tugasmu adalah menyaring komentar siswa/guru.
-    Deteksi apakah teks berikut mengandung kata kasar, hinaan, sara, atau tidak sopan dalam bahasa Indonesia, Inggris, Sunda, atau Jawa.
+    SEBAGAI MODERATOR AI SMK BAKTI NUSANTARA 666.
+    TUGAS: SCAN KOMENTAR DARI KATA KASAR/TIDAK SOPAN (INDO, INGGRIS, SUNDA, JAWA).
     
-    Teks: "{text}"
+    TEKS KOMENTAR: "{text}"
     
-    Hanya jawab dengan satu kata: "AMAN" jika sopan, atau "KASAR" jika tidak sopan.
-    Jangan berikan penjelasan apapun.
+    ATURAN:
+    - JIKA ADA KATA KASAR, HINAAN, ATAU TIDAK SOPAN, JAWAB: KASAR
+    - JIKA SOPAN, JAWAB: AMAN
+    
+    JAWAB DENGAN SATU KATA SAJA!
     """
     try:
+        if not os.getenv("GEMINI_API_KEY"):
+            print("❌ ERROR: GEMINI_API_KEY tidak ditemukan di environment!")
+            return False
+
         response = await model.generate_content_async(prompt)
         result = response.text.strip().upper()
-        return "KASAR" in result
+        
+        print(f"🔍 BaknusAI Scan: [{text}] -> Result: {result}")
+        
+        # Jika hasil mengandung KASAR atau TIDAK AMAN, maka dianggap kasar
+        if "KASAR" in result or "TIDAK" in result:
+            return True
+        return False
     except Exception as e:
-        print(f"⚠️ BaknusAI Error: {e}")
+        print(f"⚠️ BaknusAI System Error: {e}")
         return False
 
 @router.post("/", response_model=schemas.Comment)

@@ -286,13 +286,13 @@ const CommentItem = ({ comment, onDeleted, onUpdated }) => {
                     </div>
                     
                     {(isOwner || isAdmin) && !isEditing && (
-                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="flex gap-2 transition-opacity">
                             {isOwner && (
-                                <button onClick={() => setIsEditing(true)} className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-blue-600 transition-colors">
+                                <button onClick={() => setIsEditing(true)} className="p-1.5 hover:bg-blue-50 rounded-lg text-gray-400 hover:text-blue-600 transition-colors border border-gray-100">
                                     <Edit3 className="w-4 h-4" />
                                 </button>
                             )}
-                            <button onClick={handleDelete} className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-red-600 transition-colors">
+                            <button onClick={handleDelete} className="p-1.5 hover:bg-red-50 rounded-lg text-gray-400 hover:text-red-600 transition-colors border border-gray-100">
                                 <Trash2 className="w-4 h-4" />
                             </button>
                         </div>
