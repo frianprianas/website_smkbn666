@@ -204,6 +204,7 @@ const Home = () => {
             {!isAppReady && <Preloader />}
         </AnimatePresence>
 
+        <div ref={targetRef} className="min-h-screen bg-white relative overflow-x-hidden selection:bg-blue-500 selection:text-white font-sans">
             {/* --- Dynamic Background Elements --- */}
             <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
                 <motion.div
