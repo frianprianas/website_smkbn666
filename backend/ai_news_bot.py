@@ -49,6 +49,7 @@ def process_with_mistral(news):
     return normalize_ai_response({}, news)
 
 def process_with_ai(news):
+    global current_key_index
     for _ in range(len(GEMINI_API_KEYS)):
         try:
             print(f"🤖 Mencoba Gemini (Key {current_key_index + 1})...")
@@ -58,7 +59,6 @@ def process_with_ai(news):
             return normalize_ai_response({"title": news['title'], "content": response.text}, news)
         except Exception as e:
             print(f"⚠️ Gemini Gagal: {e}")
-            global current_key_index
             current_key_index = (current_key_index + 1) % len(GEMINI_API_KEYS)
             time.sleep(1)
             continue
