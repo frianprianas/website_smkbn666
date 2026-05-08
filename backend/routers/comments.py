@@ -13,7 +13,6 @@ router = APIRouter(
     tags=["comments"],
 )
 
-# Ambil semua API Key yang tersedia
 API_KEYS = [os.getenv("GEMINI_API_KEY"), os.getenv("GEMINI_API_KEY2"), os.getenv("GEMINI_API_KEY3")]
 API_KEYS = [k for k in API_KEYS if k]
 MISTRAL_API_KEY = os.getenv("MISTRAL_API")
@@ -21,44 +20,40 @@ MISTRAL_API_KEY = os.getenv("MISTRAL_API")
 current_key_index = 0
 
 async def check_comment_with_ai(content: str):
-    """Fungsi moderasi komentar menggunakan Gemini dengan cadangan Mistral"""
     global current_key_index
-    prompt = f"Moderasi komentar ini. Jika mengandung SARA, Makian, atau Spam, jawab 'TIDAK AMAN'. Jika baik, jawab 'AMAN'. Jawab 1 kata saja. Komentar: {content}"
+    # Instruksi lebih ketat agar AI tidak curhat
+    prompt = f"Moderasi teks ini. Jika kasar/SARA/spam jawab 'BLOKIR'. Jika aman jawab 'LOLOS'. Jawab 1 kata saja.\nTeks: {content}"
 
-    print(f"🔍 Memeriksa komentar: '{content[:30]}...'")
+    print(f"🕵️ Moderasi: '{content[:30]}...'")
 
-    # Tahap 1: Coba Gemini
+    # 1. Coba Gemini
     for _ in range(len(API_KEYS)):
         try:
-            key = API_KEYS[current_key_index]
-            genai.configure(api_key=key)
+            genai.configure(api_key=API_KEYS[current_key_index])
             model = genai.GenerativeModel('gemini-2.0-flash')
             response = await model.generate_content_async(prompt)
             result = response.text.strip().upper()
             
-            print(f"🤖 Gemini (Key {current_key_index + 1}) menjawab: {result}")
+            print(f"🤖 AI Gemini (Key {current_key_index+1}) => {result}")
             
-            if "TIDAK AMAN" in result: return False
-            if "AMAN" in result: return True
+            if "BLOKIR" in result: return False
+            if "LOLOS" in result: return True
         except Exception as e:
-            print(f"⚠️ Gemini Error: {e}")
+            print(f"⚠️ Gemini Fail: {e}")
             current_key_index = (current_key_index + 1) % len(API_KEYS)
             continue
 
-    # Tahap 2: Coba Mistral jika Gemini semua gagal
+    # 2. Coba Mistral
     if MISTRAL_API_KEY:
         try:
-            print("🌀 Mencoba Mistral sebagai cadangan...")
             client = MistralClient(api_key=MISTRAL_API_KEY)
             res = client.chat(model="mistral-tiny", messages=[ChatMessage(role="user", content=prompt)])
             result = res.choices[0].message.content.strip().upper()
-            print(f"🌀 Mistral menjawab: {result}")
-            if "TIDAK AMAN" in result: return False
-            if "AMAN" in result: return True
-        except Exception as e:
-            print(f"❌ Mistral Error: {e}")
+            print(f"🌀 AI Mistral => {result}")
+            if "BLOKIR" in result: return False
+            return True
+        except: pass
 
-    print("✅ AI tidak merespon, meloloskan komentar secara default.")
     return True
 
 @router.post("/", response_model=schemas.Comment)
@@ -67,26 +62,30 @@ async def create_comment(
     db: Session = Depends(database.get_db),
     current_user: models.User = Depends(auth.get_current_user)
 ):
-    # 1. Penyaringan AI
+    print(f"📥 Request Komentar Baru: NewsID={comment.news_id}, User={current_user.username}")
+    
+    # 1. Moderasi
     is_safe = await check_comment_with_ai(comment.content)
     if not is_safe:
-        print("🚫 Komentar DIBLOKIR oleh AI.")
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Komentar Anda terdeteksi mengandung konten yang tidak pantas."
-        )
+        print("🚫 AI Memblokir Komentar Ini.")
+        raise HTTPException(status_code=400, detail="Komentar mengandung konten negatif.")
 
-    # 2. Simpan ke Database
-    new_comment = models.Comment(
-        content=comment.content,
-        news_id=comment.news_id,
-        user_id=current_user.id
-    )
-    db.add(new_comment)
-    db.commit()
-    db.refresh(new_comment)
-    print("✨ Komentar berhasil disimpan.")
-    return new_comment
+    # 2. Simpan
+    try:
+        new_comment = models.Comment(
+            content=comment.content,
+            news_id=comment.news_id,
+            user_id=current_user.id
+        )
+        db.add(new_comment)
+        db.commit()
+        db.refresh(new_comment)
+        print(f"✅ Berhasil Simpan ID: {new_comment.id}")
+        return new_comment
+    except Exception as e:
+        db.rollback()
+        print(f"❌ Gagal Simpan Database: {e}")
+        raise HTTPException(status_code=500, detail="Gagal menyimpan ke database.")
 
 @router.delete("/{comment_id}")
 def delete_comment(
@@ -99,8 +98,8 @@ def delete_comment(
         raise HTTPException(status_code=404, detail="Comment not found")
     
     if current_user.role != "admin" and comment.user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized to delete this comment")
+        raise HTTPException(status_code=403, detail="Not authorized")
         
     db.delete(comment)
     db.commit()
-    return {"message": "Comment deleted successfully"}
+    return {"message": "Success"}
