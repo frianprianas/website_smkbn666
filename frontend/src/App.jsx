@@ -19,6 +19,7 @@ import Profile from './pages/Profile';
 import ManageWA from './pages/ManageWA';
 import ManageAIBot from './pages/ManageAIBot';
 import { Toaster } from 'react-hot-toast';
+import NewsDetail from './pages/NewsDetail';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
         <Route path="/majors/:slug" element={<MajorDetail />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/news/:id" element={<NewsDetail />} />
 
         {/* Protected Routes */}
         <Route element={<Layout />}>

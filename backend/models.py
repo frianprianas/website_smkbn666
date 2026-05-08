@@ -20,6 +20,7 @@ class News(Base):
     image_url = Column(String, nullable=True)
     video_url = Column(String, nullable=True)
     is_pinned = Column(Boolean, default=False)
+    category = Column(String, default="Berita Utama")
     author_id = Column(Integer, ForeignKey("users.id"))
     
     author = relationship("User")

@@ -18,6 +18,7 @@ def create_news(
     image: Optional[UploadFile] = File(None),
     video: Optional[UploadFile] = File(None),
     is_pinned: bool = Form(False),
+    category: str = Form("Berita Utama"),
     db: Session = Depends(database.get_db), 
     current_user: models.User = Depends(auth.get_permission_news)
 ):
@@ -61,18 +62,19 @@ def create_news(
             shutil.copyfileobj(video.file, buffer)
         video_url = f"/static/videos/{unique_filename}"
 
-    new_item = models.News(
+    new_news = models.News(
         title=title, 
         content=content, 
         image_url=image_url, 
         video_url=video_url,
         is_pinned=is_pinned,
+        category=category,
         author_id=current_user.id
     )
-    db.add(new_item)
+    db.add(new_news)
     db.commit()
-    db.refresh(new_item)
-    return new_item
+    db.refresh(new_news)
+    return new_news
 
 @router.get("/", response_model=List[schemas.News])
 def read_news(skip: int = 0, limit: int = 100, db: Session = Depends(database.get_db)):

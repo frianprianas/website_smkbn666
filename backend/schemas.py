@@ -31,6 +31,7 @@ class NewsBase(BaseModel):
     image_url: Optional[str] = None
     video_url: Optional[str] = None
     is_pinned: bool = False
+    category: str = "Berita Utama"
 
 class NewsCreate(NewsBase):
     pass

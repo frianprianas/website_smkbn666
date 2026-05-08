@@ -150,7 +150,8 @@ def post_to_website(token, data, original_image_url):
     payload = {
         "title": data['title'],
         "content": data['content'],
-        "is_pinned": "false"
+        "is_pinned": "false",
+        "category": "Berita Harian"
     }
     
     files = {}

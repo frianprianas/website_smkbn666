@@ -658,63 +658,98 @@ const Home = () => {
 
             {/* --- News Section --- */}
             <section className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between items-center mb-12">
-                    <h2 className="text-3xl font-bold text-gray-900 border-l-4 border-blue-600 pl-4">Berita Terbaru</h2>
-                    <Link to="#" className="text-gray-500 hover:text-blue-600 hidden md:block">Lihat Semua</Link>
+                {/* 1. Berita Utama */}
+                <div className="mb-20">
+                    <div className="flex justify-between items-center mb-10">
+                        <div>
+                            <h2 className="text-3xl font-bold text-gray-900 border-l-4 border-blue-600 pl-4 uppercase tracking-tight">Berita Utama</h2>
+                            <p className="text-gray-500 text-sm mt-1 ml-5">Informasi penting seputar aktivitas sekolah</p>
+                        </div>
+                        <Link to="#" className="text-blue-600 font-bold text-sm hover:underline">Lihat Semua</Link>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                        {mainNews.length > 0 && (
+                            <Link to={`/news/${mainNews[0].id}`} className="md:col-span-2 bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100 group relative h-full min-h-[400px] cursor-pointer">
+                                {mainNews[0].image_url ? (
+                                    <img src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${mainNews[0].image_url}`} alt={mainNews[0].title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                                ) : (
+                                    <div className="w-full h-full bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center">
+                                        <BookOpen className="w-20 h-20 text-white/20" />
+                                    </div>
+                                )}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-8 text-white">
+                                    <span className="bg-blue-600 px-3 py-1 rounded-full text-[10px] font-bold w-fit mb-3 uppercase">PENGUMUMAN</span>
+                                    <h3 className="text-2xl font-bold mb-2 group-hover:text-blue-300 transition-colors">{mainNews[0].title}</h3>
+                                    <p className="line-clamp-2 text-gray-300 text-sm">{mainNews[0].content}</p>
+                                </div>
+                            </Link>
+                        )}
+                        <div className="md:col-span-2 flex flex-col gap-6">
+                            {mainNews.slice(1, 4).map((item) => (
+                                <Link key={item.id} to={`/news/${item.id}`} className="flex gap-4 items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all group">
+                                    <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0 bg-gray-100">
+                                        {item.image_url ? (
+                                            <img src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${item.image_url}`} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
+                                        ) : (
+                                            <div className="w-full h-full bg-blue-100 flex items-center justify-center">
+                                                <BookOpen className="w-8 h-8 text-blue-300" />
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center gap-2 text-[10px] text-gray-400 mb-1 font-bold uppercase tracking-wider">
+                                            <Clock className="w-3 h-3" /> {new Date(item.date_posted).toLocaleDateString()}
+                                        </div>
+                                        <h4 className="font-bold text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors">{item.title}</h4>
+                                    </div>
+                                </Link>
+                            ))}
+                            {mainNews.length === 0 && <p className="text-gray-400 py-10 text-center">Belum ada berita utama.</p>}
+                        </div>
+                    </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-                    {/* Featured News (Large) */}
-                    {news.length > 0 && (
-                        <article className="md:col-span-2 bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100 group relative h-full min-h-[400px]">
-                            {news[0].video_url ? (
-                                <div className="w-full h-full bg-black">
-                                    <video 
-                                        src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${news[0].video_url}`} 
-                                        className="w-full h-full object-cover"
-                                        controls
-                                    />
-                                </div>
-                            ) : news[0].image_url ? (
-                                <img src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${news[0].image_url}`} alt={news[0].title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                            ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center">
-                                    <BookOpen className="w-20 h-20 text-white/20" />
-                                </div>
-                            )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex flex-col justify-end p-8 text-white pointer-events-none">
-                                <span className="bg-blue-600 px-3 py-1 rounded-full text-xs font-bold w-fit mb-3">{new Date(news[0].date_posted).toLocaleDateString()}</span>
-                                <h3 className="text-2xl font-bold mb-2 group-hover:text-blue-300 transition-colors pointer-events-auto">{news[0].title}</h3>
-                                <p className="line-clamp-2 text-gray-300 text-sm pointer-events-auto">{news[0].content}</p>
-                            </div>
-                        </article>
-                    )}
-                    {/* Secondary News */}
-                    <div className="md:col-span-2 flex flex-col gap-6">
-                        {news.slice(1, 4).map((item) => (
-                            <article key={item.id} className="flex gap-4 items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all">
-                                <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0 bg-gray-100">
-                                    {item.video_url ? (
-                                        <div className="w-full h-full bg-gray-900 flex items-center justify-center relative">
-                                            <PlayCircle className="w-8 h-8 text-white opacity-50" />
-                                        </div>
-                                    ) : item.image_url ? (
-                                        <img src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${item.image_url}`} alt={item.title} className="w-full h-full object-cover" />
+                {/* 2. Berita Harian (AI) */}
+                <div className="pt-10 border-t border-gray-100">
+                    <div className="flex justify-between items-center mb-10">
+                        <div>
+                            <h2 className="text-3xl font-bold text-gray-900 border-l-4 border-indigo-600 pl-4 uppercase tracking-tight flex items-center gap-2">
+                                Berita Harian 
+                                <span className="text-[10px] bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-md align-middle">BaknusAi</span>
+                            </h2>
+                            <p className="text-gray-500 text-sm mt-1 ml-5">Update berita teknologi & pendidikan setiap hari</p>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        {dailyNews.map((item) => (
+                            <Link key={item.id} to={`/news/${item.id}`} className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-lg transition-all group flex flex-col">
+                                <div className="h-40 overflow-hidden relative">
+                                    {item.image_url ? (
+                                        <img src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${item.image_url}`} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                                     ) : (
-                                        <div className="w-full h-full bg-blue-100 flex items-center justify-center">
-                                            <BookOpen className="w-8 h-8 text-blue-300" />
+                                        <div className="w-full h-full bg-indigo-50 flex items-center justify-center">
+                                            <Activity className="w-10 h-10 text-indigo-200" />
                                         </div>
                                     )}
-                                </div>
-                                <div>
-                                    <div className="flex items-center gap-2 text-xs text-gray-400 mb-1">
-                                        <Clock className="w-3 h-3" /> {new Date(item.date_posted).toLocaleDateString()}
+                                    <div className="absolute top-3 left-3">
+                                        <span className="bg-indigo-600 text-white text-[9px] font-bold px-2 py-1 rounded shadow-lg uppercase">Update Harian</span>
                                     </div>
-                                    <h4 className="font-bold text-gray-900 line-clamp-2 hover:text-blue-600 transition-colors cursor-pointer">{item.title}</h4>
                                 </div>
-                            </article>
+                                <div className="p-5 flex-1 flex flex-col">
+                                    <div className="flex items-center gap-2 text-[10px] text-gray-400 mb-2">
+                                        <Calendar className="w-3 h-3" /> {new Date(item.date_posted).toLocaleDateString()}
+                                    </div>
+                                    <h4 className="font-bold text-gray-800 line-clamp-2 group-hover:text-indigo-600 transition-colors mb-3 leading-snug">{item.title}</h4>
+                                    <p className="text-xs text-gray-500 line-clamp-2 mb-4 flex-1">{item.content}</p>
+                                    <div className="text-indigo-600 text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 group-hover:gap-2 transition-all">
+                                        Baca Artikel <ArrowRight className="w-3 h-3" />
+                                    </div>
+                                </div>
+                            </Link>
                         ))}
-                        {news.length === 0 && <p className="text-gray-400">Loading news...</p>}
+                        {dailyNews.length === 0 && <p className="col-span-4 text-gray-400 py-10 text-center italic">BaknusAi sedang merangkum berita untuk Anda...</p>}
                     </div>
                 </div>
             </section>
