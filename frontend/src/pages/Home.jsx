@@ -853,11 +853,14 @@ const Home = () => {
                                     whileHover={{ y: -10 }}
                                     className="group bg-white rounded-[2.5rem] overflow-hidden shadow-xl shadow-blue-900/5 border border-white hover:border-blue-200 transition-all flex flex-col h-full"
                                 >
-                                    {kabar.image_url && (
-                                        <div className="h-48 w-full overflow-hidden">
-                                            <img src={kabar.image_url} alt={kabar.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                                        </div>
-                                    )}
+                                    <div className="h-48 w-full overflow-hidden bg-gray-100">
+                                        <img 
+                                            src={kabar.image_url || "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?auto=format&fit=crop&q=80&w=800"} 
+                                            alt={kabar.title} 
+                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+                                            onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?auto=format&fit=crop&q=80&w=800" }}
+                                        />
+                                    </div>
                                     <div className="p-8 flex flex-col flex-1">
                                         <div className="flex items-center gap-3 mb-6">
                                             <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center">

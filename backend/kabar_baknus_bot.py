@@ -43,10 +43,15 @@ def get_image_from_link(url):
     except Exception as e:
         print(f"⚠️ Gagal scraping gambar: {e}")
     
-    # --- FALLBACK: Jika gagal, gunakan gambar ilustrasi sekolah/teknologi yang keren ---
-    keywords = ["school", "technology", "education", "vocational", "indonesia"]
+    # --- FALLBACK: Gunakan gambar sekolah/teknologi yang pasti jalan ---
+    fallback_images = [
+        "https://images.unsplash.com/photo-1523050853023-8c2d27443ef8?auto=format&fit=crop&q=80&w=800",
+        "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&q=80&w=800",
+        "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=800",
+        "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&q=80&w=800"
+    ]
     import random
-    return f"https://source.unsplash.com/featured/800x450?{random.choice(keywords)}"
+    return random.choice(fallback_images)
 
 def summarize_with_mistral(title, description):
     if not MISTRAL_API_KEY:
