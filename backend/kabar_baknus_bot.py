@@ -15,77 +15,70 @@ load_dotenv()
 MISTRAL_API_KEY = os.getenv("MISTRAL_API")
 client = MistralClient(api_key=MISTRAL_API_KEY)
 
-# Header agar tidak diblokir oleh situs berita
 HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+    'Accept-Language': 'en-US,en;q=0.5',
 }
-
-def fetch_external_news():
-    query = quote('SMK Bakti Nusantara 666 OR "SMK Baknus 666" OR "SMK BN 666"')
-    rss_url = f"https://news.google.com/rss/search?q={query}&hl=id&gl=ID&ceid=ID:id"
-    
-    feed = feedparser.parse(rss_url)
-    return feed.entries[:10]
 
 def get_image_from_link(url):
     try:
-        # Ikuti redirect sampai ke URL asli
-        response = requests.get(url, headers=HEADERS, timeout=10, allow_redirects=True)
-        final_url = response.url
+        response = requests.get(url, headers=HEADERS, timeout=12, allow_redirects=True)
         html = response.text
 
-        # Cari og:image (Facebook) atau twitter:image
+        # 1. Cari og:image (Facebook Standard)
         match = re.search(r'<meta.*?property=["\']og:image["\'].*?content=["\'](.*?)["\']', html)
         if not match:
+            # 2. Cari twitter:image
             match = re.search(r'<meta.*?name=["\']twitter:image["\'].*?content=["\'](.*?)["\']', html)
+        if not match:
+            # 3. Cari thumbnail link tag
+            match = re.search(r'<link.*?rel=["\']image_src["\'].*?href=["\'](.*?)["\']', html)
         
         if match:
             img_url = match.group(1)
-            # Pastikan bukan logo google
-            if "googleusercontent" not in img_url and "google" not in img_url.lower():
+            # Validasi: Pastikan ini URL gambar yang benar & bukan logo google
+            if img_url.startswith('http') and "google" not in img_url.lower():
                 return img_url
     except Exception as e:
-        print(f"❌ Gagal ambil gambar dari {url[:30]}... : {e}")
-    return None
+        print(f"⚠️ Gagal scraping gambar: {e}")
+    
+    # --- FALLBACK: Jika gagal, gunakan gambar ilustrasi sekolah/teknologi yang keren ---
+    keywords = ["school", "technology", "education", "vocational", "indonesia"]
+    import random
+    return f"https://source.unsplash.com/featured/800x450?{random.choice(keywords)}"
 
 def summarize_with_mistral(title, description):
     if not MISTRAL_API_KEY:
         return description[:200] + "..."
-    
     prompt = f"Rangkum berita ini dalam 1 kalimat pendek dan sangat menarik:\nJudul: {title}\nKonten: {description}"
-    
     try:
         messages = [ChatMessage(role="user", content=prompt)]
-        chat_response = client.chat(
-            model="mistral-tiny",
-            messages=messages,
-        )
+        chat_response = client.chat(model="mistral-tiny", messages=messages)
         return chat_response.choices[0].message.content
     except:
         return description[:200] + "..."
 
 def run_bot():
     db = SessionLocal()
-    
     print("🧹 Membersihkan data lama...")
     db.query(models.KabarBaknus).delete()
     db.commit()
 
-    print("🔍 Mencari kabar Baknus di internet...")
-    entries = fetch_external_news()
+    query = quote('SMK Bakti Nusantara 666 OR "SMK Baknus 666" OR "SMK BN 666"')
+    rss_url = f"https://news.google.com/rss/search?q={query}&hl=id&gl=ID&ceid=ID:id"
+    feed = feedparser.parse(rss_url)
     
-    for entry in entries:
-        title = entry.title
-        link = entry.link
-        
-        print(f"📖 Memproses: {title[:50]}...")
-        image = get_image_from_link(link)
-        summary = summarize_with_mistral(title, entry.summary)
+    print(f"🔍 Menemukan {len(feed.entries)} kabar. Memproses 10 terbaru...")
+    for entry in feed.entries[:10]:
+        print(f"📖 Memproses: {entry.title[:50]}...")
+        image = get_image_from_link(entry.link)
+        summary = summarize_with_mistral(entry.title, entry.summary)
         
         kabar = models.KabarBaknus(
-            title=title,
+            title=entry.title,
             summary=summary,
-            source_link=link,
+            source_link=entry.link,
             source_name=entry.source.get('title', 'Berita Internet'),
             image_url=image
         )
@@ -93,7 +86,7 @@ def run_bot():
     
     db.commit()
     db.close()
-    print("🚀 Kabar Baknus berhasil diperbarui dengan gambar asli!")
+    print("🚀 Kabar Baknus berhasil diperbarui!")
 
 if __name__ == "__main__":
     run_bot()
