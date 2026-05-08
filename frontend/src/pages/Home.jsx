@@ -42,7 +42,7 @@ const Home = () => {
         useEffect(() => {
             const node = nodeRef.current;
             if (isInView) {
-                const controls = animate(from, to, {
+                const controls = animate(from, to || 0, {
                     duration: 2,
                     ease: "easeOut",
                     onUpdate(value) {
@@ -61,7 +61,11 @@ const Home = () => {
         Users: Users,
         School: School,
         BookOpen: BookOpen,
-        Award: Award
+        Award: Award,
+        GraduationCap: GraduationCap,
+        Trophy: Trophy,
+        Activity: Activity,
+        Star: Star
     };
 
     // Removed static testimonials
