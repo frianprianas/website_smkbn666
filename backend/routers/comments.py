@@ -38,7 +38,7 @@ async def scan_with_baknus_ai(text: str):
         try:
             key = API_KEYS[current_key_index]
             genai.configure(api_key=key)
-            model = genai.GenerativeModel('gemini-2.5-flash')
+            model = genai.GenerativeModel('gemini-2.0-flash')
             
             response = await model.generate_content_async(prompt)
             result = response.text.strip().upper()

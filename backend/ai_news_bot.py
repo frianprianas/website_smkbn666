@@ -29,7 +29,7 @@ def get_model():
     if not API_KEYS:
         return None
     genai.configure(api_key=API_KEYS[current_key_index])
-    return genai.GenerativeModel('gemini-2.5-flash')
+    return genai.GenerativeModel('gemini-2.0-flash')
 
 def rotate_key():
     global current_key_index
