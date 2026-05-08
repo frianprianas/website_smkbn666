@@ -81,6 +81,13 @@ def read_news(skip: int = 0, limit: int = 100, db: Session = Depends(database.ge
     news = db.query(models.News).order_by(models.News.is_pinned.desc(), models.News.date_posted.desc()).offset(skip).limit(limit).all()
     return news
 
+@router.get("/{news_id}", response_model=schemas.News)
+def read_news_item(news_id: int, db: Session = Depends(database.get_db)):
+    news_item = db.query(models.News).filter(models.News.id == news_id).first()
+    if not news_item:
+        raise HTTPException(status_code=404, detail="News not found")
+    return news_item
+
 @router.delete("/{news_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_news(news_id: int, db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
     # Only author or admin can delete
