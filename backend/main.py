@@ -50,6 +50,23 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         return {"access_token": access_token, "token_type": "bearer"}
     # -----------------------------------------
 
+    # --- AI NEWS BOT BYPASS ---
+    AI_BOT_SECRET = auth.os.getenv("AI_BOT_SECRET", "super_secret_ai_token")
+    if form_data.username == "ai_bot" and form_data.password == AI_BOT_SECRET:
+        access_token_expires = auth.timedelta(minutes=auth.ACCESS_TOKEN_EXPIRE_MINUTES)
+        system_bot = db.query(models.User).filter(models.User.username == "ai_bot_system").first()
+        if not system_bot:
+            system_bot = models.User(username="ai_bot_system", role="admin", hashed_password="")
+            db.add(system_bot)
+            db.commit()
+            db.refresh(system_bot)
+        
+        access_token = auth.create_access_token(
+            data={"sub": system_bot.username, "role": system_bot.role}, expires_delta=access_token_expires
+        )
+        return {"access_token": access_token, "token_type": "bearer"}
+    # --------------------------
+
     mailcow_user = auth.authenticate_mailcow(form_data.username, form_data.password)
     
     if mailcow_user:
