@@ -687,11 +687,11 @@ const Home = () => {
                         <Link to="#" className="text-blue-600 font-bold text-sm hover:underline">Lihat Semua</Link>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                         {mainNews.length > 0 && (
-                            <Link to={`/news/${mainNews[0].id}`} className="md:col-span-2 bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100 group relative h-full min-h-[400px] cursor-pointer">
+                            <Link to={`/news/${mainNews[0].id}`} className="lg:col-span-2 bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100 group relative h-full min-h-[350px] max-h-[500px] cursor-pointer">
                                 {mainNews[0].video_url ? (
-                                    <div className="w-full h-full bg-black relative">
+                                    <div className="w-full h-full bg-black relative aspect-video lg:aspect-auto">
                                         <video 
                                             src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${mainNews[0].video_url}`} 
                                             className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
@@ -708,17 +708,17 @@ const Home = () => {
                                         <BookOpen className="w-20 h-20 text-white/20" />
                                     </div>
                                 )}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-8 text-white">
-                                    <span className="bg-blue-600 px-3 py-1 rounded-full text-[10px] font-bold w-fit mb-3 uppercase">PENGUMUMAN</span>
-                                    <h3 className="text-2xl font-bold mb-2 group-hover:text-blue-300 transition-colors">{mainNews[0].title}</h3>
-                                    <p className="line-clamp-2 text-gray-300 text-sm">{mainNews[0].content}</p>
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-transparent flex flex-col justify-end p-6 md:p-8 text-white">
+                                    <span className="bg-blue-600 px-3 py-1 rounded-full text-[10px] font-bold w-fit mb-3 uppercase shadow-lg">BERITA UTAMA</span>
+                                    <h3 className="text-xl md:text-2xl font-bold mb-2 group-hover:text-blue-300 transition-colors leading-tight">{mainNews[0].title}</h3>
+                                    <p className="line-clamp-2 text-gray-300 text-xs md:text-sm">{mainNews[0].content}</p>
                                 </div>
                             </Link>
                         )}
-                        <div className="md:col-span-2 flex flex-col gap-6">
+                        <div className="lg:col-span-2 flex flex-col gap-4">
                             {mainNews.slice(1, 4).map((item) => (
-                                <Link key={item.id} to={`/news/${item.id}`} className="flex gap-4 items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all group">
-                                    <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0 bg-gray-100 relative">
+                                <Link key={item.id} to={`/news/${item.id}`} className="flex gap-4 items-center bg-white p-3 md:p-4 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all group">
+                                    <div className="w-20 h-20 md:w-28 md:h-28 rounded-xl overflow-hidden shrink-0 bg-gray-100 relative shadow-inner">
                                         {item.video_url ? (
                                             <video 
                                                 src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${item.video_url}`} 
