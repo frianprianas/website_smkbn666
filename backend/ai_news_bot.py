@@ -34,35 +34,32 @@ def rotate_gemini_key():
     current_key_index = (current_key_index + 1) % len(GEMINI_API_KEYS)
     print(f"🔄 Rotasi ke Gemini API Key ke-{current_key_index + 1}...")
 
-def normalize_ai_response(data):
-    normalized = {}
-    normalized['title'] = data.get('title') or data.get('judul') or data.get('Judul') or data.get('Title')
-    normalized['content'] = data.get('content') or data.get('isi') or data.get('konten') or data.get('Content')
-    if normalized['title'] and normalized['content']: return normalized
-    return None
+def normalize_ai_response(data, original_news):
+    """Pastikan data punya title dan content, gunakan original jika gagal"""
+    title = data.get('title') or data.get('judul') or data.get('Judul') or original_news.get('title')
+    content = data.get('content') or data.get('isi') or data.get('konten') or original_news.get('summary')
+    return {"title": str(title), "content": str(content)}
 
 def clean_json_string(s):
-    # Hapus karakter kontrol yang merusak JSON (termasuk \n dan \r di dalam string)
     s = re.sub(r'[\x00-\x1f\x7f-\x9f]', ' ', s)
     return s
 
 def process_with_mistral(news):
     print("🌀 Menggunakan Mistral AI sebagai cadangan...")
-    if not MISTRAL_API_KEY: return None
+    if not MISTRAL_API_KEY: return normalize_ai_response({}, news)
     client = MistralClient(api_key=MISTRAL_API_KEY)
-    prompt = f"Tulis ulang berita ini dalam JSON: {news['title']} - {news['summary']}. Gunakan format {{\"title\": \"...\", \"content\": \"...\"}} dan jangan gunakan baris baru di dalam nilai teks."
+    prompt = f"Tulis ulang berita ini dalam JSON: {news['title']} - {news['summary']}. Gunakan format {{\"title\": \"...\", \"content\": \"...\"}}"
     try:
         messages = [ChatMessage(role="user", content=prompt)]
         chat_response = client.chat(model="mistral-tiny", messages=messages)
         content = chat_response.choices[0].message.content
         json_match = re.search(r'\{.*\}', content, re.DOTALL)
         if json_match:
-            json_str = clean_json_string(json_match.group(0))
-            data = json.loads(json_str, strict=False)
-            return normalize_ai_response(data)
+            data = json.loads(clean_json_string(json_match.group(0)), strict=False)
+            return normalize_ai_response(data, news)
     except Exception as e:
         print(f"❌ Mistral Error: {e}")
-    return None
+    return normalize_ai_response({}, news)
 
 def process_with_ai(news):
     for _ in range(len(GEMINI_API_KEYS)):
@@ -72,9 +69,8 @@ def process_with_ai(news):
             response = model.generate_content(f"Tulis ulang dalam JSON: {news['title']} - {news['summary']}. Gunakan key 'title' dan 'content'.")
             json_match = re.search(r'\{.*\}', response.text, re.DOTALL)
             if json_match:
-                json_str = clean_json_string(json_match.group(0))
-                data = json.loads(json_str, strict=False)
-                return normalize_ai_response(data)
+                data = json.loads(clean_json_string(json_match.group(0)), strict=False)
+                return normalize_ai_response(data, news)
         except Exception as e:
             print(f"⚠️ Gemini Gagal: {e}")
             rotate_gemini_key()
@@ -101,29 +97,42 @@ def fetch_latest_news(token):
                 feed = feedparser.parse(r.content)
                 if feed.entries:
                     entry = feed.entries[0]
-                    return {"title": entry.title, "summary": entry.summary, "link": entry.link, "source": s['name']}
+                    img = "" # logic gambar dilewati dulu untuk kecepatan
+                    return {"title": entry.title, "summary": entry.summary, "link": entry.link, "source": s['name'], "image": img}
             except: continue
     except: pass
     return None
 
 def main():
-    print("🎬 Memulai BaknusAI News Bot (Hybrid + Robust JSON)...")
+    print("🎬 Memulai BaknusAI News Bot (Final Robust Mode)...")
     token = get_token()
     if not token: return
     news = fetch_latest_news(token)
     if not news: return
+    
     processed = process_with_ai(news)
-    if processed:
-        headers = {"Authorization": f"Bearer {token}"}
-        payload = {
-            "title": processed['title'], "content": processed['content'],
-            "category": "Berita Harian", "author": "BaknusAI Bot",
-            "source": f"{news['source']} (Original: {news['link']})"
-        }
+    
+    # --- LOGGING DATA SEBELUM KIRIM ---
+    print(f"📡 Menyiapkan paket data...")
+    payload = {
+        "title": processed.get('title'),
+        "content": processed.get('content'),
+        "category": "Berita Harian",
+        "author": "BaknusAI Bot",
+        "source": f"{news['source']} (Original: {news['link']})",
+        "image_url": news.get('image', '')
+    }
+    print(f"📦 Payload yang akan dikirim: {json.dumps(payload, indent=2)[:200]}...")
+
+    headers = {"Authorization": f"Bearer {token}"}
+    try:
         res = requests.post(f"{BASE_URL}/api/news/", json=payload, headers=headers, timeout=20)
-        if res.status_code == 200: print(f"🏆 SUKSES: Berita '{processed['title']}' terbit!")
-        else: print(f"❌ Gagal Publish: {res.text}")
-    else: print("❌ Gagal total di tahap AI.")
+        if res.status_code == 200:
+            print(f"🏆 SUKSES: Berita '{payload['title']}' berhasil terbit!")
+        else:
+            print(f"❌ Gagal Publish ke Server: {res.status_code} - {res.text}")
+    except Exception as e:
+        print(f"❌ Error Jaringan Saat Posting: {e}")
 
 if __name__ == "__main__":
     main()
