@@ -104,8 +104,14 @@ def process_with_gemini(news):
     """
     try:
         response = model.generate_content(prompt)
-        clean_text = response.text.replace('```json', '').replace('```', '').strip()
-        return json.loads(clean_text)
+        # Cari pola {...} di dalam teks menggunakan regex
+        json_match = re.search(r'\{.*\}', response.text, re.DOTALL)
+        if json_match:
+            clean_json = json_match.group(0)
+            return json.loads(clean_json)
+        else:
+            print("❌ Tidak ditemukan format JSON di jawaban Gemini.")
+            return None
     except Exception as e:
         print(f"❌ Error Gemini Content: {e}")
         return None
