@@ -19,7 +19,11 @@ BASE_URL = "http://localhost:8000"
 AI_BOT_SECRET = os.getenv("AI_BOT_SECRET", "super_secret_ai_token")
 
 # Ambil semua API Key yang tersedia
-API_KEYS = [os.getenv("GEMINI_API_KEY"), os.getenv("GEMINI_API_KEY2")]
+API_KEYS = [
+    os.getenv("GEMINI_API_KEY"),
+    os.getenv("GEMINI_API_KEY2"),
+    os.getenv("GEMINI_API_KEY3")
+]
 API_KEYS = [k for k in API_KEYS if k]
 current_key_index = 0
 

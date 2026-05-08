@@ -8,7 +8,8 @@ import schemas, database, models, auth
 # Ambil semua API Key yang tersedia
 API_KEYS = [
     os.getenv("GEMINI_API_KEY"),
-    os.getenv("GEMINI_API_KEY2")
+    os.getenv("GEMINI_API_KEY2"),
+    os.getenv("GEMINI_API_KEY3")
 ]
 API_KEYS = [k for k in API_KEYS if k] # Hanya ambil yang tidak kosong
 
