@@ -7,7 +7,8 @@ import schemas, database, models, auth
 
 # Configure Gemini
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel('gemini-1.5-flash')
+# Gunakan gemini-pro yang lebih stabil di berbagai versi library
+model = genai.GenerativeModel('gemini-pro')
 
 router = APIRouter(
     prefix="/comments",
@@ -28,21 +29,25 @@ async def scan_with_baknus_ai(text: str):
     JAWAB DENGAN SATU KATA SAJA!
     """
     try:
-        if not os.getenv("GEMINI_API_KEY"):
-            print("❌ ERROR: GEMINI_API_KEY tidak ditemukan di environment!")
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            print("❌ ERROR: GEMINI_API_KEY tidak ditemukan!")
             return False
 
         response = await model.generate_content_async(prompt)
+        # Tambahkan pengecekan jika response kosong atau diblokir safety filter
+        if not response.text:
+            return False
+            
         result = response.text.strip().upper()
-        
         print(f"🔍 BaknusAI Scan: [{text}] -> Result: {result}")
         
-        # Jika hasil mengandung KASAR atau TIDAK AMAN, maka dianggap kasar
-        if "KASAR" in result or "TIDAK" in result:
-            return True
-        return False
+        return "KASAR" in result or "TIDAK" in result
     except Exception as e:
         print(f"⚠️ BaknusAI System Error: {e}")
+        # Jika error karena model/limit, biarkan aman, tapi jika error karena kata-kata kasar yang diblokir API, anggap kasar
+        if "safety" in str(e).lower():
+            return True
         return False
 
 @router.post("/", response_model=schemas.Comment)

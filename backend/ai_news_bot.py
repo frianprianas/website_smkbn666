@@ -16,10 +16,9 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 BASE_URL = "http://localhost:8000" if os.path.exists("/.dockerenv") else os.getenv("VITE_API_URL", "https://smkbn666.sch.id")
 AI_BOT_SECRET = os.getenv("AI_BOT_SECRET", "super_secret_ai_token")
 
-genai.configure(api_key=GEMINI_API_KEY)
-
-# Menggunakan model terbaru
-model = genai.GenerativeModel('models/gemini-2.5-flash')
+# Konfigurasi Gemini
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+model = genai.GenerativeModel('gemini-pro')
 image_model = genai.GenerativeModel('models/gemini-2.5-flash-image')
 
 def get_token():
