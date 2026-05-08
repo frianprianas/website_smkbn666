@@ -26,11 +26,12 @@ async def scan_with_baknus_ai(text: str):
     Jangan berikan penjelasan apapun.
     """
     try:
-        response = model.generate_content(prompt)
+        response = await model.generate_content_async(prompt)
         result = response.text.strip().upper()
         return "KASAR" in result
-    except:
-        return False # Jika API error, biarkan lolos atau handle sesuai kebijakan
+    except Exception as e:
+        print(f"⚠️ BaknusAI Error: {e}")
+        return False
 
 @router.post("/", response_model=schemas.Comment)
 async def create_comment(

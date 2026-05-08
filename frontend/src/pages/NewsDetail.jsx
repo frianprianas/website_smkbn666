@@ -220,8 +220,22 @@ const CommentItem = ({ comment, onDeleted, onUpdated }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editContent, setEditContent] = useState(comment.content);
     const [isSaving, setIsSaving] = useState(false);
-    const currentUser = JSON.parse(atob(localStorage.getItem('token')?.split('.')[1] || '{}'));
-    const isOwner = currentUser.sub === comment.user.username;
+    
+    // Parse user safely from token
+    const getUserFromToken = () => {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) return {};
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            return JSON.parse(window.atob(base64));
+        } catch (e) {
+            return {};
+        }
+    };
+
+    const currentUser = getUserFromToken();
+    const isOwner = currentUser.sub?.toLowerCase() === comment.user.username?.toLowerCase();
     const isAdmin = currentUser.role === 'admin';
 
     const handleDelete = async () => {
