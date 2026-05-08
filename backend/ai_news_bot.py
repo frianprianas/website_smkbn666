@@ -35,65 +35,52 @@ def rotate_gemini_key():
     print(f"🔄 Rotasi ke Gemini API Key ke-{current_key_index + 1}...")
 
 def normalize_ai_response(data):
-    """Memastikan data memiliki kunci 'title' dan 'content'"""
     normalized = {}
-    # Cari judul
     normalized['title'] = data.get('title') or data.get('judul') or data.get('Judul') or data.get('Title')
-    # Cari konten
     normalized['content'] = data.get('content') or data.get('isi') or data.get('konten') or data.get('Content')
-    
-    if normalized['title'] and normalized['content']:
-        return normalized
+    if normalized['title'] and normalized['content']: return normalized
     return None
+
+def clean_json_string(s):
+    # Hapus karakter kontrol yang merusak JSON (termasuk \n dan \r di dalam string)
+    s = re.sub(r'[\x00-\x1f\x7f-\x9f]', ' ', s)
+    return s
 
 def process_with_mistral(news):
     print("🌀 Menggunakan Mistral AI sebagai cadangan...")
     if not MISTRAL_API_KEY: return None
-    
     client = MistralClient(api_key=MISTRAL_API_KEY)
-    prompt = f"""Tulis ulang berita ini untuk website SMK Bakti Nusantara 666.
-    BERITA: {news['title']} - {news['summary']}
-    
-    WAJIB menggunakan format JSON persis seperti ini:
-    {{"title": "Judul Baru", "content": "Isi Berita 3 Paragraf"}}
-    """
-    
+    prompt = f"Tulis ulang berita ini dalam JSON: {news['title']} - {news['summary']}. Gunakan format {{\"title\": \"...\", \"content\": \"...\"}} dan jangan gunakan baris baru di dalam nilai teks."
     try:
         messages = [ChatMessage(role="user", content=prompt)]
         chat_response = client.chat(model="mistral-tiny", messages=messages)
         content = chat_response.choices[0].message.content
-        print(f"DEBUG MISTRAL: {content[:100]}...") # Intip sedikit responnya
-        
         json_match = re.search(r'\{.*\}', content, re.DOTALL)
         if json_match:
-            data = json.loads(json_match.group(0))
+            json_str = clean_json_string(json_match.group(0))
+            data = json.loads(json_str, strict=False)
             return normalize_ai_response(data)
     except Exception as e:
         print(f"❌ Mistral Error: {e}")
     return None
 
 def process_with_ai(news):
-    # Tahap 1: Coba Gemini
     for _ in range(len(GEMINI_API_KEYS)):
         try:
             print(f"🤖 Mencoba Gemini (Key {current_key_index + 1})...")
             model = get_gemini_model()
-            prompt = f"Tulis ulang berita ini dalam JSON: {news['title']} - {news['summary']}. Gunakan key 'title' dan 'content'."
-            response = model.generate_content(prompt)
-            
+            response = model.generate_content(f"Tulis ulang dalam JSON: {news['title']} - {news['summary']}. Gunakan key 'title' dan 'content'.")
             json_match = re.search(r'\{.*\}', response.text, re.DOTALL)
             if json_match:
-                data = json.loads(json_match.group(0))
+                json_str = clean_json_string(json_match.group(0))
+                data = json.loads(json_str, strict=False)
                 return normalize_ai_response(data)
         except Exception as e:
             print(f"⚠️ Gemini Gagal: {e}")
             rotate_gemini_key()
             time.sleep(1)
             continue
-    
     return process_with_mistral(news)
-
-# --- FUNGSI PENDUKUNG (LOGIN, FETCH, POST) ---
 
 def get_token():
     try:
@@ -120,30 +107,23 @@ def fetch_latest_news(token):
     return None
 
 def main():
-    print("🎬 Memulai BaknusAI News Bot (Hybrid Gemini + Mistral)...")
+    print("🎬 Memulai BaknusAI News Bot (Hybrid + Robust JSON)...")
     token = get_token()
     if not token: return
-    
     news = fetch_latest_news(token)
-    if not news: 
-        print("❌ Gagal mendapatkan berita dari semua sumber.")
-        return
-        
+    if not news: return
     processed = process_with_ai(news)
     if processed:
         headers = {"Authorization": f"Bearer {token}"}
         payload = {
-            "title": processed['title'],
-            "content": processed['content'],
-            "category": "Berita Harian",
-            "author": "BaknusAI Bot",
+            "title": processed['title'], "content": processed['content'],
+            "category": "Berita Harian", "author": "BaknusAI Bot",
             "source": f"{news['source']} (Original: {news['link']})"
         }
         res = requests.post(f"{BASE_URL}/api/news/", json=payload, headers=headers, timeout=20)
         if res.status_code == 200: print(f"🏆 SUKSES: Berita '{processed['title']}' terbit!")
         else: print(f"❌ Gagal Publish: {res.text}")
-    else:
-        print("❌ Gagal total: Semua AI (Gemini & Mistral) tidak merespon.")
+    else: print("❌ Gagal total di tahap AI.")
 
 if __name__ == "__main__":
     main()
