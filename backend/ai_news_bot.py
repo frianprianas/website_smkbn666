@@ -23,7 +23,8 @@ SOURCES = [
 ]
 
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel('gemini-1.5-flash')
+# Mencoba menggunakan gemini-pro yang biasanya lebih stabil di semua versi library
+model = genai.GenerativeModel('gemini-pro')
 
 def get_token():
     """Mendapatkan token akses menggunakan bypass ai_bot"""
