@@ -91,26 +91,51 @@ def process_with_gemini(news):
         return None
 
 def post_to_website(token, data):
-    """Mengirim berita ke API website"""
+    """Membuat gambar AI dan mengirim berita ke API website"""
     headers = {"Authorization": f"Bearer {token}"}
     
-    # Untuk gambar, sementara kita gunakan placeholder atau 
-    # Anda bisa mengintegrasikan API Imagen/DALL-E di sini.
-    # Di sini kita kirim tanpa file gambar dulu atau gunakan URL gambar default.
-    
+    # --- 1. GENERATE GAMBAR AI ---
+    print(f"Sedang membuat visualisasi gambar untuk: {data['title']}...")
+    image_file_path = "temp_news_image.jpg"
+    try:
+        # Meminta Gemini membuat gambar berdasarkan keyword
+        image_response = image_model.generate_content(f"Create a professional, high-quality digital illustration for a news article about: {data['title']}. Style: Modern, clean, tech-oriented.")
+        
+        # Di model Gemini 2.5 Image, output biasanya berupa bytes gambar
+        if hasattr(image_response, 'data'):
+            with open(image_file_path, "wb") as f:
+                f.write(image_response.data)
+        else:
+            # Jika model hanya memberikan prompt, atau format berbeda, kita gunakan placeholder
+            print("Model Image tidak mengembalikan data gambar mentah. Mengirim tanpa gambar.")
+            image_file_path = None
+    except Exception as e:
+        print(f"Gagal membuat gambar AI: {e}")
+        image_file_path = None
+
+    # --- 2. KIRIM DATA KE API ---
     payload = {
         "title": data['title'],
         "content": data['content'],
         "is_pinned": False
     }
     
-    response = requests.post(f"{BASE_URL}/api/news/", data=payload, headers=headers)
-    return response.status_code == 200
+    files = {}
+    if image_file_path:
+        files['image'] = open(image_file_path, 'rb')
+
+    try:
+        response = requests.post(f"{BASE_URL}/api/news/", data=payload, files=files, headers=headers)
+        if image_file_path: files['image'].close()
+        return response.status_code == 200
+    except Exception as e:
+        print(f"Error saat posting: {e}")
+        return False
 
 if __name__ == "__main__":
     token = get_token()
     if not token:
-        print("Gagal mendapatkan token.")
+        print("Gagal mendapatkan token. Pastikan .env sudah benar dan backend menyala.")
     else:
         news = fetch_latest_news()
         if news:
@@ -118,6 +143,6 @@ if __name__ == "__main__":
             if ai_data:
                 success = post_to_website(token, ai_data)
                 if success:
-                    print(f"Berita '{ai_data['title']}' berhasil diterbitkan!")
+                    print(f"Berita '{ai_data['title']}' berhasil diterbitkan dengan gambar AI!")
                 else:
                     print("Gagal memposting berita.")
