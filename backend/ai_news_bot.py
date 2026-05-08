@@ -22,7 +22,7 @@ AI_BOT_SECRET = os.getenv("AI_BOT_SECRET", "super_secret_ai_token")
 
 def normalize_ai_response(data, original_news):
     title = data.get('title') or data.get('judul') or original_news.get('title', 'Berita Baknus')
-    content = data.get('content') or data.get('isi') or original_news.get('summary', 'Isi berita sedang diproses.')
+    content = data.get('content') or data.get('isi') or original_news.get('summary', 'Konten berita sedang diproses.')
     return {"title": str(title), "content": str(content)}
 
 def process_with_ai(news):
@@ -31,7 +31,7 @@ def process_with_ai(news):
             print(f"🤖 Mencoba Gemini...")
             genai.configure(api_key=key)
             model = genai.GenerativeModel('gemini-2.0-flash')
-            response = model.generate_content(f"Tulis ulang berita: {news['title']}")
+            response = model.generate_content(f"Tulis ulang berita ini dalam 3 paragraf: {news['title']}")
             if response.text:
                 return normalize_ai_response({"title": news['title'], "content": response.text}, news)
         except: continue
@@ -47,40 +47,63 @@ def process_with_ai(news):
     return normalize_ai_response({"title": news['title'], "content": news['summary']}, news)
 
 def main():
-    print("--- 🎬 BOT START (VERS: 2.3 - ULTIMATE PAYLOAD) ---")
+    print("--- 🎬 BOT START (VERS: 2.4 - THE FINAL) ---")
     
     # 1. Login
+    token = None
     try:
-        r_login = requests.post(f"{BASE_URL}/api/token", data={"username": "ai_bot", "password": AI_BOT_SECRET}, timeout=10)
+        r_login = requests.post(f"{BASE_URL}/api/token", data={"username": "ai_bot", "password": AI_BOT_SECRET}, timeout=15)
         token = r_login.json().get("access_token")
     except:
-        print("❌ Gagal Login.")
+        print("❌ Gagal Login ke Backend.")
         return
     if not token: return
 
-    # 2. Ambil Berita (Contoh Cepat)
+    # 2. Ambil Sumber dari Database
+    print("📋 Mengambil daftar sumber berita...")
+    sources = []
     try:
-        r_rss = requests.get("https://www.detik.com/terpopuler/inet/rss", timeout=10)
-        feed = feedparser.parse(r_rss.content)
-        entry = feed.entries[0]
-        news = {"title": entry.title, "summary": entry.summary, "link": entry.link}
-        print(f"✅ Berita: {news['title'][:50]}...")
-    except:
-        print("❌ Gagal RSS.")
+        res_sources = requests.get(f"{BASE_URL}/api/ai-bot/sources", headers={"Authorization": f"Bearer {token}"}, timeout=15)
+        if res_sources.status_code == 200:
+            sources = res_sources.json()
+    except: pass
+    
+    if not sources:
+        sources = [{"name": "Fallback Detik", "rss_url": "https://www.detik.com/terpopuler/inet/rss"}]
+
+    # 3. Cari berita dari RSS yang merespon
+    random.shuffle(sources)
+    news = None
+    for s in sources:
+        print(f"📰 Menghubungi RSS: {s['name']}...")
+        try:
+            r_rss = requests.get(s['rss_url'], timeout=12)
+            if r_rss.status_code == 200:
+                feed = feedparser.parse(r_rss.content)
+                if feed.entries:
+                    entry = feed.entries[0]
+                    news = {"title": entry.title, "summary": entry.summary, "link": entry.link, "source": s['name']}
+                    print(f"✅ Berita ditemukan: {news['title'][:50]}...")
+                    break
+            else:
+                print(f"⚠️ {s['name']} merespon {r_rss.status_code}. Mencoba yang lain...")
+        except:
+            print(f"⚠️ {s['name']} gagal dihubungi. Mencoba yang lain...")
+            continue
+
+    if not news:
+        print("❌ Semua sumber berita gagal dihubungi.")
         return
 
-    # 3. Proses AI
+    # 4. Proses AI
     processed = process_with_ai(news)
     
-    # 4. Publish
-    # HANYA kirim field wajib untuk tes
+    # 5. Publish
     payload = {
         "title": str(processed['title']),
         "content": str(processed['content']),
-        "image_url": None,
-        "video_url": None,
-        "is_pinned": False,
-        "category": "Berita Harian"
+        "category": "Berita Harian",
+        "image_url": None
     }
     
     headers = {
@@ -89,32 +112,21 @@ def main():
         "Accept": "application/json"
     }
     
-    print(f"📡 Mengirim ke {BASE_URL}/api/news/ (Dengan Slash Akhir)...")
-    
     try:
-        # Gunakan json=payload agar requests menangani encoding secara otomatis
-        res = requests.post(
-            f"{BASE_URL}/api/news/", 
-            json=payload, 
-            headers=headers, 
-            timeout=20,
-            allow_redirects=False # Jangan biarkan redirect merusak body
-        )
+        print(f"📡 Mengirim ke website...")
+        # Coba dengan slash akhir (endpoint standar FastAPI)
+        res = requests.post(f"{BASE_URL}/api/news/", json=payload, headers=headers, timeout=25, allow_redirects=True)
         
         if res.status_code == 200:
-            print("🏆 SUKSES: Berita Terbit!")
+            print(f"🏆 BERHASIL! Berita '{payload['title']}' sudah terbit.")
         else:
-            print(f"❌ Gagal {res.status_code}: {res.text}")
-            
-            # Percobaan Kedua: Tanpa Slash jika gagal
-            if res.status_code == 404 or res.status_code == 422:
-                print("🔄 Mencoba tanpa slash...")
-                res2 = requests.post(f"{BASE_URL}/api/news", json=payload, headers=headers, timeout=20)
-                if res2.status_code == 200:
-                    print("🏆 SUKSES (Tanpa Slash)!")
-                else:
-                    print(f"❌ Gagal Total: {res2.text}")
-                    
+            # Jika gagal, coba tanpa slash akhir
+            print(f"🔄 Mencoba jalur alternatif...")
+            res2 = requests.post(f"{BASE_URL}/api/news", json=payload, headers=headers, timeout=25)
+            if res2.status_code == 200:
+                print(f"🏆 BERHASIL (Jalur B)! Berita terbit.")
+            else:
+                print(f"❌ Gagal Total: {res2.text}")
     except Exception as e:
         print(f"❌ Fatal Error: {e}")
 
