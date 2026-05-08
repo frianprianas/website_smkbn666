@@ -86,31 +86,40 @@ def fetch_latest_news(sources):
     active_sources = [s for s in sources if s.get('is_active', True)]
     if not active_sources: return None
     
-    source = random.choice(active_sources)
-    print(f"📰 Menghubungi RSS: {source['name']} ({source['rss_url']})...")
+    # Acak urutan sumber agar tidak selalu mencoba yang sama duluan
+    random.shuffle(active_sources)
     
-    try:
-        print("⏳ Requesting RSS content...")
-        resp = requests.get(source['rss_url'], timeout=15)
-        print(f"📥 Respon diterima ({resp.status_code}). Parsing feed...")
-        
-        feed = feedparser.parse(resp.content)
-        if not feed.entries: 
-            print("📭 Feed kosong, tidak ada berita.")
-            return None
+    for source in active_sources:
+        print(f"📰 Menghubungi RSS: {source['name']} ({source['rss_url']})...")
+        try:
+            print("⏳ Requesting RSS content...")
+            resp = requests.get(source['rss_url'], timeout=10)
             
-        entry = feed.entries[0]
-        print(f"✨ Berita terpilih: {entry.title}")
-        return {
-            "title": entry.title,
-            "summary": entry.summary,
-            "link": entry.link,
-            "source": source['name'],
-            "original_image": extract_image_url(entry)
-        }
-    except Exception as e:
-        print(f"💥 ERROR Jaringan/RSS: {e}")
-        return None
+            if resp.status_code != 200:
+                print(f"⚠️ Sumber {source['name']} bermasalah (Status {resp.status_code}). Mencoba sumber lain...")
+                continue
+
+            print(f"📥 Respon diterima ({resp.status_code}). Parsing feed...")
+            feed = feedparser.parse(resp.content)
+            if not feed.entries: 
+                print(f"⚠️ Feed {source['name']} kosong. Mencoba sumber lain...")
+                continue
+                
+            entry = feed.entries[0]
+            print(f"✨ Berita terpilih: {entry.title}")
+            return {
+                "title": entry.title,
+                "summary": entry.summary,
+                "link": entry.link,
+                "source": source['name'],
+                "original_image": extract_image_url(entry)
+            }
+        except Exception as e:
+            print(f"💥 Koneksi ke {source['name']} gagal: {e}. Mencoba sumber lain...")
+            continue
+            
+    print("❌ Semua sumber berita gagal dihubungi.")
+    return None
 
 def process_with_gemini(news):
     prompt = f"Tulis ulang berita ini dalam 3 paragraf menarik: {news['title']} - {news['summary']}. Jawab dalam JSON: {{\"title\": \"...\", \"content\": \"...\"}}"
