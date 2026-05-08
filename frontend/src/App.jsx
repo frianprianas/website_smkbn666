@@ -17,6 +17,7 @@ import MajorsPage from './pages/MajorsPage';
 import MajorDetail from './pages/MajorDetail';
 import Profile from './pages/Profile';
 import ManageWA from './pages/ManageWA';
+import ManageAIBot from './pages/ManageAIBot';
 
 function App() {
   return (
@@ -42,6 +43,7 @@ function App() {
           <Route path="/wa" element={<ManageWA />} />
           <Route path="/contributors" element={<ManageContributors />} />
           <Route path="/agenda" element={<ManageAgenda />} />
+          <Route path="/ai-bot" element={<ManageAIBot />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

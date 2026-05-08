@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Newspaper, Users, GraduationCap, BookOpen, LogOut, School, Image, Building2, MessageSquare, Calendar } from 'lucide-react';
+import { LayoutDashboard, Newspaper, Users, GraduationCap, BookOpen, LogOut, School, Image, Building2, MessageSquare, Calendar, Bot } from 'lucide-react';
 
 const Sidebar = () => {
     const location = useLocation();
@@ -28,6 +28,7 @@ const Sidebar = () => {
         { name: 'Testimoni', path: '/testimonials', icon: MessageSquare, roles: ['admin', 'kontributor'], perm: null },
         { name: 'WhatsApp Gateway', path: '/wa', icon: MessageSquare, roles: ['admin'], perm: null },
         { name: 'Data Kontributor', path: '/contributors', icon: Users, roles: ['admin'], perm: null },
+        { name: 'Auto Kontributor', path: '/ai-bot', icon: Bot, roles: ['admin'], perm: null },
     ];
 
     const permissions = (localStorage.getItem('permissions') || "").split(',');

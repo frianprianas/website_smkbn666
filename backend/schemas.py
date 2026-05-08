@@ -149,3 +149,16 @@ class WANumber(WANumberBase):
     id: int
     class Config:
         from_attributes = True
+
+class AINewsSourceBase(BaseModel):
+    name: str
+    rss_url: str
+    is_active: bool = True
+
+class AINewsSourceCreate(AINewsSourceBase):
+    pass
+
+class AINewsSource(AINewsSourceBase):
+    id: int
+    class Config:
+        from_attributes = True

@@ -86,3 +86,10 @@ class WANumber(Base):
     phone_number = Column(String, unique=True, index=True) # Format: 628xxx
     name = Column(String)
     is_active = Column(Boolean, default=True)
+
+class AINewsSource(Base):
+    __tablename__ = "ai_news_sources"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String)
+    rss_url = Column(String)
+    is_active = Column(Boolean, default=True)
