@@ -5,6 +5,7 @@ import google.generativeai as genai
 from datetime import datetime
 import json
 import random
+import re
 
 # Load environment variables
 from dotenv import load_dotenv
@@ -12,11 +13,8 @@ load_dotenv()
 
 # --- KONFIGURASI ---
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-# Deteksi otomatis: Jika di Docker, gunakan localhost. Jika tidak, gunakan VITE_API_URL
 BASE_URL = "http://localhost:8000" if os.path.exists("/.dockerenv") else os.getenv("VITE_API_URL", "https://smkbn666.sch.id")
 AI_BOT_SECRET = os.getenv("AI_BOT_SECRET", "super_secret_ai_token")
-
-print(f"Menggunakan API URL: {BASE_URL}")
 
 genai.configure(api_key=GEMINI_API_KEY)
 
@@ -46,9 +44,25 @@ def fetch_sources_from_db(token):
         print(f"❌ Error fetching sources: {e}")
         return []
 
+def extract_image_url(entry):
+    """Mencoba mengambil URL gambar dari berbagai tag RSS"""
+    # 1. Cek enclosure
+    if hasattr(entry, 'enclosures') and entry.enclosures:
+        for enc in entry.enclosures:
+            if 'image' in enc.type: return enc.href
+    
+    # 2. Cek media:content atau media:thumbnail
+    if hasattr(entry, 'media_content'):
+        return entry.media_content[0]['url']
+    
+    # 3. Cek di dalam summary/description (Regex)
+    img_match = re.search(r'<img [^>]*src="([^"]+)"', getattr(entry, 'summary', ''))
+    if img_match: return img_match.group(1)
+    
+    return None
+
 def fetch_latest_news(sources):
     if not sources:
-        print("⚠️ Database sumber kosong, menggunakan fallback...")
         sources = [{"name": "Detik Inet", "rss_url": "https://www.detik.com/terpopuler/inet/rss"}]
     
     active_sources = [s for s in sources if s.get('is_active', True)]
@@ -59,15 +73,15 @@ def fetch_latest_news(sources):
     
     try:
         feed = feedparser.parse(source['rss_url'])
-        if not feed.entries:
-            print(f"⚠️ Feed {source['name']} kosong.")
-            return None
+        if not feed.entries: return None
         
+        entry = feed.entries[0]
         return {
-            "title": feed.entries[0].title,
-            "summary": feed.entries[0].summary,
-            "link": feed.entries[0].link,
-            "source": source['name']
+            "title": entry.title,
+            "summary": entry.summary,
+            "link": entry.link,
+            "source": source['name'],
+            "original_image": extract_image_url(entry)
         }
     except Exception as e:
         print(f"❌ Error parsing feed: {e}")
@@ -76,22 +90,16 @@ def fetch_latest_news(sources):
 def process_with_gemini(news):
     prompt = f"""
     Bertindaklah sebagai Jurnalis Utama & Edukator untuk SMK Bakti Nusantara 666.
-    Tulis ulang berita ini untuk audiens UMUM, namun sertakan ajakan untuk siswa-siswi Bakti Nusantara 666.
+    Tulis ulang berita ini untuk audiens UMUM, namun sertakan ajakan untuk siswa-siswi Bakti Nusantara 666 (RPL, DKV, Animasi, Pemasaran, Akuntansi).
     
     Berita: {news['title']}
     Sumber: {news['source']}
     Konten: {news['summary']}
 
-    Aturan:
-    1. Tulis dalam 2-3 paragraf profesional.
-    2. Paragraf terakhir HARUS berisi ajakan relevan bagi siswa SMK BN 666.
-    3. Cantumkan sumber link di akhir.
-
     Format Output (JSON):
     {{
-        "title": "Judul Baru",
-        "content": "Isi berita...",
-        "image_prompt": "Prompt visualisasi teknologi"
+        "title": "Judul Baru Yang Keren",
+        "content": "Isi berita 2-3 paragraf dengan ajakan siswa BN 666 di akhir..."
     }}
     """
     try:
@@ -102,36 +110,41 @@ def process_with_gemini(news):
         print(f"❌ Error Gemini Content: {e}")
         return None
 
-def post_to_website(token, data):
+def post_to_website(token, data, original_image_url):
     headers = {"Authorization": f"Bearer {token}"}
-    
-    # --- 1. GENERATE GAMBAR AI ---
     image_file_path = "temp_news_image.jpg"
     has_image = False
+    
+    # --- 1. STRATEGI GAMBAR (MULTI-LAYER) ---
+    
+    # Layer 1: Coba Generate Gambar AI
     try:
-        print(f"🎨 Membuat gambar AI untuk: {data['title']}...")
-        img_prompt = f"Professional digital illustration of {data['title']}, high quality, tech style"
-        image_response = image_model.generate_content(img_prompt)
-        
-        # Coba ambil data gambar dari berbagai kemungkinan atribut SDK
+        print(f"🎨 Mencoba membuat gambar AI...")
+        image_response = image_model.generate_content(f"Illustration for news: {data['title']}")
         img_data = None
-        if hasattr(image_response, 'data'):
-            img_data = image_response.data
+        if hasattr(image_response, 'data'): img_data = image_response.data
         elif hasattr(image_response, 'parts'):
-            for part in image_response.parts:
-                if hasattr(part, 'inline_data'):
-                    img_data = part.inline_data.data
-                    break
+            for p in image_response.parts:
+                if hasattr(p, 'inline_data'): img_data = p.inline_data.data; break
         
         if img_data:
-            with open(image_file_path, "wb") as f:
-                f.write(img_data)
+            with open(image_file_path, "wb") as f: f.write(img_data)
             has_image = True
-            print("✅ Gambar AI berhasil dibuat.")
-        else:
-            print("⚠️ Data gambar tidak ditemukan dalam respon Gemini.")
+            print("✅ Gambar AI Berhasil.")
     except Exception as e:
-        print(f"❌ Gagal membuat gambar AI: {e}")
+        print(f"⚠️ Gambar AI Gagal (Quota/Error).")
+
+    # Layer 2: Jika AI Gagal, Ambil Gambar Asli Sumber
+    if not has_image and original_image_url:
+        try:
+            print(f"🔗 Mengambil gambar asli sumber: {original_image_url}...")
+            img_resp = requests.get(original_image_url, timeout=10)
+            if img_resp.status_code == 200:
+                with open(image_file_path, "wb") as f: f.write(img_resp.content)
+                has_image = True
+                print("✅ Gambar Sumber Berhasil.")
+        except:
+            print("⚠️ Gagal mengambil gambar asli.")
 
     # --- 2. KIRIM DATA KE API ---
     payload = {
@@ -147,28 +160,18 @@ def post_to_website(token, data):
     try:
         response = requests.post(f"{BASE_URL}/api/news/", data=payload, files=files, headers=headers, timeout=30)
         if has_image: files['image'][1].close()
-        
-        if response.status_code == 200:
-            print(f"🚀 BERHASIL! Berita '{data['title']}' sudah terbit di website.")
-            return True
-        else:
-            print(f"❌ API Error ({response.status_code}): {response.text}")
-            return False
+        return response.status_code == 200
     except Exception as e:
-        print(f"❌ Error saat posting ke API: {e}")
+        print(f"❌ Error saat posting: {e}")
         return False
 
 if __name__ == "__main__":
-    print(f"\n--- BaknusAi Run: {datetime.now()} ---")
     token = get_token()
-    if not token:
-        print("❌ Login Gagal. Cek koneksi ke backend.")
-    else:
+    if token:
         sources = fetch_sources_from_db(token)
         news = fetch_latest_news(sources)
         if news:
             ai_data = process_with_gemini(news)
             if ai_data:
-                post_to_website(token, ai_data)
-        else:
-            print("❌ Tidak ada berita baru yang bisa diambil.")
+                success = post_to_website(token, ai_data, news['original_image'])
+                if success: print(f"🚀 SELESAI! Berita '{ai_data['title']}' sudah terbit.")
