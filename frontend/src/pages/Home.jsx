@@ -23,6 +23,7 @@ const Home = () => {
     const [isFacebookModalOpen, setIsFacebookModalOpen] = useState(false);
     const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
     const [dynamicStats, setDynamicStats] = useState([]);
+    const [isAppReady, setIsAppReady] = useState(false);
 
     // --- Refs for Scroll Effects ---
     const targetRef = useRef(null);
@@ -109,6 +110,12 @@ const Home = () => {
             }
         };
         fetchData();
+
+        // Reveal the app after a delay
+        const timer = setTimeout(() => {
+            setIsAppReady(true);
+        }, 2200);
+        return () => clearTimeout(timer);
     }, []);
 
     useEffect(() => {
@@ -126,8 +133,76 @@ const Home = () => {
         { image_url: "/static/images/band.jpg", title: "Ekstrakurikuler", id: "def4" }
     ];
 
+    // --- Preloader Component ---
+    const Preloader = () => (
+        <motion.div
+            key="preloader"
+            initial={{ opacity: 1 }}
+            exit={{ 
+                y: "-100%",
+                transition: { duration: 0.8, ease: [0.76, 0, 0.24, 1] } 
+            }}
+            className="fixed inset-0 z-[1000] bg-slate-900 flex flex-col items-center justify-center overflow-hidden"
+        >
+            {/* Background Decor */}
+            <div className="absolute inset-0 opacity-20">
+                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-600 rounded-full blur-[120px]"></div>
+                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-indigo-600 rounded-full blur-[120px]"></div>
+            </div>
+
+            <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 1, ease: "easeOut" }}
+                className="relative z-10 flex flex-col items-center"
+            >
+                <div className="relative p-8">
+                    <motion.div 
+                        animate={{ 
+                            scale: [1, 1.05, 1],
+                            rotate: [0, 5, -5, 0]
+                        }}
+                        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                    >
+                        <img src="/static/images/logo-school.png" alt="Logo" className="h-32 md:h-40 object-contain drop-shadow-[0_0_30px_rgba(59,130,246,0.5)]" />
+                    </motion.div>
+                    
+                    {/* Ring animation */}
+                    <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                        className="absolute inset-0 border-2 border-dashed border-blue-500/20 rounded-full"
+                    />
+                </div>
+
+                <motion.div
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.5, duration: 0.8 }}
+                    className="text-center mt-6"
+                >
+                    <h2 className="text-white text-3xl font-black tracking-tighter mb-1">SMK BAKTI NUSANTARA 666</h2>
+                    <p className="text-blue-400 font-bold tracking-[0.3em] text-xs uppercase">Sekolah Pusat Keunggulan</p>
+                    
+                    {/* Progress Bar */}
+                    <div className="mt-8 w-64 h-1 bg-white/5 rounded-full mx-auto overflow-hidden border border-white/5">
+                        <motion.div 
+                            initial={{ x: "-100%" }}
+                            animate={{ x: "0%" }}
+                            transition={{ duration: 2, ease: "easeInOut" }}
+                            className="w-full h-full bg-gradient-to-r from-blue-600 to-indigo-500"
+                        />
+                    </div>
+                </motion.div>
+            </motion.div>
+        </motion.div>
+    );
+
     return (
-        <div ref={targetRef} className="min-h-screen bg-white relative overflow-x-hidden selection:bg-blue-500 selection:text-white font-sans">
+        <>
+        <AnimatePresence mode="wait">
+            {!isAppReady && <Preloader />}
+        </AnimatePresence>
 
             {/* --- Dynamic Background Elements --- */}
             <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
@@ -851,6 +926,7 @@ const Home = () => {
                 </div>
             )}
         </div>
+        </>
     );
 };
 
