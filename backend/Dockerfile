@@ -8,6 +8,7 @@ COPY requirements.txt .
 RUN apt-get update \
     && apt-get install -y gcc libpq-dev \
     && pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir --index-url https://pypi.org/simple mistralai \
     && pip install --no-cache-dir --index-url https://pypi.org/simple -r requirements.txt \
     && apt-get clean
 
