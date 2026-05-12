@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 from typing import List
 import database, models, schemas, auth
 import google.generativeai as genai
-from mistralai.client import MistralClient
-from mistralai.models.chat_completion import ChatMessage
+import requests
+import json
 import os
 import random
 import time
@@ -47,13 +47,23 @@ async def check_comment_with_ai(content: str):
     # 2. Coba Mistral
     if MISTRAL_API_KEY:
         try:
-            client = MistralClient(api_key=MISTRAL_API_KEY)
-            res = client.chat(model="mistral-tiny", messages=[ChatMessage(role="user", content=prompt)])
-            result = res.choices[0].message.content.strip().upper()
+            url = "https://api.mistral.ai/v1/chat/completions"
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {MISTRAL_API_KEY}"
+            }
+            payload = {
+                "model": "mistral-tiny",
+                "messages": [{"role": "user", "content": prompt}]
+            }
+            response = requests.post(url, headers=headers, json=payload, timeout=10)
+            result = response.json()['choices'][0]['message']['content'].strip().upper()
             print(f"🌀 AI Mistral => {result}")
             if "BLOKIR" in result: return False
             return True
-        except: pass
+        except Exception as e:
+            print(f"⚠️ Mistral Fail: {e}")
+            pass
 
     return True
 

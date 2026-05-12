@@ -2,8 +2,7 @@ import os
 import requests
 import feedparser
 import google.generativeai as genai
-from mistralai.client import MistralClient
-from mistralai.models.chat_completion import ChatMessage
+# mistralai removed, using requests instead
 import json
 import random
 import re
@@ -61,9 +60,17 @@ def process_with_ai(news, lang):
     
     if MISTRAL_API_KEY:
         try:
-            client = MistralClient(api_key=MISTRAL_API_KEY)
-            res = client.chat(model="mistral-tiny", messages=[ChatMessage(role="user", content=prompt)])
-            return res.choices[0].message.content.strip()
+            url = "https://api.mistral.ai/v1/chat/completions"
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {MISTRAL_API_KEY}"
+            }
+            payload = {
+                "model": "mistral-tiny",
+                "messages": [{"role": "user", "content": prompt}]
+            }
+            response = requests.post(url, headers=headers, json=payload, timeout=15)
+            return response.json()['choices'][0]['message']['content'].strip()
         except: pass
     return news['summary'][:300]
 

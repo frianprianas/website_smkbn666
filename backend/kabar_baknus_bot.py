@@ -1,8 +1,7 @@
 import os
 import requests
 import feedparser
-from mistralai.client import MistralClient
-from mistralai.models.chat_completion import ChatMessage
+import json
 from sqlalchemy.orm import Session
 from database import SessionLocal
 import models
@@ -12,8 +11,9 @@ import re
 
 load_dotenv()
 
+# Mistral API configuration
 MISTRAL_API_KEY = os.getenv("MISTRAL_API")
-client = MistralClient(api_key=MISTRAL_API_KEY)
+MISTRAL_URL = "https://api.mistral.ai/v1/chat/completions"
 
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36',
@@ -56,12 +56,25 @@ def get_image_from_link(url):
 def summarize_with_mistral(title, description):
     if not MISTRAL_API_KEY:
         return description[:200] + "..."
+    
     prompt = f"Rangkum berita ini dalam 1 kalimat pendek dan sangat menarik:\nJudul: {title}\nKonten: {description}"
+    
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {MISTRAL_API_KEY}"
+    }
+    
+    payload = {
+        "model": "mistral-tiny",
+        "messages": [{"role": "user", "content": prompt}]
+    }
+    
     try:
-        messages = [ChatMessage(role="user", content=prompt)]
-        chat_response = client.chat(model="mistral-tiny", messages=messages)
-        return chat_response.choices[0].message.content
-    except:
+        response = requests.post(MISTRAL_URL, headers=headers, json=payload, timeout=15)
+        response_data = response.json()
+        return response_data['choices'][0]['message']['content']
+    except Exception as e:
+        print(f"⚠️ Mistral Error: {e}")
         return description[:200] + "..."
 
 def run_bot():
