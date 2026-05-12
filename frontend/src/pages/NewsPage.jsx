@@ -28,7 +28,7 @@ const NewsPage = () => {
             try {
                 // Fetch both sources
                 const [internalRes, aiRes] = await Promise.all([
-                    api.get('/news'),
+                    api.get('/news/'),
                     api.get('/kabar-baknus')
                 ]);
 
@@ -45,14 +45,18 @@ const NewsPage = () => {
                     new Date(b.date_posted) - new Date(a.date_posted)
                 );
 
+                console.log("Combined News Data:", combined); // Debugging
                 setAllNews(combined);
                 
-                // Set initial filtered news based on activeCategory
-                let initialResult = combined;
-                if (activeCategory !== 'Semua') {
-                    initialResult = combined.filter(n => n.category === activeCategory);
+                // Set initial filtered news
+                if (activeCategory === 'Semua') {
+                    setFilteredNews(combined);
+                } else {
+                    const filtered = combined.filter(n => 
+                        (n.category || '').toLowerCase() === activeCategory.toLowerCase()
+                    );
+                    setFilteredNews(filtered);
                 }
-                setFilteredNews(initialResult);
             } catch (error) {
                 console.error('Error fetching news:', error);
             } finally {
@@ -63,12 +67,15 @@ const NewsPage = () => {
     }, [initialCategory]);
 
     useEffect(() => {
-        if (loading) return; // Don't filter while loading
+        if (loading) return;
         
         let result = allNews;
 
         if (activeCategory !== 'Semua') {
-            result = result.filter(item => item.category === activeCategory);
+            result = result.filter(item => 
+                (item.category || '').toLowerCase() === activeCategory.toLowerCase() ||
+                (activeCategory === 'Berita Utama' && (item.category || '').toLowerCase() === 'berita') // Fallback mapping
+            );
         }
 
         if (searchQuery) {
