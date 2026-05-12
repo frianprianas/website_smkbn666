@@ -71,7 +71,7 @@ const Profile = () => {
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-sky-300">Industri Kreatif</span>
                         </h1>
                         <p className="text-lg md:text-xl text-gray-300 leading-relaxed mb-8">
-                            SMK Bakti Nusantara 666 adalah Sekolah Menengah Kejuruan berbasis industri kreatif yang berdiri sejak tahun 2007, berlokasi di Cileunyi, Kabupaten Bandung.
+                            SMK Bakti Nusantara 666 adalah salah satu <strong>SMK Terbaik di Bandung Timur</strong> yang berbasis industri kreatif. Berdiri sejak tahun 2007 dan berlokasi strategis di Cileunyi, Kabupaten Bandung.
                         </p>
                     </motion.div>
                 </div>
@@ -156,8 +156,8 @@ const Profile = () => {
                             <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                                 <MapPin className="w-6 h-6 text-red-500" /> Lokasi Strategis
                             </h3>
-                            <p className="text-gray-600 mb-6 text-sm">
-                                Jl. Percobaan Km. 17 No. 65, Cimekar, Kecamatan Cileunyi, Kabupaten Bandung, Jawa Barat.
+                             <p className="text-gray-600 mb-6 text-sm">
+                                Jl. Percobaan Km. 17 No. 65, Cimekar, Kecamatan Cileunyi, <strong>Bandung Timur</strong>, Kabupaten Bandung, Jawa Barat.
                             </p>
                             
                             {/* Google Maps Embed using precise coordinates */}

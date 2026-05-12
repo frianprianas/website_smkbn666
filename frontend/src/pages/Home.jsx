@@ -246,7 +246,7 @@ const Home = () => {
                 <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-20 items-center">
                         <div className="flex items-center gap-3">
-                            <img src="/static/images/logo-school.png" alt="Logo SMK Bakti Nusantara 666" className="h-12 md:h-14 object-contain drop-shadow-sm" />
+                            <img src="/static/images/logo-school.png" alt="Logo SMK Bakti Nusantara 666 - SMK Terbaik di Bandung Timur" className="h-12 md:h-14 object-contain drop-shadow-sm" />
                             <div className="flex flex-col text-left">
                                 <span className="font-bold text-xl md:text-2xl text-blue-900 leading-none">SMK Bakti Nusantara 666</span>
                                 <span className="text-xs text-blue-500 font-medium tracking-widest uppercase">Santun, Jujur, Taat</span>
@@ -300,12 +300,12 @@ const Home = () => {
                                 <span>Sekolah Pusat Keunggulan (Center of Excellence)</span>
                             </div>
                             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight drop-shadow-2xl">
-                                <span className="block text-2xl md:text-3xl text-blue-300 mb-2 font-medium">SMK Bakti Nusantara 666</span>
+                                <span className="block text-2xl md:text-3xl text-blue-300 mb-2 font-medium">SMK Terbaik di Bandung Timur</span>
                                 Membangun Generasi <br />
                                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-cyan-300">Unggul & Berkarakter</span>
                             </h1>
                             <p className="text-xl text-blue-100 mb-10 leading-relaxed font-light max-w-2xl drop-shadow-md">
-                                SMK Bakti Nusantara 666 berkomitmen mencetak lulusan kompeten dengan prinsip Santun, Jujur, dan Taat (SAJUTA).
+                                SMK Bakti Nusantara 666 berlokasi di Cileunyi dan berkomitmen menjadi SMK terbaik di Bandung Timur dengan mencetak lulusan kompeten berprinsip Santun, Jujur, dan Taat (SAJUTA).
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4">
                                 <button className="bg-blue-600 text-white px-8 py-4 rounded-full font-bold hover:bg-blue-700 transition-all shadow-xl hover:shadow-blue-500/50 flex items-center justify-center gap-2 group">
@@ -373,9 +373,9 @@ const Home = () => {
                         </div>
                         <div className="flex-1 relative z-10">
                             <span className="text-blue-600 font-bold uppercase tracking-wider text-xs mb-2 block">Sambutan Kepala Sekolah</span>
-                            <h2 className="text-3xl font-bold text-gray-900 mb-4">Mewujudkan Pendidikan Berkualitas</h2>
+                            <h2 className="text-3xl font-bold text-gray-900 mb-4">SMK Terbaik di Bandung Timur</h2>
                             <p className="text-gray-600 mb-6 leading-relaxed">
-                                Selamat datang di website resmi SMK Bakti Nusantara 666. Kami berdedikasi untuk memberikan layanan pendidikan terbaik, mengintegrasikan teknologi dan karakter untuk masa depan.
+                                Selamat datang di website resmi SMK Bakti Nusantara 666 Cileunyi. Sebagai salah satu <strong>SMK Terbaik di Bandung Timur</strong>, kami berdedikasi untuk memberikan layanan pendidikan industri kreatif terbaik.
                             </p>
                             <Link to="#" className="text-blue-600 font-bold hover:gap-2 transition-all inline-flex items-center">
                                 Baca Selengkapnya <ChevronRight className="w-4 h-4 ml-1" />
@@ -961,7 +961,7 @@ const Home = () => {
                                 <span className="font-bold text-xl">SMK Bakti Nusantara 666</span>
                             </div>
                             <p className="text-slate-400 text-sm leading-relaxed mb-6">
-                                Sekolah Pusat Keunggulan yang mencetak generasi kompeten dengan karakter Santun, Jujur, dan Taat.
+                                SMK Terbaik di Bandung Timur (Cileunyi) yang mencetak generasi kompeten dengan karakter Santun, Jujur, dan Taat.
                             </p>
                             <div className="flex gap-4">
                                 <a href="https://www.facebook.com/smkbn666" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer" title="Facebook @smkbn666"><Facebook className="w-5 h-5" /></a>
