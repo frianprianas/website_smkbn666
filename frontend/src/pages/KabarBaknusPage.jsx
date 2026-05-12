@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 import { 
     ExternalLink, ArrowLeft, Newspaper, 
     Calendar, Globe, Search, ArrowRight, Bot
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import api from '../api';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
@@ -17,7 +17,7 @@ const KabarBaknusPage = () => {
     useEffect(() => {
         const fetchNews = async () => {
             try {
-                const response = await axios.get(`${API_URL}/api/kabar-baknus/`);
+                const response = await api.get('/kabar-baknus');
                 setNews(response.data.reverse()); // Newest first
             } catch (error) {
                 console.error('Error fetching Kabar Baknus:', error);
