@@ -22,7 +22,6 @@ import { Toaster } from 'react-hot-toast';
 import NewsDetail from './pages/NewsDetail';
 import NewsPage from './pages/NewsPage';
 import GalleryPage from './pages/GalleryPage';
-import KabarBaknusPage from './pages/KabarBaknusPage';
 
 function App() {
   return (
@@ -36,7 +35,6 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/news" element={<NewsPage />} />
         <Route path="/gallery" element={<GalleryPage />} />
-        <Route path="/kabar-baknus" element={<KabarBaknusPage />} />
         <Route path="/news/:id" element={<NewsDetail />} />
 
         {/* Protected Routes */}

@@ -840,7 +840,7 @@ const Home = () => {
                                     Kabar Baknus
                                 </h2>
                                 <p className="text-[10px] text-gray-400 font-bold mt-2 uppercase tracking-widest">Dirangkum oleh BaknusAI</p>
-                                <Link to="/kabar-baknus" className="mt-4 inline-flex items-center gap-2 text-blue-600 font-bold text-xs hover:underline uppercase tracking-tighter">
+                                <Link to="/news?category=Kabar AI" className="mt-4 inline-flex items-center gap-2 text-blue-600 font-bold text-xs hover:underline uppercase tracking-tighter">
                                     Lihat Semua Kabar <ArrowRight className="w-3 h-3" />
                                 </Link>
                             </div>
