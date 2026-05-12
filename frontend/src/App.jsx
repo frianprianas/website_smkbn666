@@ -21,6 +21,7 @@ import ManageAIBot from './pages/ManageAIBot';
 import { Toaster } from 'react-hot-toast';
 import NewsDetail from './pages/NewsDetail';
 import NewsPage from './pages/NewsPage';
+import GalleryPage from './pages/GalleryPage';
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/login" element={<Login />} />
         <Route path="/news" element={<NewsPage />} />
+        <Route path="/gallery" element={<GalleryPage />} />
         <Route path="/news/:id" element={<NewsDetail />} />
 
         {/* Protected Routes */}

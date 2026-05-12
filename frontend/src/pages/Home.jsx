@@ -912,6 +912,14 @@ const Home = () => {
                         </motion.div>
                     ))}
                 </div>
+                <div className="mt-12 text-center">
+                    <Link 
+                        to="/gallery" 
+                        className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-2xl font-bold transition-all shadow-lg shadow-blue-600/30 group"
+                    >
+                        Lihat Semua Galeri <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                </div>
             </section>
 
             {/* --- Partners --- */}
