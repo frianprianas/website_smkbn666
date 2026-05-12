@@ -116,7 +116,7 @@ const Dashboard = () => {
             <div className="mt-8 bg-white rounded-2xl p-8 border border-white/50 shadow-sm">
                 <h2 className="text-lg font-bold text-gray-800 mb-4">Quick Actions</h2>
                 <div className="flex gap-4">
-                    <Link to="/news" className="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors font-medium">Post New News</Link>
+                    <Link to="/admin/news" className="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors font-medium">Post New News</Link>
                     {userRole === 'admin' && (
                         <Link to="/teachers" className="px-4 py-2 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors font-medium">Add Teacher</Link>
                     )}

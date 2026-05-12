@@ -20,6 +20,7 @@ import ManageWA from './pages/ManageWA';
 import ManageAIBot from './pages/ManageAIBot';
 import { Toaster } from 'react-hot-toast';
 import NewsDetail from './pages/NewsDetail';
+import NewsPage from './pages/NewsPage';
 
 function App() {
   return (
@@ -31,12 +32,13 @@ function App() {
         <Route path="/majors/:slug" element={<MajorDetail />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/news" element={<NewsPage />} />
         <Route path="/news/:id" element={<NewsDetail />} />
 
         {/* Protected Routes */}
         <Route element={<Layout />}>
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/news" element={<ManageNews />} />
+          <Route path="/admin/news" element={<ManageNews />} />
           <Route path="/teachers" element={<ManageTeachers />} />
           <Route path="/staff" element={<ManageStaff />} />
           <Route path="/majors" element={<ManageMajors />} />

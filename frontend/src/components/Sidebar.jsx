@@ -18,7 +18,7 @@ const Sidebar = () => {
     // Define menu items with required permission key (matches User.permissions string)
     const menuItems = [
         { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, roles: ['admin', 'kontributor'], perm: null }, // Everyone sees dashboard
-        { name: 'Berita', path: '/news', icon: Newspaper, roles: ['admin', 'kontributor'], perm: 'news' },
+        { name: 'Berita', path: '/admin/news', icon: Newspaper, roles: ['admin', 'kontributor'], perm: 'news' },
         { name: 'Agenda', path: '/agenda', icon: Calendar, roles: ['admin', 'kontributor'], perm: 'agenda' },
         { name: 'Data Guru', path: '/teachers', icon: Users, roles: ['admin'], perm: null }, // Admin only
         { name: 'Data TU', path: '/staff', icon: GraduationCap, roles: ['admin'], perm: null }, // Admin only

@@ -255,7 +255,7 @@ const Home = () => {
                         <div className="hidden md:flex items-center gap-6">
                             <Link to="/profile" className="text-gray-600 hover:text-blue-600 font-medium text-sm transition-colors">Profil</Link>
                             <Link to="/majors" className="text-gray-600 hover:text-blue-600 font-medium text-sm transition-colors">Jurusan</Link>
-                            <Link to="#" className="text-gray-600 hover:text-blue-600 font-medium text-sm transition-colors">Berita</Link>
+                            <Link to="/news" className="text-gray-600 hover:text-blue-600 font-medium text-sm transition-colors">Berita</Link>
                             <Link
                                 to="/login"
                                 className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white p-3 rounded-full font-medium transition-all shadow-lg shadow-blue-500/30 flex items-center justify-center transform hover:-translate-y-0.5"
@@ -686,7 +686,7 @@ const Home = () => {
                             <h2 className="text-3xl font-bold text-gray-900 border-l-4 border-blue-600 pl-4 uppercase tracking-tight">Berita Utama</h2>
                             <p className="text-gray-500 text-sm mt-1 ml-5">Informasi penting seputar aktivitas sekolah</p>
                         </div>
-                        <Link to="#" className="text-blue-600 font-bold text-sm hover:underline">Lihat Semua</Link>
+                        <Link to="/news" className="text-blue-600 font-bold text-sm hover:underline">Lihat Semua</Link>
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
