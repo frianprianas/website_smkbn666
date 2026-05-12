@@ -32,13 +32,13 @@ const NewsPage = () => {
                     api.get('/kabar-baknus')
                 ]);
 
-                // Normalize AI News to match Internal News structure for display
+                // Normalize AI News
                 const normalizedAI = aiRes.data.map(item => ({
                     ...item,
                     category: 'Kabar AI',
                     date_posted: item.date_found,
                     content: item.summary,
-                    is_ai: true // Flag to handle different link behavior
+                    is_ai: true
                 }));
 
                 const combined = [...internalRes.data, ...normalizedAI].sort((a, b) => 
@@ -46,13 +46,13 @@ const NewsPage = () => {
                 );
 
                 setAllNews(combined);
-                setFilteredNews(combined);
                 
-                // If there's a category in URL, apply it
-                if (initialCategory !== 'Semua') {
-                    const filtered = combined.filter(n => n.category === initialCategory);
-                    setFilteredNews(filtered);
+                // Set initial filtered news based on activeCategory
+                let initialResult = combined;
+                if (activeCategory !== 'Semua') {
+                    initialResult = combined.filter(n => n.category === activeCategory);
                 }
+                setFilteredNews(initialResult);
             } catch (error) {
                 console.error('Error fetching news:', error);
             } finally {
@@ -63,6 +63,8 @@ const NewsPage = () => {
     }, [initialCategory]);
 
     useEffect(() => {
+        if (loading) return; // Don't filter while loading
+        
         let result = allNews;
 
         if (activeCategory !== 'Semua') {
@@ -71,13 +73,13 @@ const NewsPage = () => {
 
         if (searchQuery) {
             result = result.filter(item => 
-                item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                (item.content && item.content.toLowerCase().includes(searchQuery.toLowerCase()))
+                (item.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+                (item.content || '').toLowerCase().includes(searchQuery.toLowerCase())
             );
         }
 
         setFilteredNews(result);
-    }, [searchQuery, activeCategory, allNews]);
+    }, [searchQuery, activeCategory, allNews, loading]);
 
     if (loading) return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
