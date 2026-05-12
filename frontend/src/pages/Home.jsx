@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence, useScroll, useTransform, animate, useInView } from 'framer-motion';
 import api from '../api';
+import SPMBModal from '../components/SPMBModal';
 
 const Home = () => {
     // --- State Management ---
@@ -221,6 +222,7 @@ const Home = () => {
 
     return (
         <>
+        <SPMBModal />
         <AnimatePresence mode="wait">
             {!isAppReady && <Preloader />}
         </AnimatePresence>
