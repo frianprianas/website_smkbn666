@@ -682,7 +682,7 @@ const Home = () => {
             </section>
 
             {/* --- Video / CTA Profile Section (New) --- */}
-            <div className="py-24 relative overflow-hidden flex items-center justify-center bg-gray-900 min-h-[500px]">
+            <div className="py-24 relative overflow-hidden flex items-center justify-center bg-gray-900 min-h-[600px]">
                 {/* Cinematic Video Background */}
                 <div className="absolute inset-0 z-0">
                     <video 
@@ -692,9 +692,10 @@ const Home = () => {
                         playsInline
                         className="w-full h-full object-cover opacity-50 grayscale brightness-50"
                         poster="/static/images/login-bg-3.jpg"
+                        onCanPlay={(e) => e.target.play()}
                     >
-                        {/* You can replace this with your own local .mp4 file in the future */}
-                        <source src="https://assets.mixkit.co/videos/preview/mixkit-software-developer-working-on-code-screen-close-up-1728-large.mp4" type="video/mp4" />
+                        {/* Reliable Video Source */}
+                        <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4" />
                         Your browser does not support the video tag.
                     </video>
                 </div>
