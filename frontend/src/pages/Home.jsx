@@ -23,6 +23,7 @@ const Home = () => {
     const [testimonials, setTestimonials] = useState([]);
     const [agendas, setAgendas] = useState([]);
     const [isFacebookModalOpen, setIsFacebookModalOpen] = useState(false);
+    const [isTikTokModalOpen, setIsTikTokModalOpen] = useState(false);
     const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
     const [dynamicStats, setDynamicStats] = useState([]);
     const [isAppReady, setIsAppReady] = useState(false);
@@ -977,11 +978,21 @@ const Home = () => {
                                 SMK Terbaik di Bandung Timur (Cileunyi) yang mencetak generasi kompeten dengan karakter Santun, Jujur, dan Taat.
                             </p>
                             <div className="flex gap-4">
-                                <a href="https://www.facebook.com/smkbn666" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer" title="Facebook @smkbn666"><Facebook className="w-5 h-5" /></a>
+                                <button 
+                                    onClick={() => setIsFacebookModalOpen(true)} 
+                                    className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer" 
+                                    title="Lihat Feed Facebook @smkbn666"
+                                >
+                                    <Facebook className="w-5 h-5" />
+                                </button>
                                 <a href="https://www.instagram.com/smkbaktinusantara666" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-pink-600 transition-colors cursor-pointer" title="Instagram @smkbaktinusantara666"><Instagram className="w-5 h-5" /></a>
-                                <a href="https://www.tiktok.com/@smkbaktinusantara666" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-black border border-slate-700 transition-colors cursor-pointer" title="TikTok @smkbaktinusantara666">
-                                    <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.17-2.89-.6-4.13-1.47V18.5c0 1.34-.35 2.61-1.02 3.73-.67 1.12-1.61 2.03-2.73 2.68-1.12.65-2.39 1.01-3.73 1.01-1.34 0-2.61-.36-3.73-1.01-1.12-.65-2.06-1.56-2.73-2.68C3.71 21.11 3.35 19.84 3.35 18.5c0-1.34.36-2.61 1.02-3.73.67-1.12 1.61-2.03 2.73-2.68 1.12-.65 2.39-1.01 3.73-1.01 1.34 0 2.61.36 3.73 1.01.28.16.54.34.78.54V0z"/></svg>
-                                </a>
+                                <button 
+                                    onClick={() => setIsTikTokModalOpen(true)} 
+                                    className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-black border border-slate-700 transition-colors cursor-pointer" 
+                                    title="Lihat Feed TikTok @smkbaktinusantara666"
+                                >
+                                    <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.59-1.01V14.5c.03 2.05-.51 4.16-1.77 5.77-1.4 1.81-3.6 2.91-5.89 3.06-2.58.17-5.32-.82-6.95-2.83-1.85-2.28-2-5.74-.35-8.22 1.25-1.87 3.37-2.98 5.61-3.08V13.3c-1.12.06-2.31.73-2.82 1.74-.47.92-.37 2.15.24 2.96.69.93 1.93 1.34 3.05 1.05 1.13-.29 2.02-1.39 2.08-2.55V.02z"/></svg>
+                                </button>
                                 <a href="https://www.youtube.com/@baknustv9545" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors cursor-pointer" title="YouTube Baknus TV"><Youtube className="w-5 h-5" /></a>
                             </div>
                         </div>
@@ -1052,6 +1063,41 @@ const Home = () => {
                                 allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
                                 title="Facebook Page Feed"
                             ></iframe>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* TikTok Modal */}
+            {isTikTokModalOpen && (
+                <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center z-[70] p-4" onClick={() => setIsTikTokModalOpen(false)}>
+                    <div className="bg-[#121212] rounded-3xl w-full max-w-lg h-[85vh] shadow-2xl relative overflow-hidden flex flex-col border border-white/10" onClick={(e) => e.stopPropagation()}>
+                        <div className="p-4 border-b border-white/5 flex justify-between items-center bg-[#121212]">
+                            <h3 className="font-bold text-white flex items-center gap-2">
+                                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.59-1.01V14.5c.03 2.05-.51 4.16-1.77 5.77-1.4 1.81-3.6 2.91-5.89 3.06-2.58.17-5.32-.82-6.95-2.83-1.85-2.28-2-5.74-.35-8.22 1.25-1.87 3.37-2.98 5.61-3.08V13.3c-1.12.06-2.31.73-2.82 1.74-.47.92-.37 2.15.24 2.96.69.93 1.93 1.34 3.05 1.05 1.13-.29 2.02-1.39 2.08-2.55V.02z"/></svg>
+                                TikTok Profile
+                            </h3>
+                            <button onClick={() => setIsTikTokModalOpen(false)} className="text-gray-400 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-full">✕</button>
+                        </div>
+                        <div className="flex-1 bg-black relative overflow-y-auto no-scrollbar">
+                            {/* We use an iframe or a responsive embed container */}
+                            <iframe 
+                                src="https://www.tiktok.com/embed/@smkbaktinusantara666" 
+                                width="100%" 
+                                height="100%" 
+                                style={{ border: 'none' }} 
+                                title="TikTok Profile Feed"
+                            ></iframe>
+                        </div>
+                        <div className="p-4 bg-[#121212] border-t border-white/5">
+                            <a 
+                                href="https://www.tiktok.com/@smkbaktinusantara666" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="flex items-center justify-center gap-2 w-full py-3 bg-[#fe2c55] hover:bg-[#ef2950] text-white rounded-xl font-bold transition-all"
+                            >
+                                Buka di Aplikasi TikTok
+                            </a>
                         </div>
                     </div>
                 </div>
