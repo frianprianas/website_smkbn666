@@ -385,8 +385,9 @@ const Home = () => {
                                 height="100%" 
                                 style={{ border: 'none' }} 
                                 title="TikTok Mini Preview"
+                                allow="autoplay; encrypted-media"
                             ></iframe>
-                            <div className="absolute inset-0 bg-transparent hover:bg-white/5 transition-colors"></div>
+                            <div className="absolute inset-0 bg-transparent pointer-events-none group-hover:bg-white/5 transition-colors"></div>
                         </div>
                     </div>
                     
@@ -410,7 +411,7 @@ const Home = () => {
                                 allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
                                 title="Facebook Mini Preview"
                             ></iframe>
-                            <div className="absolute inset-0 bg-transparent hover:bg-blue-600/5 transition-colors"></div>
+                            <div className="absolute inset-0 bg-transparent pointer-events-none group-hover:bg-blue-600/5 transition-colors"></div>
                         </div>
                     </div>
 
