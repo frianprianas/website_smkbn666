@@ -369,51 +369,24 @@ const Home = () => {
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-6 auto-rows-[minmax(180px,auto)]">
 
-                    {/* Welcome/About Snippet (Wide) */}
-                    <div className="col-span-1 md:col-span-6 bg-gradient-to-br from-white to-blue-50 rounded-3xl p-8 border border-blue-100 shadow-lg flex flex-col items-center gap-8 relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
-                            <School className="w-48 h-48 text-blue-900" />
+                    {/* TikTok Profile Preview (New) */}
+                    <div className="col-span-1 md:col-span-6 bg-[#121212] rounded-3xl p-6 border border-white/10 shadow-lg flex flex-col group overflow-hidden cursor-pointer h-full min-h-[450px] relative" onClick={() => setIsTikTokModalOpen(true)}>
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="font-bold text-white flex items-center gap-2">
+                                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.59-1.01V14.5c.03 2.05-.51 4.16-1.77 5.77-1.4 1.81-3.6 2.91-5.89 3.06-2.58.17-5.32-.82-6.95-2.83-1.85-2.28-2-5.74-.35-8.22 1.25-1.87 3.37-2.98 5.61-3.08V13.3c-1.12.06-2.31.73-2.82 1.74-.47.92-.37 2.15.24 2.96.69.93 1.93 1.34 3.05 1.05 1.13-.29 2.02-1.39 2.08-2.55V.02z"/></svg>
+                                TikTok Profile
+                            </h3>
+                            <ChevronRight className="w-4 h-4 text-gray-400 group-hover:translate-x-1 transition-transform" />
                         </div>
-                        <div className="flex-1 relative z-10">
-                            <span className="text-blue-600 font-bold uppercase tracking-wider text-xs mb-2 block">Sambutan Kepala Sekolah</span>
-                            <h2 className="text-3xl font-bold text-gray-900 mb-4">SMK Terbaik di Bandung Timur</h2>
-                            <p className="text-gray-600 mb-6 leading-relaxed">
-                                Selamat datang di website resmi SMK Bakti Nusantara 666 Cileunyi. Sebagai salah satu <strong>SMK Terbaik di Bandung Timur</strong>, kami berdedikasi untuk memberikan layanan pendidikan industri kreatif terbaik.
-                            </p>
-                            <Link to="#" className="text-blue-600 font-bold hover:gap-2 transition-all inline-flex items-center">
-                                Baca Selengkapnya <ChevronRight className="w-4 h-4 ml-1" />
-                            </Link>
-                        </div>
-                        {/* Dynamic Rotating Teacher/Principal */}
-                        <div className="w-full md:w-64 relative shrink-0">
-                            <div className="aspect-[3/4] rounded-2xl overflow-hidden shadow-inner bg-gray-200 relative">
-                                <AnimatePresence mode='wait'>
-                                    {teachers.length > 0 && (
-                                        <motion.div
-                                            key={currentTeacherIndex}
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            exit={{ opacity: 0 }}
-                                            transition={{ duration: 0.5 }}
-                                            className="absolute inset-0"
-                                        >
-                                            {teachers[currentTeacherIndex].photo_url ? (
-                                                <img
-                                                    src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${teachers[currentTeacherIndex].photo_url}`}
-                                                    alt={teachers[currentTeacherIndex].name}
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center bg-gray-100"><Users className="w-12 h-12 text-gray-400" /></div>
-                                            )}
-                                            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 text-white">
-                                                <p className="font-bold text-sm truncate">{teachers[currentTeacherIndex].name}</p>
-                                                <p className="text-xs text-blue-200 truncate">{teachers[currentTeacherIndex].position}</p>
-                                            </div>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
+                        <div className="flex-1 rounded-2xl bg-black overflow-hidden relative border border-white/5">
+                            <iframe 
+                                src="https://www.tiktok.com/embed/@smkbaktinusantara666" 
+                                width="100%" 
+                                height="100%" 
+                                style={{ border: 'none' }} 
+                                title="TikTok Mini Preview"
+                            ></iframe>
+                            <div className="absolute inset-0 bg-transparent hover:bg-white/5 transition-colors"></div>
                         </div>
                     </div>
                     
@@ -517,6 +490,59 @@ const Home = () => {
                                 <p className="text-xs text-gray-600 max-w-[150px]">{f.text}</p>
                             </div>
                         ))}
+                    </div>
+                </div>
+
+                {/* Sambutan Kepala Sekolah (Full Width Section) */}
+                <div className="mt-12 bg-gradient-to-br from-white to-blue-50 rounded-[3rem] p-8 md:p-12 border border-blue-100 shadow-xl flex flex-col md:flex-row items-center gap-12 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-12 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">
+                        <School className="w-64 h-64 text-blue-900" />
+                    </div>
+                    <div className="flex-1 relative z-10">
+                        <span className="bg-blue-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-6 inline-block">Official Message</span>
+                        <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 tracking-tight leading-tight">
+                            Mewujudkan Generasi <br/> 
+                            <span className="text-blue-600">Kompeten & Berkarakter</span>
+                        </h2>
+                        <p className="text-gray-500 text-lg mb-8 leading-relaxed font-light">
+                            Selamat datang di website resmi SMK Bakti Nusantara 666. Kami percaya bahwa pendidikan industri kreatif adalah kunci masa depan. Bersama kami, siswa tidak hanya belajar teori, tapi membangun karya nyata yang diakui industri.
+                        </p>
+                        <Link to="/profile" className="inline-flex items-center gap-3 px-8 py-4 bg-white border-2 border-blue-600 text-blue-600 font-black text-sm rounded-2xl hover:bg-blue-600 hover:text-white transition-all shadow-lg shadow-blue-600/10 uppercase tracking-widest">
+                            Mengenal Lebih Dekat <ArrowRight className="w-5 h-5" />
+                        </Link>
+                    </div>
+                    {/* Dynamic Rotating Teacher/Principal Container */}
+                    <div className="w-full md:w-80 relative shrink-0">
+                        <div className="aspect-[4/5] rounded-[2.5rem] overflow-hidden shadow-2xl bg-white p-3 rotate-2 group-hover:rotate-0 transition-transform duration-500">
+                            <div className="w-full h-full rounded-[2rem] overflow-hidden relative bg-gray-50">
+                                <AnimatePresence mode='wait'>
+                                    {teachers.length > 0 && (
+                                        <motion.div
+                                            key={currentTeacherIndex}
+                                            initial={{ opacity: 0, scale: 1.1 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 1.1 }}
+                                            transition={{ duration: 0.5 }}
+                                            className="absolute inset-0"
+                                        >
+                                            {teachers[currentTeacherIndex].photo_url ? (
+                                                <img
+                                                    src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${teachers[currentTeacherIndex].photo_url}`}
+                                                    alt={teachers[currentTeacherIndex].name}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center bg-gray-100"><Users className="w-12 h-12 text-gray-400" /></div>
+                                            )}
+                                            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-6 text-white text-center">
+                                                <p className="font-black text-lg tracking-tight leading-none mb-1">{teachers[currentTeacherIndex].name}</p>
+                                                <p className="text-xs text-blue-300 font-bold uppercase tracking-widest">{teachers[currentTeacherIndex].position}</p>
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
