@@ -392,16 +392,21 @@ const Home = () => {
                     </div>
                     
                     {/* Social Media Mini Preview (New) */}
-                    <div className="col-span-1 md:col-span-6 bg-white rounded-3xl p-6 border border-blue-50 shadow-lg flex flex-col group overflow-hidden cursor-pointer h-full min-h-[450px]" onClick={() => setIsFacebookModalOpen(true)}>
+                    <div className="col-span-1 md:col-span-6 bg-white rounded-3xl p-6 border border-blue-50 shadow-lg flex flex-col group overflow-hidden cursor-pointer h-full min-h-[450px] relative" onClick={() => setIsFacebookModalOpen(true)}>
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="font-bold text-gray-800 flex items-center gap-2">
                                 <Facebook className="w-5 h-5 text-blue-600" /> Facebook Feed
                             </h3>
                             <ChevronRight className="w-4 h-4 text-gray-400 group-hover:translate-x-1 transition-transform" />
                         </div>
-                        <div className="flex-1 rounded-2xl bg-gray-50 overflow-hidden relative border border-gray-100">
+                        <div className="flex-1 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 overflow-hidden relative border border-gray-100 shadow-inner">
+                             {/* Decorative Background for when FB is loading or black */}
+                             <div className="absolute inset-0 flex items-center justify-center opacity-10">
+                                <Facebook className="w-32 h-32 text-blue-600 rotate-12" />
+                             </div>
+                             
                              <iframe 
-                                src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fsmkbn666&tabs=timeline&width=500&height=500&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId" 
+                                src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fsmkbn666&tabs=timeline&width=500&height=500&small_header=true&adapt_container_width=true&hide_cover=false&show_facepile=false&appId" 
                                 width="100%" 
                                 height="100%" 
                                 style={{ border: 'none', overflow: 'hidden' }} 
@@ -410,8 +415,9 @@ const Home = () => {
                                 allowFullScreen={true} 
                                 allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
                                 title="Facebook Mini Preview"
+                                className="relative z-10"
                             ></iframe>
-                            <div className="absolute inset-0 bg-transparent pointer-events-none group-hover:bg-blue-600/5 transition-colors"></div>
+                            <div className="absolute inset-0 bg-transparent pointer-events-none group-hover:bg-blue-600/5 transition-colors z-20"></div>
                         </div>
                     </div>
 
