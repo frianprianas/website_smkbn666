@@ -682,11 +682,23 @@ const Home = () => {
             </section>
 
             {/* --- Video / CTA Profile Section (New) --- */}
-            <div className="py-24 relative overflow-hidden flex items-center justify-center bg-gray-900">
-                <div className="absolute inset-0 opacity-40">
-                    <img src="/static/images/login-bg-3.jpg" alt="Background" className="w-full h-full object-cover grayscale brightness-50" />
+            <div className="py-24 relative overflow-hidden flex items-center justify-center bg-gray-900 min-h-[500px]">
+                {/* Cinematic Video Background */}
+                <div className="absolute inset-0 z-0">
+                    <video 
+                        autoPlay 
+                        muted 
+                        loop 
+                        playsInline
+                        className="w-full h-full object-cover opacity-50 grayscale brightness-50"
+                        poster="/static/images/login-bg-3.jpg"
+                    >
+                        {/* You can replace this with your own local .mp4 file in the future */}
+                        <source src="https://assets.mixkit.co/videos/preview/mixkit-software-developer-working-on-code-screen-close-up-1728-large.mp4" type="video/mp4" />
+                        Your browser does not support the video tag.
+                    </video>
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-gray-900"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-gray-900 z-[1]"></div>
 
                 <div className="max-w-5xl mx-auto px-4 text-center relative z-10 text-white">
                     <motion.div
