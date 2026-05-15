@@ -69,12 +69,12 @@ async def ask_baknus_ai(request: ChatRequest, db: Session = Depends(database.get
     try:
         context = get_school_context(db)
         
-        # Using Gemini 1.5 Flash for speed and efficiency
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        # Using Gemini 2.0 Flash Experimental for superior speed and reasoning
+        model = genai.GenerativeModel('gemini-2.0-flash-exp')
         
         # Prepare the prompt with history
         full_prompt = context + "\n\nPercakapan sebelumnya:\n"
-        for msg in request.history[-4:]: # Only last 4 messages for context
+        for msg in request.history[-4:]: 
             role = "User" if msg['role'] == 'user' else "Baknus AI"
             full_prompt += f"{role}: {msg['content']}\n"
         
@@ -87,5 +87,7 @@ async def ask_baknus_ai(request: ChatRequest, db: Session = Depends(database.get
             "status": "success"
         }
     except Exception as e:
-        print(f"Chatbot Error: {e}")
-        return {"reply": "Maaf, terjadi kesalahan saat memproses pertanyaan Anda.", "error": str(e)}
+        import traceback
+        error_msg = traceback.format_exc()
+        print(f"❌ Chatbot Error: {error_msg}")
+        return {"reply": "Maaf, terjadi kesalahan saat memproses pertanyaan Anda. Pastikan API Key sudah benar.", "error": str(e)}
