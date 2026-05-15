@@ -8,6 +8,7 @@ from database import engine
 
 models.Base.metadata.create_all(bind=engine)
 
+from fastapi.staticfiles import StaticFiles
 from routers import news, agenda, majors, gallery, partners, testimonials, staff, stats, users, wa_settings, ai_bot, chat
 
 app = FastAPI(title="SMK Bakti Nusantara 666 API")
