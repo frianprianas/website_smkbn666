@@ -4,6 +4,7 @@ from pydantic import BaseModel
 import database, models
 import os
 import google.generativeai as genai
+from mistralai import Mistral
 from typing import List, Optional
 from datetime import datetime
 
@@ -106,8 +107,36 @@ async def ask_baknus_ai(request: ChatRequest, db: Session = Depends(database.get
             print(f"⚠️ API Key {ACTIVE_GEMINI_KEYS.index(api_key)+1} failed: {e}")
             continue # Try next key
             
-    # If all keys failed
+    # --- FINAL FALLBACK TO MISTRAL AI ---
+    if MISTRAL_API_KEY:
+        try:
+            print("🚀 Switching to Mistral AI Fallback...")
+            client = Mistral(api_key=MISTRAL_API_KEY)
+            
+            # Prepare messages for Mistral
+            mistral_messages = [
+                {"role": "system", "content": context},
+            ]
+            for msg in request.history[-4:]:
+                mistral_messages.append({"role": msg['role'], "content": msg['content']})
+            mistral_messages.append({"role": "user", "content": request.message})
+
+            chat_response = client.chat.complete(
+                model="mistral-large-latest",
+                messages=mistral_messages,
+            )
+            
+            return {
+                "reply": chat_response.choices[0].message.content,
+                "status": "success",
+                "used_engine": "mistral"
+            }
+        except Exception as mistral_err:
+            print(f"❌ Mistral Fallback also failed: {mistral_err}")
+            last_error = str(mistral_err)
+
+    # If everything failed
     import traceback
     error_msg = traceback.format_exc()
-    print(f"❌ All Gemini Keys Failed. Last error: {error_msg}")
-    return {"reply": "Maaf, terjadi gangguan pada sistem AI kami setelah beberapa kali percobaan. Silakan hubungi admin.", "error": last_error}
+    print(f"❌ All AI Engines Failed. Last error: {error_msg}")
+    return {"reply": "Maaf, semua sistem AI kami sedang mencapai batas kuota. Silakan hubungi admin atau coba beberapa saat lagi.", "error": last_error}
