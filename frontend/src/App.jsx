@@ -22,6 +22,7 @@ import { Toaster } from 'react-hot-toast';
 import NewsDetail from './pages/NewsDetail';
 import NewsPage from './pages/NewsPage';
 import GalleryPage from './pages/GalleryPage';
+import BaknusChat from './components/BaknusChat';
 
 function App() {
   return (
@@ -56,6 +57,7 @@ function App() {
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      <BaknusChat />
     </Router>
   );
 }

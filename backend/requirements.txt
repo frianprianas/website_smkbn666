@@ -9,4 +9,5 @@ python-multipart==0.0.9
 requests
 python-dotenv
 google-generativeai
+mistralai
 feedparser

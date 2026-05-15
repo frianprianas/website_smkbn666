@@ -8,11 +8,13 @@ from database import engine
 
 models.Base.metadata.create_all(bind=engine)
 
-from fastapi.staticfiles import StaticFiles
+from routers import news, agenda, majors, gallery, partners, testimonials, staff, stats, users, wa_settings, ai_bot, chat
 
 app = FastAPI(title="SMK Bakti Nusantara 666 API")
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+app.include_router(chat.router, prefix="/api")
 
 @app.get("/api/kabar-baknus", response_model=List[schemas.KabarBaknus])
 def get_kabar_baknus(db: Session = Depends(database.get_db)):

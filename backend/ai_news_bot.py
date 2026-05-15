@@ -75,7 +75,7 @@ def process_with_ai(news, lang):
     return news['summary'][:300]
 
 def main():
-    print("--- 🎬 BOT START (VERS: 3.1 - CURATED) ---")
+    print("---  BOT START (VERS: 3.1 - CURATED) ---")
     
     # 1. Login
     try:
@@ -88,7 +88,7 @@ def main():
     headers = {"Authorization": f"Bearer {token}"}
 
     for s in NEW_SOURCES:
-        print(f"📰 Menghubungi Sumber: {s['name']}...")
+        print(f" Menghubungi Sumber: {s['name']}...")
         try:
             r_rss = requests.get(s['url'], timeout=12)
             feed = feedparser.parse(r_rss.content)
@@ -97,11 +97,11 @@ def main():
                 
                 # Cek Duplikasi
                 if check_duplicate(title, token):
-                    print(f"⏭️ Duplikat Terdeteksi: {title[:40]}...")
+                    print(f" Duplikat Terdeteksi: {title[:40]}...")
                     continue
                 
                 # Proses AI
-                print(f"✅ Berita Terpilih: {title[:50]}")
+                print(f" Berita Terpilih: {title[:50]}")
                 content = process_with_ai({"title": title, "summary": entry.summary}, s['lang'])
                 
                 # Cari Gambar
@@ -127,9 +127,9 @@ def main():
                 if tmp_img: os.unlink(tmp_img.name)
                 
                 if res_post.status_code == 200:
-                    print(f"🏆 SUKSES: Berita terbit tanpa duplikasi!")
+                    print(f" SUKSES: Berita terbit tanpa duplikasi!")
                     return # Cukup 1 berita per eksekusi
-                else: print(f"❌ Gagal: {res_post.text}")
+                else: print(f" Gagal: {res_post.text}")
         except: continue
 
 if __name__ == "__main__":
