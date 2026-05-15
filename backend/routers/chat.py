@@ -4,7 +4,7 @@ from pydantic import BaseModel
 import database, models
 import os
 import google.generativeai as genai
-from mistralai import Mistral
+import requests
 from typing import List, Optional
 from datetime import datetime
 
@@ -74,46 +74,41 @@ ATURAN JAWABAN:
 
 @router.post("/ask")
 async def ask_baknus_ai(request: ChatRequest, db: Session = Depends(database.get_db)):
-    if not ACTIVE_GEMINI_KEYS:
+    if not ACTIVE_GEMINI_KEYS and not MISTRAL_API_KEY:
         return {"reply": "Maaf, fitur AI sedang tidak tersedia (API Key belum dikonfigurasi)."}
 
     last_error = None
-    # Try each active key if the previous one fails
+    context = get_school_context(db)
+
+    # 1. TRY GEMINI KEYS
     for api_key in ACTIVE_GEMINI_KEYS:
         try:
             genai.configure(api_key=api_key)
-            context = get_school_context(db)
-            
-            # Using Gemini 2.0 Flash
             model = genai.GenerativeModel('gemini-2.0-flash')
             
-            # Prepare the prompt with history
             full_prompt = context + "\n\nPercakapan sebelumnya:\n"
             for msg in request.history[-4:]: 
                 role = "User" if msg['role'] == 'user' else "Baknus AI"
                 full_prompt += f"{role}: {msg['content']}\n"
             
             full_prompt += f"User: {request.message}\nBaknus AI:"
-
             response = model.generate_content(full_prompt)
             
             return {
                 "reply": response.text,
                 "status": "success",
-                "used_key_index": ACTIVE_GEMINI_KEYS.index(api_key)
+                "used_engine": f"gemini-key-{ACTIVE_GEMINI_KEYS.index(api_key)+1}"
             }
         except Exception as e:
             last_error = str(e)
-            print(f"⚠️ API Key {ACTIVE_GEMINI_KEYS.index(api_key)+1} failed: {e}")
-            continue # Try next key
-            
-    # --- FINAL FALLBACK TO MISTRAL AI ---
+            print(f"⚠️ Gemini Key {ACTIVE_GEMINI_KEYS.index(api_key)+1} failed: {e}")
+            continue 
+
+    # 2. FINAL FALLBACK TO MISTRAL AI (Using Direct Web Request)
     if MISTRAL_API_KEY:
         try:
-            print("🚀 Switching to Mistral AI Fallback...")
-            client = Mistral(api_key=MISTRAL_API_KEY)
+            print("🚀 Switching to Mistral AI Fallback (Web Request)...")
             
-            # Prepare messages for Mistral
             mistral_messages = [
                 {"role": "system", "content": context},
             ]
@@ -121,16 +116,30 @@ async def ask_baknus_ai(request: ChatRequest, db: Session = Depends(database.get
                 mistral_messages.append({"role": msg['role'], "content": msg['content']})
             mistral_messages.append({"role": "user", "content": request.message})
 
-            chat_response = client.chat.complete(
-                model="mistral-large-latest",
-                messages=mistral_messages,
+            response = requests.post(
+                "https://api.mistral.ai/v1/chat/completions",
+                headers={
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    "Authorization": f"Bearer {MISTRAL_API_KEY}"
+                },
+                json={
+                    "model": "mistral-large-latest",
+                    "messages": mistral_messages
+                },
+                timeout=15
             )
             
-            return {
-                "reply": chat_response.choices[0].message.content,
-                "status": "success",
-                "used_engine": "mistral"
-            }
+            if response.status_code == 200:
+                result = response.json()
+                return {
+                    "reply": result['choices'][0]['message']['content'],
+                    "status": "success",
+                    "used_engine": "mistral-api"
+                }
+            else:
+                last_error = f"Mistral API error: {response.text}"
+                print(f"❌ Mistral API returned {response.status_code}: {response.text}")
         except Exception as mistral_err:
             print(f"❌ Mistral Fallback also failed: {mistral_err}")
             last_error = str(mistral_err)
