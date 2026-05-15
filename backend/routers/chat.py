@@ -83,8 +83,8 @@ async def ask_baknus_ai(request: ChatRequest, db: Session = Depends(database.get
             genai.configure(api_key=api_key)
             context = get_school_context(db)
             
-            # Using Gemini 2.0 Flash Experimental
-            model = genai.GenerativeModel('gemini-2.0-flash-exp')
+            # Using Gemini 2.0 Flash
+            model = genai.GenerativeModel('gemini-2.0-flash')
             
             # Prepare the prompt with history
             full_prompt = context + "\n\nPercakapan sebelumnya:\n"
