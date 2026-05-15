@@ -16,10 +16,20 @@ class ChatRequest(BaseModel):
     message: str
     history: List[dict] = []
 
-# Configure Gemini
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
+# Configure Gemini with Multi-Key Support
+GEMINI_KEYS = [
+    os.getenv("GEMINI_API_KEY", ""),
+    os.getenv("GEMINI_API_KEY2", ""),
+    os.getenv("GEMINI_API_KEY3", "")
+]
+# Filter out empty keys
+ACTIVE_GEMINI_KEYS = [k for k in GEMINI_KEYS if k]
+
+# Mistral Key
+MISTRAL_API_KEY = os.getenv("MISTRAL_API", os.getenv("MISTRAL_API_KEY", ""))
+
+if ACTIVE_GEMINI_KEYS:
+    genai.configure(api_key=ACTIVE_GEMINI_KEYS[0])
 
 def get_school_context(db: Session):
     # Fetch Majors
@@ -63,31 +73,41 @@ ATURAN JAWABAN:
 
 @router.post("/ask")
 async def ask_baknus_ai(request: ChatRequest, db: Session = Depends(database.get_db)):
-    if not GEMINI_API_KEY:
+    if not ACTIVE_GEMINI_KEYS:
         return {"reply": "Maaf, fitur AI sedang tidak tersedia (API Key belum dikonfigurasi)."}
 
-    try:
-        context = get_school_context(db)
-        
-        # Using Gemini 2.0 Flash Experimental for superior speed and reasoning
-        model = genai.GenerativeModel('gemini-2.0-flash-exp')
-        
-        # Prepare the prompt with history
-        full_prompt = context + "\n\nPercakapan sebelumnya:\n"
-        for msg in request.history[-4:]: 
-            role = "User" if msg['role'] == 'user' else "Baknus AI"
-            full_prompt += f"{role}: {msg['content']}\n"
-        
-        full_prompt += f"User: {request.message}\nBaknus AI:"
+    last_error = None
+    # Try each active key if the previous one fails
+    for api_key in ACTIVE_GEMINI_KEYS:
+        try:
+            genai.configure(api_key=api_key)
+            context = get_school_context(db)
+            
+            # Using Gemini 2.0 Flash Experimental
+            model = genai.GenerativeModel('gemini-2.0-flash-exp')
+            
+            # Prepare the prompt with history
+            full_prompt = context + "\n\nPercakapan sebelumnya:\n"
+            for msg in request.history[-4:]: 
+                role = "User" if msg['role'] == 'user' else "Baknus AI"
+                full_prompt += f"{role}: {msg['content']}\n"
+            
+            full_prompt += f"User: {request.message}\nBaknus AI:"
 
-        response = model.generate_content(full_prompt)
-        
-        return {
-            "reply": response.text,
-            "status": "success"
-        }
-    except Exception as e:
-        import traceback
-        error_msg = traceback.format_exc()
-        print(f"❌ Chatbot Error: {error_msg}")
-        return {"reply": "Maaf, terjadi kesalahan saat memproses pertanyaan Anda. Pastikan API Key sudah benar.", "error": str(e)}
+            response = model.generate_content(full_prompt)
+            
+            return {
+                "reply": response.text,
+                "status": "success",
+                "used_key_index": ACTIVE_GEMINI_KEYS.index(api_key)
+            }
+        except Exception as e:
+            last_error = str(e)
+            print(f"⚠️ API Key {ACTIVE_GEMINI_KEYS.index(api_key)+1} failed: {e}")
+            continue # Try next key
+            
+    # If all keys failed
+    import traceback
+    error_msg = traceback.format_exc()
+    print(f"❌ All Gemini Keys Failed. Last error: {error_msg}")
+    return {"reply": "Maaf, terjadi gangguan pada sistem AI kami setelah beberapa kali percobaan. Silakan hubungi admin.", "error": last_error}
