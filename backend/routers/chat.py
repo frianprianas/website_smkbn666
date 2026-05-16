@@ -40,7 +40,15 @@ if ACTIVE_GEMINI_KEYS:
 def get_school_context(db: Session):
     # Fetch Majors
     majors = db.query(models.Major).all()
+    print(f"🔍 [DEBUG] Database returned {len(majors)} majors.")
+    for m in majors:
+        print(f"   - Found Major: {m.name}")
+        
     majors_info = "\n".join([f"- {m.name}: {m.description}" for m in majors])
+    
+    if not majors:
+        print("⚠️ [WARNING] No majors found in database! AI will likely hallucinate.")
+        majors_info = "Data jurusan belum tersedia di database."
     
     # Fetch Recent News
     news = db.query(models.News).order_by(models.News.date_posted.desc()).limit(5).all()
