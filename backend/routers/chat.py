@@ -29,6 +29,11 @@ ACTIVE_GEMINI_KEYS = [k for k in GEMINI_KEYS if k]
 # Mistral Key
 MISTRAL_API_KEY = os.getenv("MISTRAL_API", os.getenv("MISTRAL_API_KEY", ""))
 
+# Ollama Configuration
+AI_PROVIDER = os.getenv("AI_PROVIDER", "gemini")
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5-coder:7b")
+
 if ACTIVE_GEMINI_KEYS:
     genai.configure(api_key=ACTIVE_GEMINI_KEYS[0])
 
@@ -74,13 +79,49 @@ ATURAN JAWABAN:
 
 @router.post("/ask")
 async def ask_baknus_ai(request: ChatRequest, db: Session = Depends(database.get_db)):
-    if not ACTIVE_GEMINI_KEYS and not MISTRAL_API_KEY:
-        return {"reply": "Maaf, fitur AI sedang tidak tersedia (API Key belum dikonfigurasi)."}
+    if not ACTIVE_GEMINI_KEYS and not MISTRAL_API_KEY and AI_PROVIDER != "ollama":
+        return {"reply": "Maaf, fitur AI sedang tidak tersedia (API Key atau Provider belum dikonfigurasi)."}
 
     last_error = None
     context = get_school_context(db)
 
-    # 1. TRY GEMINI KEYS
+    # 1. TRY OLLAMA (If selected as primary)
+    if AI_PROVIDER == "ollama":
+        try:
+            print(f"🦙 Calling Ollama ({OLLAMA_MODEL}) at {OLLAMA_BASE_URL}...")
+            
+            ollama_messages = [
+                {"role": "system", "content": context},
+            ]
+            for msg in request.history[-4:]:
+                ollama_messages.append({"role": msg['role'], "content": msg['content']})
+            ollama_messages.append({"role": "user", "content": request.message})
+
+            response = requests.post(
+                f"{OLLAMA_BASE_URL}/api/chat",
+                json={
+                    "model": OLLAMA_MODEL,
+                    "messages": ollama_messages,
+                    "stream": False
+                },
+                timeout=30 # Higher timeout for local server
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                return {
+                    "reply": result['message']['content'],
+                    "status": "success",
+                    "used_engine": f"ollama-{OLLAMA_MODEL}"
+                }
+            else:
+                last_error = f"Ollama error: {response.text}"
+                print(f"⚠️ Ollama returned {response.status_code}. Falling back to Cloud AI...")
+        except Exception as ollama_err:
+            last_error = str(ollama_err)
+            print(f"⚠️ Ollama failed: {ollama_err}. Falling back to Cloud AI...")
+
+    # 2. TRY GEMINI KEYS (Fallback or Primary)
     for api_key in ACTIVE_GEMINI_KEYS:
         try:
             genai.configure(api_key=api_key)
@@ -104,7 +145,7 @@ async def ask_baknus_ai(request: ChatRequest, db: Session = Depends(database.get
             print(f"⚠️ Gemini Key {ACTIVE_GEMINI_KEYS.index(api_key)+1} failed: {e}")
             continue 
 
-    # 2. FINAL FALLBACK TO MISTRAL AI (Using Direct Web Request)
+    # 3. FINAL FALLBACK TO MISTRAL AI (Using Direct Web Request)
     if MISTRAL_API_KEY:
         try:
             print("🚀 Switching to Mistral AI Fallback (Web Request)...")
