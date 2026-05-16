@@ -146,7 +146,8 @@ async def ask_baknus_ai(request: ChatRequest, db: Session = Depends(database.get
                 json={
                     "model": OLLAMA_MODEL,
                     "messages": ollama_messages,
-                    "stream": False
+                    "stream": False,
+                    "keep_alive": "24h" # Keep model in RAM for 24 hours
                 },
                 timeout=300 # Increased to 5 mins for slow CPU loading
             )

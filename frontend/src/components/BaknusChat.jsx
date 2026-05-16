@@ -55,7 +55,7 @@ const BaknusChat = () => {
             const response = await api.post('/chat/ask', {
                 message: message,
                 history: messages.map(m => ({ role: m.role, content: m.content }))
-            });
+            }, { timeout: 300000 }); // Wait up to 5 minutes
 
             const newCount = questionCount + 1;
             setQuestionCount(newCount);
