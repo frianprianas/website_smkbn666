@@ -38,6 +38,17 @@ if ACTIVE_GEMINI_KEYS:
     genai.configure(api_key=ACTIVE_GEMINI_KEYS[0])
 
 def get_school_context(db: Session):
+    # Fetch Knowledge Base from File (Static Info from Website)
+    kb_content = ""
+    kb_path = os.path.join(os.path.dirname(__file__), "..", "knowledge_base.txt")
+    if os.path.exists(kb_path):
+        try:
+            with open(kb_path, "r", encoding="utf-8") as f:
+                kb_content = f.read()
+                print(f"📖 [INFO] Knowledge Base loaded ({len(kb_content)} chars)")
+        except Exception as e:
+            print(f"⚠️ Failed to read knowledge_base.txt: {e}")
+
     # Fetch Majors
     majors = db.query(models.Major).all()
     print(f"🔍 [DEBUG] Database returned {len(majors)} majors.")
@@ -79,6 +90,9 @@ NAMA: SMK Bakti Nusantara 666
 ALAMAT: Jl. Percobaan No.65, Cileunyi, Bandung, Jawa Barat 40393.
 WEBSITE UTAMA: https://smkbn666.sch.id
 WEBSITE SPMB: https://spmb.smkbn666.sch.id
+
+--- INFORMASI TAMBAHAN DARI WEBSITE ---
+{kb_content}
 
 --- DAFTAR JURUSAN (PROGRAM KEAHLIAN) ---
 HANYA ini jurusan yang tersedia:
