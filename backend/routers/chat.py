@@ -148,7 +148,7 @@ async def ask_baknus_ai(request: ChatRequest, db: Session = Depends(database.get
                     "messages": ollama_messages,
                     "stream": False
                 },
-                timeout=180 # Increased for CPU-only servers
+                timeout=300 # Increased to 5 mins for slow CPU loading
             )
             
             if response.status_code == 200:
