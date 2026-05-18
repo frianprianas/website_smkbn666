@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 import database, models
 import os
+import json
 import google.generativeai as genai
 import requests
 from typing import List, Optional
@@ -124,114 +126,122 @@ Gunakan Bahasa Indonesia yang santun dan profesional.
 @router.post("/ask")
 async def ask_baknus_ai(request: ChatRequest, db: Session = Depends(database.get_db)):
     if not ACTIVE_GEMINI_KEYS and not MISTRAL_API_KEY and AI_PROVIDER != "ollama":
-        return {"reply": "Maaf, fitur AI sedang tidak tersedia (API Key atau Provider belum dikonfigurasi)."}
+        return StreamingResponse(
+            (f"data: {json.dumps({'error': 'Fitur AI sedang tidak aktif. Silakan hubungi admin.'})}\n\n" for _ in range(1)),
+            media_type="text/event-stream"
+        )
 
-    last_error = None
     context = get_school_context(db)
 
-    # 1. TRY OLLAMA (If selected as primary)
-    if AI_PROVIDER == "ollama":
-        try:
-            print(f"🦙 Calling Ollama ({OLLAMA_MODEL}) at {OLLAMA_BASE_URL}...")
-            
-            ollama_messages = [
-                {"role": "system", "content": context},
-            ]
-            for msg in request.history[-4:]:
-                ollama_messages.append({"role": msg['role'], "content": msg['content']})
-            ollama_messages.append({"role": "user", "content": request.message})
+    def generate_stream():
+        # 1. TRY OLLAMA (Streaming)
+        if AI_PROVIDER == "ollama":
+            try:
+                print(f"🦙 Streaming from Ollama ({OLLAMA_MODEL}) at {OLLAMA_BASE_URL}...")
+                
+                ollama_messages = [
+                    {"role": "system", "content": context},
+                ]
+                for msg in request.history[-4:]:
+                    ollama_messages.append({"role": msg['role'], "content": msg['content']})
+                ollama_messages.append({"role": "user", "content": request.message})
 
-            response = requests.post(
-                f"{OLLAMA_BASE_URL}/api/chat",
-                json={
-                    "model": OLLAMA_MODEL,
-                    "messages": ollama_messages,
-                    "stream": False,
-                    "keep_alive": "24h" # Keep model in RAM for 24 hours
-                },
-                timeout=300 # Increased to 5 mins for slow CPU loading
-            )
-            
-            if response.status_code == 200:
-                result = response.json()
-                return {
-                    "reply": result['message']['content'],
-                    "status": "success",
-                    "used_engine": f"ollama-{OLLAMA_MODEL}"
-                }
-            else:
-                last_error = f"Ollama error: {response.text}"
-                print(f"⚠️ Ollama returned {response.status_code}. Falling back to Cloud AI...")
-        except Exception as ollama_err:
-            last_error = str(ollama_err)
-            print(f"⚠️ Ollama failed: {ollama_err}. Falling back to Cloud AI...")
+                # Call Ollama with stream=True
+                response = requests.post(
+                    f"{OLLAMA_BASE_URL}/api/chat",
+                    json={
+                        "model": OLLAMA_MODEL,
+                        "messages": ollama_messages,
+                        "stream": True,
+                        "keep_alive": "24h"
+                    },
+                    stream=True,
+                    timeout=300
+                )
+                
+                if response.status_code == 200:
+                    for line in response.iter_lines():
+                        if line:
+                            data = json.loads(line.decode('utf-8'))
+                            content = data.get('message', {}).get('content', '')
+                            if content:
+                                yield f"data: {json.dumps({'token': content})}\n\n"
+                    return
+                else:
+                    print(f"⚠️ Ollama streaming returned status {response.status_code}. Falling back...")
+            except Exception as e:
+                print(f"⚠️ Ollama stream exception: {e}. Falling back...")
+                
+        # 2. TRY GEMINI (Streaming Fallback)
+        for api_key in ACTIVE_GEMINI_KEYS:
+            try:
+                print("🚀 Streaming from Gemini Fallback...")
+                genai.configure(api_key=api_key)
+                model = genai.GenerativeModel('gemini-2.0-flash')
+                
+                full_prompt = context + "\n\nPercakapan sebelumnya:\n"
+                for msg in request.history[-4:]: 
+                    role = "User" if msg['role'] == 'user' else "Baknus AI"
+                    full_prompt += f"{role}: {msg['content']}\n"
+                full_prompt += f"User: {request.message}\nBaknus AI:"
+                
+                # Gemini supports streaming
+                response = model.generate_content(full_prompt, stream=True)
+                for chunk in response:
+                    if chunk.text:
+                        yield f"data: {json.dumps({'token': chunk.text})}\n\n"
+                return
+            except Exception as e:
+                print(f"⚠️ Gemini stream fallback failed for key: {e}")
+                continue
+                
+        # 3. TRY MISTRAL (Streaming Fallback)
+        if MISTRAL_API_KEY:
+            try:
+                print("🚀 Streaming from Mistral Fallback...")
+                mistral_messages = [
+                    {"role": "system", "content": context},
+                ]
+                for msg in request.history[-4:]:
+                    mistral_messages.append({"role": msg['role'], "content": msg['content']})
+                mistral_messages.append({"role": "user", "content": request.message})
 
-    # 2. TRY GEMINI KEYS (Fallback or Primary)
-    for api_key in ACTIVE_GEMINI_KEYS:
-        try:
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel('gemini-2.0-flash')
-            
-            full_prompt = context + "\n\nPercakapan sebelumnya:\n"
-            for msg in request.history[-4:]: 
-                role = "User" if msg['role'] == 'user' else "Baknus AI"
-                full_prompt += f"{role}: {msg['content']}\n"
-            
-            full_prompt += f"User: {request.message}\nBaknus AI:"
-            response = model.generate_content(full_prompt)
-            
-            return {
-                "reply": response.text,
-                "status": "success",
-                "used_engine": f"gemini-key-{ACTIVE_GEMINI_KEYS.index(api_key)+1}"
-            }
-        except Exception as e:
-            last_error = str(e)
-            print(f"⚠️ Gemini Key {ACTIVE_GEMINI_KEYS.index(api_key)+1} failed: {e}")
-            continue 
+                response = requests.post(
+                    "https://api.mistral.ai/v1/chat/completions",
+                    headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json",
+                        "Authorization": f"Bearer {MISTRAL_API_KEY}"
+                    },
+                    json={
+                        "model": "mistral-large-latest",
+                        "messages": mistral_messages,
+                        "stream": True
+                    },
+                    stream=True,
+                    timeout=15
+                )
+                
+                if response.status_code == 200:
+                    for line in response.iter_lines():
+                        if line:
+                            line_str = line.decode('utf-8').strip()
+                            if line_str.startswith("data:"):
+                                if "[DONE]" in line_str:
+                                    break
+                                try:
+                                    data = json.loads(line_str[5:].strip())
+                                    content = data['choices'][0]['delta'].get('content', '')
+                                    if content:
+                                        yield f"data: {json.dumps({'token': content})}\n\n"
+                                except Exception:
+                                    pass
+                    return
+            except Exception as e:
+                print(f"⚠️ Mistral stream fallback failed: {e}")
+                
+        # If everything fails
+        yield f"data: {json.dumps({'error': 'Maaf, semua sistem AI kami sedang sibuk.'})}\n\n"
 
-    # 3. FINAL FALLBACK TO MISTRAL AI (Using Direct Web Request)
-    if MISTRAL_API_KEY:
-        try:
-            print("🚀 Switching to Mistral AI Fallback (Web Request)...")
-            
-            mistral_messages = [
-                {"role": "system", "content": context},
-            ]
-            for msg in request.history[-4:]:
-                mistral_messages.append({"role": msg['role'], "content": msg['content']})
-            mistral_messages.append({"role": "user", "content": request.message})
+    return StreamingResponse(generate_stream(), media_type="text/event-stream")
 
-            response = requests.post(
-                "https://api.mistral.ai/v1/chat/completions",
-                headers={
-                    "Content-Type": "application/json",
-                    "Accept": "application/json",
-                    "Authorization": f"Bearer {MISTRAL_API_KEY}"
-                },
-                json={
-                    "model": "mistral-large-latest",
-                    "messages": mistral_messages
-                },
-                timeout=15
-            )
-            
-            if response.status_code == 200:
-                result = response.json()
-                return {
-                    "reply": result['choices'][0]['message']['content'],
-                    "status": "success",
-                    "used_engine": "mistral-api"
-                }
-            else:
-                last_error = f"Mistral API error: {response.text}"
-                print(f"❌ Mistral API returned {response.status_code}: {response.text}")
-        except Exception as mistral_err:
-            print(f"❌ Mistral Fallback also failed: {mistral_err}")
-            last_error = str(mistral_err)
-
-    # If everything failed
-    import traceback
-    error_msg = traceback.format_exc()
-    print(f"❌ All AI Engines Failed. Last error: {error_msg}")
-    return {"reply": "Maaf, semua sistem AI kami sedang mencapai batas kuota. Silakan hubungi admin atau coba beberapa saat lagi.", "error": last_error}

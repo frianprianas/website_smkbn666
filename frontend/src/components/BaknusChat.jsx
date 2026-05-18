@@ -65,27 +65,91 @@ const BaknusChat = () => {
         }
 
         const userMsg = { role: 'user', content: message };
-        setMessages(prev => [...prev, userMsg]);
+        // Add user message AND an empty assistant message to populate chunk-by-chunk
+        setMessages(prev => [...prev, userMsg, { role: 'assistant', content: '' }]);
         setMessage('');
         setLoading(true);
 
+        let accumulatedReply = '';
+
         try {
-            const response = await api.post('/chat/ask', {
-                message: message,
-                history: messages.map(m => ({ role: m.role, content: m.content }))
-            }, { timeout: 300000 }); // Wait up to 5 minutes
+            const token = localStorage.getItem('token');
+            const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/chat/ask`;
+            
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+                },
+                body: JSON.stringify({
+                    message: userMsg.content,
+                    history: messages.map(m => ({ role: m.role, content: m.content }))
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) break;
+
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n');
+                
+                // Save the last partial line back to buffer
+                buffer = lines.pop() || '';
+
+                for (const line of lines) {
+                    const cleanedLine = line.trim();
+                    if (cleanedLine.startsWith('data:')) {
+                        try {
+                            const data = JSON.parse(cleanedLine.substring(5).trim());
+                            if (data.token) {
+                                accumulatedReply += data.token;
+                                // Update the last assistant message in real-time
+                                setMessages(prev => {
+                                    const updated = [...prev];
+                                    if (updated.length > 0) {
+                                        updated[updated.length - 1] = { role: 'assistant', content: accumulatedReply };
+                                    }
+                                    return updated;
+                                });
+                            } else if (data.error) {
+                                throw new Error(data.error);
+                            }
+                        } catch (e) {
+                            console.error("Error parsing stream line:", e);
+                        }
+                    }
+                }
+            }
 
             const newCount = questionCount + 1;
             setQuestionCount(newCount);
             localStorage.setItem('baknus_chat_count', newCount.toString());
 
-            setMessages(prev => [...prev, { role: 'assistant', content: response.data.reply }]);
         } catch (error) {
-            setMessages(prev => [...prev, { role: 'assistant', content: 'Maaf, sistem AI sedang mengalami gangguan. Silakan coba lagi nanti.' }]);
+            console.error("Streaming error:", error);
+            // Replace the last empty assistant bubble with the error message
+            setMessages(prev => {
+                const updated = [...prev];
+                if (updated.length > 0) {
+                    updated[updated.length - 1] = { role: 'assistant', content: 'Maaf, sistem AI sedang mengalami gangguan. Silakan coba lagi nanti.' };
+                }
+                return updated;
+            });
         } finally {
             setLoading(false);
         }
     };
+
 
     return (
         <div className="fixed bottom-6 right-6 z-[9999]">
