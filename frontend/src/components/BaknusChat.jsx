@@ -10,6 +10,7 @@ const BaknusChat = () => {
         { role: 'assistant', content: 'Halo! Saya Baknus AI. Ada yang bisa saya bantu seputar informasi SMK Bakti Nusantara 666 atau pendaftaran SPMB?' }
     ]);
     const [loading, setLoading] = useState(false);
+    const [loadingText, setLoadingText] = useState('Sedang mempersiapkan AI Baknus...');
     const [questionCount, setQuestionCount] = useState(0);
     const messagesEndRef = useRef(null);
 
@@ -26,6 +27,23 @@ const BaknusChat = () => {
             setQuestionCount(parseInt(savedCount || '0'));
         }
     }, []);
+
+    useEffect(() => {
+        let interval;
+        if (loading) {
+            const texts = [
+                'Sedang mempersiapkan AI Baknus...',
+                'AI Baknus sedang bekerja...',
+                'Mohon tunggu sebentar...'
+            ];
+            let i = 0;
+            interval = setInterval(() => {
+                i = (i + 1) % texts.length;
+                setLoadingText(texts[i]);
+            }, 3000);
+        }
+        return () => clearInterval(interval);
+    }, [loading]);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -110,8 +128,9 @@ const BaknusChat = () => {
                             ))}
                             {loading && (
                                 <div className="flex justify-start">
-                                    <div className="bg-white p-3 rounded-2xl rounded-tl-none border border-gray-100 shadow-sm">
+                                    <div className="bg-white p-3 rounded-2xl rounded-tl-none border border-gray-100 shadow-sm flex items-center gap-3">
                                         <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+                                        <span className="text-xs text-gray-500 italic animate-pulse">{loadingText}</span>
                                     </div>
                                 </div>
                             )}
