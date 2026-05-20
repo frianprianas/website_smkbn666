@@ -41,90 +41,90 @@ if ACTIVE_GEMINI_KEYS:
     genai.configure(api_key=ACTIVE_GEMINI_KEYS[0])
 
 
-def get_school_context(db: Session):
+import re
+from collections import Counter
+
+def tokenize_text(text: str) -> List[str]:
+    return re.findall(r'\w+', text.lower())
+
+def retrieve_relevant_chunks(query: str, text: str, top_k: int = 3) -> str:
+    paragraphs = [p.strip() for p in re.split(r'\n\s*\n', text) if len(p.strip()) > 20]
+    if not paragraphs:
+        return text
+    
+    query_tokens = tokenize_text(query)
+    if not query_tokens:
+        return "\n\n".join(paragraphs[:top_k])
+        
+    query_counter = Counter(query_tokens)
+    scored_chunks = []
+    
+    for p in paragraphs:
+        p_tokens = tokenize_text(p)
+        p_counter = Counter(p_tokens)
+        score = 0
+        for token, count in query_counter.items():
+            if token in p_counter:
+                score += p_counter[token] * count
+        scored_chunks.append((score, p))
+        
+    scored_chunks.sort(key=lambda x: x[0], reverse=True)
+    
+    if scored_chunks[0][0] == 0:
+        return "\n\n".join(paragraphs[:top_k])
+        
+    best_chunks = [c for score, c in scored_chunks[:top_k]]
+    return "\n\n".join(best_chunks)
+
+def get_school_context(db: Session, user_query: str = ""):
     # Fetch Knowledge Base from File
     kb_content = ""
     kb_path = os.path.join(os.path.dirname(__file__), "..", "knowledge_base.txt")
     if os.path.exists(kb_path):
         try:
             with open(kb_path, "r", encoding="utf-8") as f:
-                kb_content = f.read()
-                print(f"📖 [INFO] Knowledge Base loaded ({len(kb_content)} chars)")
+                raw_kb = f.read()
+                # Apply Lightweight RAG: Only get top 3 paragraphs matching the user's question
+                kb_content = retrieve_relevant_chunks(user_query, raw_kb, top_k=3)
+                print(f"📖 [INFO] RAG Extracted Knowledge ({len(kb_content)} chars)")
         except Exception as e:
             print(f"⚠️ Failed to read knowledge_base.txt: {e}")
 
     # Fetch Majors
     majors = db.query(models.Major).all()
-    print(f"🔍 [DEBUG] Database returned {len(majors)} majors.")
-    for m in majors:
-        print(f"   - Found Major: {m.name}")
-
     majors_info = "\n".join([f"- {m.name}: {m.description}" for m in majors])
     if not majors:
-        print("⚠️ [WARNING] No majors found in database! AI will likely hallucinate.")
-        majors_info = "Data jurusan belum tersedia di database."
-
-    # Fetch Recent News
-    news = db.query(models.News).order_by(models.News.date_posted.desc()).limit(5).all()
-    news_info = "\n".join([f"- {n.title} ({n.date_posted.strftime('%d %b %Y')})" for n in news])
-
-    # Fetch Agendas
-    agendas = db.query(models.Agenda).order_by(models.Agenda.date.desc()).limit(3).all()
-    agenda_info = "\n".join([f"- {a.title} di {a.location} pada {a.date}" for a in agendas])
-
-    # Fetch Teachers & Staff
-    teachers = db.query(models.Teacher).limit(10).all()
-    teachers_info = "\n".join([f"- {t.name} ({t.position})" for t in teachers])
+        majors_info = "Data jurusan belum tersedia."
 
     # Fetch Official WA Numbers
     wa_numbers = db.query(models.WANumber).filter(models.WANumber.is_active == True).all()
     wa_info = "\n".join([f"- {w.name}: https://wa.me/{w.phone_number}" for w in wa_numbers])
 
-    context = f"""Di bawah ini adalah SATU-SATUNYA sumber kebenaran yang boleh Anda gunakan.
-JANGAN gunakan pengetahuan lain di luar dokumen ini.
+    # We omit teachers and agendas to save massive CPU time, keeping only essentials
+    context = f"""Di bawah ini adalah sumber kebenaran yang boleh Anda gunakan. JANGAN gunakan pengetahuan lain.
 
 ================================================================
-DOKUMEN RESMI: SMK BAKTI NUSANTARA 666
+INFORMASI RELEVAN:
 ================================================================
 {kb_content}
 
-JURUSAN AKTIF (dari database, hanya ini yang tersedia):
+JURUSAN:
 {majors_info}
 
-GURU & STAF:
-{teachers_info}
-
-KONTAK WHATSAPP RESMI:
+KONTAK:
 {wa_info}
 ================================================================
-SELESAI DOKUMEN
-================================================================
 
-Anda adalah "Baknus AI", asisten virtual resmi SMK Bakti Nusantara 666.
-
-ATURAN KERAS - WAJIB DIIKUTI:
-1. HANYA gunakan informasi dari DOKUMEN RESMI di atas.
-2. DILARANG KERAS menggunakan pengetahuan sendiri di luar dokumen.
-3. Jika tidak ada di dokumen, jawab: "Untuk informasi ini silakan hubungi sekolah langsung."
-
-CONTOH JAWABAN WAJIB (ikuti persis):
-- Tanya: "Kapan sekolah ini berdiri?"
-  Jawab: "SMK Bakti Nusantara 666 berdiri sejak tahun 2007."
-- Tanya: "Di mana alamatnya?"
-  Jawab: "SMK Bakti Nusantara 666 berlokasi di Jl. Percobaan Km.17 No.65, Cimekar, Cileunyi, Bandung Timur, Jawa Barat."
-- Tanya: "Apa saja jurusannya?"
-  Jawab: Sebutkan HANYA daftar jurusan dari DOKUMEN di atas.
-
-Gunakan Bahasa Indonesia yang santun dan profesional.
+Anda adalah "Baknus AI", asisten virtual resmi SMK Bakti Nusantara 666. Jawab dengan singkat dan padat berdasarkan informasi di atas. Jika tidak ada di informasi, jawab: "Untuk informasi ini silakan hubungi sekolah langsung."
 """
     return context
 
 
 @router.post("/ask")
 async def ask_baknus_ai(request: ChatRequest, db: Session = Depends(database.get_db)):
-    context = get_school_context(db)
-    msg_history = list(request.history)
     user_message = request.message
+    context = get_school_context(db, user_query=user_message)
+    msg_history = list(request.history)
 
     # ── Worker threads ─────────────────────────────────────────────────────────
 
