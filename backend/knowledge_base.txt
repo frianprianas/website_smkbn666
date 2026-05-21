@@ -88,8 +88,12 @@ Rincian biaya pendaftaran calon siswa baru adalah sebagai berikut:
 - Kegiatan MPLS / MOPD: Rp 275.000
 - Total Biaya Masuk (Normal): Rp 5.500.000
 
-Diskon Khusus Program Keahlian:
-Khusus untuk pendaftar Jurusan Animasi serta Jurusan Bisnis Daring dan Pemasaran (BDP) mendapatkan potongan diskon khusus, sehingga total biaya masuk menjadi hanya Rp 3.500.000.
+BIAYA MASUK PER JURUSAN (PENTING):
+1. Jurusan RPL (Rekayasa Perangkat Lunak): TIDAK ADA DISKON. Total biaya masuk adalah Rp 5.500.000 (Normal).
+2. Jurusan DKV (Desain Komunikasi Visual): TIDAK ADA DISKON. Total biaya masuk adalah Rp 5.500.000 (Normal).
+3. Jurusan AKL (Akuntansi dan Keuangan Lembaga): TIDAK ADA DISKON. Total biaya masuk adalah Rp 5.500.000 (Normal).
+4. Jurusan Animasi: MENDAPAT DISKON KHUSUS. Total biaya masuk menjadi hanya Rp 3.500.000.
+5. Jurusan BDP / Pemasaran (Bisnis Daring dan Pemasaran): MENDAPAT DISKON KHUSUS. Total biaya masuk menjadi hanya Rp 3.500.000.
 
 Ketentuan Pembayaran Biaya SPMB:
 Seluruh biaya pendaftaran (SPMB) wajib dilunasi paling lambat pada tanggal 10 Juli 2026.
