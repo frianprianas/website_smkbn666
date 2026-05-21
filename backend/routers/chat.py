@@ -146,8 +146,7 @@ async def ask_baknus_ai(request: ChatRequest, db: Session = Depends(database.get
                     "keep_alive": "24h",
                     "options": {
                         "num_ctx": 4096,      # Increased to 4K tokens to fit the knowledge base
-                        "num_predict": 512,   # Max response length (Prevents CPU overheat)
-                        "num_thread": 4       # Pin threads for Xeon stability
+                        "num_predict": 512    # Max response length (Prevents CPU overheat)
                     }
                 },
                 stream=True,
