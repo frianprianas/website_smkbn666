@@ -48,14 +48,44 @@ def tokenize_text(text: str) -> List[str]:
     return re.findall(r'\w+', text.lower())
 
 def retrieve_relevant_chunks(query: str, text: str, top_k: int = 3) -> str:
+    # Split the document into paragraphs
     paragraphs = [p.strip() for p in re.split(r'\n\s*\n', text) if len(p.strip()) > 20]
     if not paragraphs:
         return text
     
+    query_lower = query.lower()
+    forced_chunks = []
+    
+    # ── INTENT ROUTING (Typo-tolerant key topic enforcement) ──
+    # 1. Tuition Fees / Cost (Handles typo 'biyanya', 'bayar', etc.)
+    if any(k in query_lower for k in ["biay", "biy", "bayar", "harga", "spp", "ipp", "dsp", "mpls", "uang", "rupiah", "nominal"]):
+        for p in paragraphs:
+            if "RINCIAN BIAYA" in p:
+                forced_chunks.append(p)
+                
+    # 2. Registration & SPMB Guidelines
+    if any(k in query_lower for k in ["daftar", "spmb", "syarat", "cara", "registrasi", "masuk", "formulir", "online"]):
+        for p in paragraphs:
+            if "INFORMASI PENDAFTARAN" in p or "SYARAT PENDAFTARAN" in p:
+                if p not in forced_chunks:
+                    forced_chunks.append(p)
+                    
+    # 3. Location, Contact, or Map Address
+    if any(k in query_lower for k in ["alamat", "lokasi", "cileunyi", "map", "gps", "telepon", "kontak"]):
+        for p in paragraphs:
+            if "LOKASI & KONTAK" in p:
+                if p not in forced_chunks:
+                    forced_chunks.append(p)
+
+    # 4. History, Foundation or Year of establishment
+    if any(k in query_lower for k in ["sejarah", "diri", "berdiri", "kapan", "tahun", "yayasan", "2007"]):
+        for p in paragraphs:
+            if "SEJARAH SINGKAT" in p or "IDENTITAS SEKOLAH" in p:
+                if p not in forced_chunks:
+                    forced_chunks.append(p)
+
+    # ── DYNAMIC KEYWORD SEARCH (BM25 Fallback) ──
     query_tokens = tokenize_text(query)
-    if not query_tokens:
-        return "\n\n".join(paragraphs[:top_k])
-        
     query_counter = Counter(query_tokens)
     scored_chunks = []
     
@@ -70,11 +100,14 @@ def retrieve_relevant_chunks(query: str, text: str, top_k: int = 3) -> str:
         
     scored_chunks.sort(key=lambda x: x[0], reverse=True)
     
-    if scored_chunks[0][0] == 0:
-        return "\n\n".join(paragraphs[:top_k])
-        
-    best_chunks = [c for score, c in scored_chunks[:top_k]]
-    return "\n\n".join(best_chunks)
+    # Compile final selection
+    rag_chunks = []
+    for score, p in scored_chunks:
+        if p not in forced_chunks:
+            rag_chunks.append(p)
+            
+    final_selection = (forced_chunks + rag_chunks)[:top_k]
+    return "\n\n".join(final_selection)
 
 def get_school_context(db: Session, user_query: str = ""):
     # Fetch Knowledge Base from File
@@ -84,9 +117,9 @@ def get_school_context(db: Session, user_query: str = ""):
         try:
             with open(kb_path, "r", encoding="utf-8") as f:
                 raw_kb = f.read()
-                # Apply Lightweight RAG: Only get top 3 paragraphs matching the user's question
+                # Apply Typo-Tolerant Hybrid RAG
                 kb_content = retrieve_relevant_chunks(user_query, raw_kb, top_k=3)
-                print(f"📖 [INFO] RAG Extracted Knowledge ({len(kb_content)} chars)")
+                print(f"📖 [RAG] Retrieved context matching user intent ({len(kb_content)} chars)")
         except Exception as e:
             print(f"⚠️ Failed to read knowledge_base.txt: {e}")
 
@@ -100,22 +133,26 @@ def get_school_context(db: Session, user_query: str = ""):
     wa_numbers = db.query(models.WANumber).filter(models.WANumber.is_active == True).all()
     wa_info = "\n".join([f"- {w.name}: https://wa.me/{w.phone_number}" for w in wa_numbers])
 
-    # We omit teachers and agendas to save massive CPU time, keeping only essentials
-    context = f"""Di bawah ini adalah sumber kebenaran yang boleh Anda gunakan. JANGAN gunakan pengetahuan lain.
+    context = f"""Di bawah ini adalah dokumen resmi sekolah yang boleh Anda gunakan.
 
 ================================================================
-INFORMASI RELEVAN:
+INFORMASI SEKOLAH RELEVAN:
 ================================================================
 {kb_content}
 
 JURUSAN:
 {majors_info}
 
-KONTAK:
+KONTAK RESMI:
 {wa_info}
 ================================================================
 
-Anda adalah "Baknus AI", asisten virtual resmi SMK Bakti Nusantara 666. Jawab dengan singkat dan padat berdasarkan informasi di atas. Jika tidak ada di informasi, jawab: "Untuk informasi ini silakan hubungi sekolah langsung."
+Peran Anda: Anda adalah "Baknus AI", asisten virtual resmi SMK Bakti Nusantara 666.
+
+Aturan Respon Anda:
+1. Utamakan menjawab singkat, ramah, dan padat.
+2. Jawab pertanyaan seputar profil sekolah HANYA berdasarkan data di atas. Jika data tidak ada di atas, jawab: "Untuk informasi ini silakan hubungi sekolah langsung."
+3. PENGECUALIAN UNTUK OBROLAN / CHITCHAT: Anda diizinkan menjawab sapaan hangat (seperti "selamat pagi", "halo"), pertanyaan tentang keadaan Anda, dan pertanyaan seputar identitas diri Anda sebagai AI (misal: "apakah Anda menggunakan Qwen?", "siapa yang membuat Anda?"). Jawablah dengan jujur, cerdas, dan tetap ramah tanpa perlu mengeluarkan kalimat penolakan standar.
 """
     return context
 
