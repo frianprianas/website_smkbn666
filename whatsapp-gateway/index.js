@@ -30,6 +30,68 @@ const HTTP_PORT = process.env.HTTP_PORT || 3001;
 let sock;
 let qrCode = null;
 let connectionStatus = 'DISCONNECTED';
+let disconnectTimeout = null;
+
+function startDisconnectTimer() {
+    if (disconnectTimeout) return;
+    console.log('Starting 1-minute disconnect timer. If device does not connect in 1 minute, session will be reset for a new scan...');
+    disconnectTimeout = setTimeout(async () => {
+        console.log('Device remained disconnected for 1 minute. Resetting session...');
+        await resetSessionAndRescan();
+    }, 60000);
+}
+
+function clearDisconnectTimer() {
+    if (disconnectTimeout) {
+        clearTimeout(disconnectTimeout);
+        disconnectTimeout = null;
+        console.log('Device connected. Disconnect timer cleared.');
+    }
+}
+
+async function resetSessionAndRescan() {
+    if (disconnectTimeout) {
+        clearTimeout(disconnectTimeout);
+        disconnectTimeout = null;
+    }
+    
+    if (sock) {
+        try {
+            sock.ev.removeAllListeners('connection.update');
+            sock.ev.removeAllListeners('creds.update');
+            sock.ev.removeAllListeners('messages.upsert');
+            sock.end();
+        } catch (e) {
+            console.warn('Error closing socket:', e.message);
+        }
+        sock = null;
+    }
+
+    const authFolder = 'auth_info_baileys';
+    if (fs.existsSync(authFolder)) {
+        try {
+            fs.rmSync(authFolder, { recursive: true, force: true });
+            console.log('Cleared Baileys credentials folder (relative).');
+        } catch (err) {
+            console.error('Error clearing relative credentials folder:', err.message);
+        }
+    }
+    const absAuthFolder = path.join(__dirname, 'auth_info_baileys');
+    if (fs.existsSync(absAuthFolder) && absAuthFolder !== authFolder) {
+        try {
+            fs.rmSync(absAuthFolder, { recursive: true, force: true });
+            console.log('Cleared Baileys credentials folder (absolute).');
+        } catch (err) {
+            console.error('Error clearing absolute credentials folder:', err.message);
+        }
+    }
+
+    connectionStatus = 'DISCONNECTED';
+    qrCode = null;
+
+    console.log('Re-initiating WhatsApp connection...');
+    await connectToWhatsApp();
+}
 
 const app = express();
 
@@ -46,6 +108,8 @@ app.listen(HTTP_PORT, () => {
 });
 
 async function connectToWhatsApp() {
+    startDisconnectTimer();
+
     const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys');
     
     // Fetch latest WA version to avoid 405 errors
@@ -65,18 +129,25 @@ async function connectToWhatsApp() {
         
         if (qr) {
             qrCode = await QRCode.toDataURL(qr);
+            startDisconnectTimer();
         }
 
         if (connection === 'close') {
             connectionStatus = 'DISCONNECTED';
-            const shouldReconnect = (lastDisconnect.error instanceof Boom)?.output?.statusCode !== DisconnectReason.loggedOut;
-            console.log('Connection closed due to ', lastDisconnect.error, ', reconnecting ', shouldReconnect);
+            const shouldReconnect = (lastDisconnect?.error instanceof Boom) 
+                ? lastDisconnect.error.output?.statusCode !== DisconnectReason.loggedOut 
+                : true;
+            console.log('Connection closed due to ', lastDisconnect?.error, ', reconnecting ', shouldReconnect);
             if (shouldReconnect) {
+                startDisconnectTimer();
                 connectToWhatsApp();
+            } else {
+                await resetSessionAndRescan();
             }
         } else if (connection === 'open') {
             connectionStatus = 'CONNECTED';
             qrCode = null;
+            clearDisconnectTimer();
             console.log('WhatsApp connection opened successfully!');
         }
     });
