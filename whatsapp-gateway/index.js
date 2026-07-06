@@ -134,6 +134,7 @@ async function connectToWhatsApp() {
 
     sock.ev.on('connection.update', async (update) => {
         const { connection, lastDisconnect, qr } = update;
+        console.log('Connection update received:', { connection, qr: qr ? qr.substring(0, 15) + '...' : null, hasLastDisconnect: !!lastDisconnect });
         
         if (qr) {
             qrCode = await QRCode.toDataURL(qr);
