@@ -49,6 +49,24 @@ function clearDisconnectTimer() {
     }
 }
 
+function clearDirectoryContents(dirPath) {
+    if (!fs.existsSync(dirPath)) return;
+    try {
+        const files = fs.readdirSync(dirPath);
+        for (const file of files) {
+            const curPath = path.join(dirPath, file);
+            if (fs.lstatSync(curPath).isDirectory()) {
+                fs.rmSync(curPath, { recursive: true, force: true });
+            } else {
+                fs.unlinkSync(curPath);
+            }
+        }
+        console.log(`Cleared contents of directory: ${dirPath}`);
+    } catch (err) {
+        console.error(`Failed to clear contents of ${dirPath}:`, err.message);
+    }
+}
+
 async function resetSessionAndRescan() {
     if (disconnectTimeout) {
         clearTimeout(disconnectTimeout);
@@ -67,23 +85,13 @@ async function resetSessionAndRescan() {
         sock = null;
     }
 
-    const authFolder = 'auth_info_baileys';
-    if (fs.existsSync(authFolder)) {
-        try {
-            fs.rmSync(authFolder, { recursive: true, force: true });
-            console.log('Cleared Baileys credentials folder (relative).');
-        } catch (err) {
-            console.error('Error clearing relative credentials folder:', err.message);
-        }
-    }
+    // Wait a brief moment to let socket file handles release
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    clearDirectoryContents('auth_info_baileys');
     const absAuthFolder = path.join(__dirname, 'auth_info_baileys');
-    if (fs.existsSync(absAuthFolder) && absAuthFolder !== authFolder) {
-        try {
-            fs.rmSync(absAuthFolder, { recursive: true, force: true });
-            console.log('Cleared Baileys credentials folder (absolute).');
-        } catch (err) {
-            console.error('Error clearing absolute credentials folder:', err.message);
-        }
+    if (absAuthFolder !== 'auth_info_baileys') {
+        clearDirectoryContents(absAuthFolder);
     }
 
     connectionStatus = 'DISCONNECTED';
